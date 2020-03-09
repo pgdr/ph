@@ -77,3 +77,5 @@ If you only want the sum of two columns, then, you can pipe the last two using
 ```bash
 cat a.csv| ph apply + x y z | ph columns z
 ```
+
+You can normalize a column using `ph normalize col`.
