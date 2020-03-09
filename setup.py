@@ -5,7 +5,7 @@ from setuptools import setup
 import os
 
 __pgdr = "PG Drange <pgdr@equinor.com>"
-__source = "https://github.com/pgdr/sh"
+__source = "https://github.com/pgdr/ph"
 __webpage = __source
 __description = "ph - the tabular data shell tool"
 
@@ -32,7 +32,7 @@ def readme():
 
 
 setup(
-    version="0.0.3",
+    version="0.0.4",
     name="ph",
     packages=["ph"],
     description=__description,
