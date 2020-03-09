@@ -19,3 +19,61 @@ in `csv` format.
 
 The goal is to create a tool which makes it nicer to work with tabular data in a
 pipeline.
+
+## Example usage
+
+Transpose:
+
+```bash
+cat a.csv | ph transpose
+```
+
+`abs` (as well as many others, e.g.  `corr`, `count`, `cov`, `cummax`, `cumsum`,
+`diff`, `max`, `median`, `product`, `quantile`, `rank`, `round`, `sum`, `std`,
+`var` etc.):
+
+```bash
+cat a.csv | ph abs
+```
+
+**Use `ph help` to list all commands**
+
+
+Using `head` and `tail` works approximately as the normal shell equivalents,
+however they will preserve the header if there is one, e.g.
+
+```bash
+cat a.csv | ph head 20 | ph tail
+```
+
+If the `csv` file contains a column, e.g. named `t` containing timestamps, it
+can be parsed as such with `ph date t`:
+
+```bash
+cat a.csv | ph date t
+```
+
+The normal Pandas `describe` is of course available:
+
+```bash
+cat a.csv | ph describe
+```
+
+Selecting only certain columns, e.g. `a` and `b`
+
+```bash
+cat a.csv | ph columns a b
+```
+
+You can sum two columns `x` and `y` and place the result in column `z` using
+`apply`
+
+```bash
+cat a.csv | ph apply + x y z
+```
+
+If you only want the sum of two columns, then, you can pipe the last two using
+
+```bash
+cat a.csv| ph apply + x y z | ph columns z
+```
