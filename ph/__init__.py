@@ -24,6 +24,13 @@ def pipein():
 
 
 @register
+def date(col):
+    df = pipein()
+    df[col] = pd.to_datetime(df[col])
+    pipeout(df)
+
+
+@register
 def describe():
     print(pipein().describe())
 
