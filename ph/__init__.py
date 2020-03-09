@@ -38,6 +38,16 @@ def apply(op, col1, col2, col3):
 
 
 @register
+def normalize(col=None):
+    df = pipein()
+    if col is None:
+        df = (df - df.min()) / (df.max() - df.min())
+    else:
+        df[col] = (df[col] - df[col].min()) / (df[col].max() - df[col].min())
+    pipeout(df)
+
+
+@register
 def date(col):
     df = pipein()
     df[col] = pd.to_datetime(df[col])
