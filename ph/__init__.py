@@ -46,6 +46,11 @@ def columns(*cols):
     pipeout(pipein()[list(cols)])
 
 
+@register
+def shape():
+    print("rows,columns\n" + ",".join([str(x) for x in pipein().shape]))
+
+
 def main():
     args = sys.argv
     if len(args) < 2:
