@@ -31,14 +31,22 @@ def open(fname):
     pipeout(df)
 
 
+def _call(attr, *args, **kwargs):
+    pipeout(getattr(pipein(), attr)(*args, **kwargs))
+
+
+def register_forward(attr):
+    COMMANDS[attr] = lambda: _call(attr)
+
+
 @register
 def head(n):
-    pipeout(pipein().head(int(n)))
+    _call("head", int(n))
 
 
 @register
 def tail(n):
-    pipeout(pipein().tail(int(n)))
+    _call("tail", int(n))
 
 
 @register
@@ -56,9 +64,43 @@ def empty():
     print("empty\n{}".format(pipein().empty))
 
 
-@register
-def abs():
-    pipeout(pipein().abs())
+pandas_computations = [
+    "abs",
+    "all",
+    "any",
+    "clip",
+    "corr",
+    "count",
+    "cov",
+    "cummax",
+    "cummin",
+    "cumprod",
+    "cumsum",
+    "describe",
+    "diff",
+    "kurt",
+    "kurtosis",
+    "mad",
+    "max",
+    "mean",
+    "median",
+    "min",
+    "mode",
+    "pct_change",
+    "prod",
+    "product",
+    "quantile",
+    "rank",
+    "round",
+    "sem",
+    "skew",
+    "sum",
+    "std",
+    "var",
+    "nunique",
+]
+for attr in pandas_computations:
+    register_forward(attr)
 
 
 def main():
