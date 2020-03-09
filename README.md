@@ -22,6 +22,18 @@ pipeline.
 
 ## Example usage
 
+Suppose you `a.csv` that looks like this:
+
+```csv
+x,y
+3,8
+4,9
+5,10
+6,11
+7,12
+8,13
+```
+
 Transpose:
 
 ```bash
@@ -79,3 +91,14 @@ cat a.csv| ph apply + x y z | ph columns z
 ```
 
 You can normalize a column using `ph normalize col`.
+
+```bash
+cat a.csv | ph apply \* x y z | ph normalize z
+x,y,z
+3,8,0.0
+4,9,0.15
+5,10,0.325
+6,11,0.525
+7,12,0.75
+8,13,1.0
+```

@@ -26,12 +26,14 @@ def pipein():
 @register
 def apply(op, col1, col2, col3):
     df = pipein()
-    if op == "+":
+    if op in ("+", "add"):
         df[col3] = df[col1] + df[col2]
-    elif op == "*":
+    elif op in ("*", "mul"):
         df[col3] = df[col1] * df[col2]
-    elif op == "-":
+    elif op in ("-", "sub"):
         df[col3] = df[col1] - df[col2]
+    elif op in ("**", "pow"):
+        df[col3] = df[col1] ** df[col2]
     else:
         exit("Unknown operation {}".format(op))
     pipeout(df)
