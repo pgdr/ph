@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from .tabulate import tabulate as tabulate_
 import pandas as pd
 import sys
 
@@ -11,17 +12,42 @@ def register(fn):
     return fn
 
 
-def pipeout(df, sep=",", index=False):
-    print(df.to_csv(sep=sep, index=index))
+def pipeout(df, sep=",", index=False, *args, **kwargs):
+    print(df.to_csv(sep=sep, index=index, *args, **kwargs))
 
 
 def pipein():
-    return pd.read_csv(sys.stdin)
+    try:
+        return pd.read_csv(sys.stdin)
+    except pd.errors.EmptyDataError:
+        return pd.DataFrame()
+
+
+@register
+def cat(fname=None):
+    if fname is None:
+        pipeout(pipein())
+    else:
+        pipeout(pd.read_csv(fname))
 
 
 @register
 def tab():
     pipeout(pipein(), sep="\t")
+
+
+@register
+def tabulate(*args, **kwargs):
+    print(args)
+    headers = tuple()
+    fmt = None
+    if "--headers" in args:
+        headers = "keys"
+    for opt in args:
+        if opt.startswith("--format="):
+            fmt = opt.split("--format=")[1]
+            break
+    print(tabulate_(pipein(), tablefmt=fmt, headers=headers))
 
 
 @register
