@@ -58,8 +58,7 @@ def help(*args, **kwargs):
 
 @register
 def open(fname):
-    df = pd.read_csv(fname)
-    pipeout(df)
+    pipeout(pd.read_csv(fname))
 
 
 def _call(attr, *args, **kwargs):
@@ -71,12 +70,12 @@ def register_forward(attr):
 
 
 @register
-def head(n):
+def head(n=10):
     _call("head", int(n))
 
 
 @register
-def tail(n):
+def tail(n=10):
     _call("tail", int(n))
 
 
