@@ -24,6 +24,11 @@ def pipein():
 
 
 @register
+def describe():
+    print(pipein().describe())
+
+
+@register
 def cat(fname=None):
     if fname is None:
         pipeout(pipein())
@@ -105,7 +110,6 @@ pandas_computations = [
     "cummin",
     "cumprod",
     "cumsum",
-    "describe",
     "diff",
     "kurt",
     "kurtosis",
