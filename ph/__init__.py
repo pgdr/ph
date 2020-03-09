@@ -24,6 +24,20 @@ def pipein():
 
 
 @register
+def apply(op, col1, col2, col3):
+    df = pipein()
+    if op == "+":
+        df[col3] = df[col1] + df[col2]
+    elif op == "*":
+        df[col3] = df[col1] * df[col2]
+    elif op == "-":
+        df[col3] = df[col1] - df[col2]
+    else:
+        exit("Unknown operation {}".format(op))
+    pipeout(df)
+
+
+@register
 def date(col):
     df = pipein()
     df[col] = pd.to_datetime(df[col])
