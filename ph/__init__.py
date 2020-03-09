@@ -38,7 +38,6 @@ def tab():
 
 @register
 def tabulate(*args, **kwargs):
-    print(args)
     headers = tuple()
     fmt = None
     if "--headers" in args:
