@@ -138,6 +138,7 @@ pandas_computations = [
     "std",
     "var",
     "nunique",
+    "transpose",
 ]
 for attr in pandas_computations:
     register_forward(attr)
