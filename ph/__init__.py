@@ -11,12 +11,17 @@ def register(fn):
     return fn
 
 
-def pipeout(df):
-    print(df.to_csv(sep=",", index=False))
+def pipeout(df, sep=",", index=False):
+    print(df.to_csv(sep=sep, index=index))
 
 
 def pipein():
     return pd.read_csv(sys.stdin)
+
+
+@register
+def tab():
+    pipeout(pipein(), sep="\t")
 
 
 @register
