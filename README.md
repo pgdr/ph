@@ -217,3 +217,44 @@ x,y,z
 7,12,0.75
 8,13,1.0
 ```
+
+
+## Working with different file types
+
+Pandas supports reading a multitude of [readers](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html).
+
+To read an Excel file and pipe the stream, you can use `ph open`.
+
+The syntax of `ph open` is `ph open ftype fname`, where `fname` is the
+file you want to stream and `ftype` is the type of the file.
+
+A list of all available formats is given below.
+
+```bash
+$ ph open xls a.xlsx
+x,y
+3,8
+4,9
+5,10
+6,11
+7,12
+8,13
+```
+
+* `csv`
+* `fwf`
+* `json`
+* `html`
+* `clipboard`
+* `xls`
+* `odf`
+* `hdf5`
+* `feather`
+* `parquet`
+* `orc`
+* `stata`
+* `sas`
+* `spss`
+* `pickle`
+* `sql`
+* `gbq` / `google` / `bigquery`

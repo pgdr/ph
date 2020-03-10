@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 from __future__ import print_function
 from .tabulate import tabulate as tabulate_
-import pandas as pd
 import sys
+import os.path
+import pandas as pd
 
 USAGE_TEXT = """
 ph is a command line tool for streaming csv data.
@@ -18,6 +19,30 @@ A list of available commands follows.
 """
 
 COMMANDS = {}
+
+
+READERS = {
+    "csv": pd.read_csv,
+    "fwf": pd.read_fwf,
+    "json": pd.read_json,
+    "html": pd.read_html,
+    "clipboard": pd.read_clipboard,
+    "xls": pd.read_excel,
+    "odf": pd.read_excel,
+    "hdf5": pd.read_hdf,
+    "feather": pd.read_feather,
+    "parquet": pd.read_parquet,
+    "orc": pd.read_orc,
+    # TODO in pandas 1.0.1? "msgpack": pd.read_msgpack,
+    "stata": pd.read_stata,
+    "sas": pd.read_sas,
+    "spss": pd.read_spss,
+    "pickle": pd.read_pickle,
+    "sql": pd.read_sql,
+    "gbq": pd.read_gbq,
+    "google": pd.read_gbq,
+    "bigquery": pd.read_gbq,
+}
 
 
 def register(fn):
@@ -129,9 +154,22 @@ def help(*args, **kwargs):
 
 
 @register
-def open(fname):
-    """Open a csv file, similar to `cat`, except it needs one argument."""
-    pipeout(pd.read_csv(fname))
+def open(ftype, fname):
+    """Open an ftype file fname and stream out.
+
+    Usage:  `ph open csv a.csv`
+            `ph open odf a.ods`
+            `ph open xls a.xls[x]`
+            `ph open parquet a.parquet`
+
+
+    """
+    if ftype not in READERS:
+        exit("Unknown filetype {}".format(ftype))
+    if not os.path.exists(fname):
+        exit("No such file {}".format(fname))
+    reader = READERS[ftype]
+    pipeout(reader(fname))
 
 
 def _call(attr, *args, **kwargs):
