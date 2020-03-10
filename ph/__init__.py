@@ -75,7 +75,7 @@ def pipein():
 def query(expr):
     """Using pandas queries.
 
-    Usage: cat a.csv | ph query "\`x\` > 5"
+    Usage: cat a.csv | ph query "x > 5"
 
     """
     df = pipein()
@@ -228,8 +228,6 @@ def open(ftype, fname):
     """
     if ftype not in READERS:
         exit("Unknown filetype {}".format(ftype))
-    if not os.path.exists(fname):
-        exit("No such file {}".format(fname))
     reader = READERS[ftype]
     pipeout(reader(fname))
 

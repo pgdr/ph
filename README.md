@@ -218,6 +218,34 @@ x,y,z
 8,13,1.0
 ```
 
+We can [query](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html) data using `ph query expr`.
+
+```bash
+$ cat a.csv | ph query "x > 5"
+x,y
+6,11
+7,12
+8,13
+```
+
+
+```bash
+$ ph open csv 'http://bit.ly/2cLzoxH' | ph query "country == 'Norway'" | ph tabulate --headers
+    country      year          pop  continent      lifeExp    gdpPercap
+--  ---------  ------  -----------  -----------  ---------  -----------
+ 0  Norway       1952  3.32773e+06  Europe          72.67       10095.4
+ 1  Norway       1957  3.49194e+06  Europe          73.44       11654
+ 2  Norway       1962  3.63892e+06  Europe          73.47       13450.4
+ 3  Norway       1967  3.78602e+06  Europe          74.08       16361.9
+ 4  Norway       1972  3.933e+06    Europe          74.34       18965.1
+ 5  Norway       1977  4.04320e+06  Europe          75.37       23311.3
+ 6  Norway       1982  4.11479e+06  Europe          75.97       26298.6
+ 7  Norway       1987  4.18615e+06  Europe          75.89       31541
+ 8  Norway       1992  4.28636e+06  Europe          77.32       33965.7
+ 9  Norway       1997  4.40567e+06  Europe          78.32       41283.2
+10  Norway       2002  4.53559e+06  Europe          79.05       44684
+11  Norway       2007  4.62793e+06  Europe          80.196      49357.2
+```
 
 ## Plotting data
 
