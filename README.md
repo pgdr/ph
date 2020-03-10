@@ -251,9 +251,23 @@ $ ph open csv 'http://bit.ly/2cLzoxH' | ph query "country == 'Norway'" | ph tabu
 11  Norway       2007  4.62793e+06  Europe          80.196      49357.2
 ```
 
+## Tabulate
+
+The amazing _tabulate_ tool comes from the Python package
+[tabulate on PyPI](https://pypi.org/project/tabulate/).
+
 The `tabulate` command takes arguments `--headers` to toggle printing of header
 row, `--format=[grid,...]` to modify the table style and `--noindex` to remove
 the running index (leftmost column in the example above).
+
+Among the supported format styles are
+
+* `plain`, `simple`,
+* `grid`, `fancy_grid`, `pretty`,
+* `github`, `rst`, `mediawiki`, `html`, `latex`,
+* ... (See full list at the project homepage at
+  [python-tabulate](https://github.com/astanin/python-tabulate).)
+
 
 ## Plotting data
 
