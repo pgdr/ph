@@ -84,6 +84,36 @@ def query(expr):
 
 
 @register
+def appendstr(col, s, newcol=None):
+    """Special method to append a string to the end of a column.
+
+    Usage: cat e.csv | ph appendstr year -01-01 | ph date year
+    """
+    df = pipein()
+    if newcol is None:
+        newcol = col
+    df[newcol] = df[col].astype(str) + s
+    pipeout(df)
+
+
+@register
+def astype(type, column=None, newcolumn=None):
+    """Cast a column to a different type.
+
+    Usage:  cat a.csv | ph astype double x [new_x]
+
+    """
+    df = pipein()
+    if column is None:
+        df = df.astype(type)
+    elif newcolumn is not None:
+        df[newcolumn] = df[column].astype(type)
+    else:
+        df[column] = df[column].astype(type)
+    pipeout(df)
+
+
+@register
 def monotonic(column, direction="+"):
     """Check if a certain column is monotonically increasing or decreasing.
 
