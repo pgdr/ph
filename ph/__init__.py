@@ -72,6 +72,18 @@ def pipein():
 
 
 @register
+def query(expr):
+    """Using pandas queries.
+
+    Usage: cat a.csv | ph query "\`x\` > 5"
+
+    """
+    df = pipein()
+    new_df = df.query(expr)
+    pipeout(new_df)
+
+
+@register
 def monotonic(column, direction="+"):
     """Check if a certain column is monotonically increasing or decreasing.
 
