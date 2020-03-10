@@ -203,7 +203,7 @@ def tab():
 
 
 @register
-def tabulate(*args, **kwargs):
+def tabulate(*args):
     """Tabulate the output, meaning that the `ph` pipeline necessarily ends.
 
     Takes arguments --headers and --format=[grid, ...].
@@ -213,13 +213,16 @@ def tabulate(*args, **kwargs):
     """
     headers = tuple()
     fmt = None
+    index = True
+    if "--noindex" in args:
+        index = False
     if "--headers" in args:
         headers = "keys"
     for opt in args:
         if opt.startswith("--format="):
             fmt = opt.split("--format=")[1]
             break
-    print(tabulate_(pipein(), tablefmt=fmt, headers=headers))
+    print(tabulate_(pipein(), tablefmt=fmt, headers=headers, showindex=index))
 
 
 @register

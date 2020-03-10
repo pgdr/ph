@@ -248,6 +248,10 @@ $ ph open csv 'http://bit.ly/2cLzoxH' | ph query "country == 'Norway'" | ph tabu
 11  Norway       2007  4.62793e+06  Europe          80.196      49357.2
 ```
 
+The `tabulate` command takes arguments `--headers` to toggle printing of header
+row, `--format=[grid,...]` to modify the table style and `--noindex` to remove
+the running index (leftmost column in the example above).
+
 ## Plotting data
 
 You can plot data using `ph plot [index]`.
