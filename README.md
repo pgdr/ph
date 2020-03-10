@@ -263,11 +263,17 @@ the given `parquet` file and plot the `Value` series using `Time` as _index_.
 The following example plots the life expectancy in Norway using `year` as _index_:
 
 ```bash
-$ $ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appendstr year -01-01 | ph columns year lifeExp | ph plot year
+$ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appendstr year -01-01 | ph columns year lifeExp | ph plot year
 ```
 
 ![life-expectancy over time](https://raw.githubusercontent.com/pgdr/ph/master/assets/lifeexp.png)
 
+The strange `ph appendstr year -01-01` turns the items `1956` into
+`"1956-01-01"` and `2005` into `"2005-01-01"`.  These are necessary to make
+pandas to interpret `1956` as a _year_ and not as a _millisecond_.
+
+The command `ph appendstr col str [newcol]` takes a string and appends it to a
+column, overwriting the original column, or writing it to `newcol` if provided.
 
 
 ## Working with different file types
