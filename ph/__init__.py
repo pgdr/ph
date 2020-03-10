@@ -25,6 +25,14 @@ def pipein():
 
 @register
 def apply(op, col1, col2, col3):
+    """Apply op on col1 and col2 and put into col3.
+
+    Example:  cat a.csv | ph apply + x y z.
+
+    When multiplying, you may use `ph apply mul x y z`
+    or `ph apply \* x y z` or `ph apply "*" x y z`
+    in order to avoid globbing.
+    """
     df = pipein()
     if op in ("+", "add"):
         df[col3] = df[col1] + df[col2]
@@ -63,6 +71,7 @@ def describe():
 
 @register
 def cat(fname=None):
+    """Opens a file if provided (like `open`), or else cats it."""
     if fname is None:
         pipeout(pipein())
     else:
@@ -76,6 +85,13 @@ def tab():
 
 @register
 def tabulate(*args, **kwargs):
+    """Tabulate the output, meaning that the `ph` pipeline necessarily ends.
+
+    Takes arguments --headers and --format=[grid, ...].
+
+    This function uses the tabulate project.
+
+    """
     headers = tuple()
     fmt = None
     if "--headers" in args:
@@ -89,12 +105,31 @@ def tabulate(*args, **kwargs):
 
 @register
 def help(*args, **kwargs):
-    print("Usage: ph command arguments")
-    print("       commands = {}".format(list(COMMANDS.keys())))
+    """Writes help (docstring) about the different commands."""
+    if not args:
+        print("Usage: ph command arguments")
+        print("       commands = {}".format(list(COMMANDS.keys())))
+        return
+    cmd = args[0]
+    import ph
+
+    try:
+        fn = getattr(ph, cmd)
+        ds = getattr(fn, "__doc__")
+    except AttributeError as err:
+        try:
+            fn = getattr(pd.DataFrame, cmd)
+            ds = getattr(fn, "__doc__")
+        except AttributeError as err:
+            ds = ""
+
+    print("Usage: ph {} [?]".format(cmd))
+    print("       {}".format(ds))
 
 
 @register
 def open(fname):
+    """Open a csv file, similar to `cat`, except it needs one argument."""
     pipeout(pd.read_csv(fname))
 
 
@@ -108,26 +143,54 @@ def register_forward(attr):
 
 @register
 def head(n=10):
+    """Similar to `head` but keeps the header.
+
+    Print the header followed by the first 10 (or n) lines of the stream to
+    standard output.
+
+    """
     _call("head", int(n))
 
 
 @register
 def tail(n=10):
+    """Similar to `tail` but keeps the header.
+
+    Print the header followed by the last 10 (or n) lines of the stream to
+    standard output.
+
+    """
     _call("tail", int(n))
 
 
 @register
 def columns(*cols):
+    """Choose only the given columns with prescribed order.
+
+    `cat a.csv | ph columns c b` will print columns c and b to standard out,
+    regardless of their order in a.csv.
+
+    """
     pipeout(pipein()[list(cols)])
 
 
 @register
 def shape():
+    """Print the shape of the csv file, i.e. num cols and num rows.
+
+    The output will have two rows and two columns, with header "rows,columns".
+
+    """
     print("rows,columns\n" + ",".join([str(x) for x in pipein().shape]))
 
 
 @register
 def empty():
+    """Print a csv file with one column containing True or False.
+
+    The output depends on whether the csv input was empty.
+
+    """
     print("empty\n{}".format(pipein().empty))
 
 

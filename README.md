@@ -52,7 +52,7 @@ pipeline.
 
 ## Example usage
 
-Suppose you `a.csv` that looks like this:
+Suppose you have a csv file `a.csv` that looks like this:
 
 ```csv
 x,y
