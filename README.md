@@ -264,9 +264,10 @@ the given `parquet` file and plot the `Value` series using `Time` as _index_.
 The following example plots the life expectancy in Norway using `year` as _index_:
 
 ```bash
-$ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appendstr year -01-01 | ph date year | ph columns year lifeExp | ph plot year
+$ $ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appendstr year -01-01 | ph columns year lifeExp | ph plot year
 ```
 
+![life-expectancy over time](https://raw.githubusercontent.com/pgdr/ph/master/assets/lifeexp.png)
 
 
 
