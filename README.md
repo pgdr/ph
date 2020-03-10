@@ -261,6 +261,15 @@ This will take the columns `Time` and `Value` from the timeseries provided by
 the given `parquet` file and plot the `Value` series using `Time` as _index_.
 
 
+The following example plots the life expectancy in Norway using `year` as _index_:
+
+```bash
+$ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appendstr year -01-01 | ph date year | ph columns year lifeExp | ph plot year
+```
+
+
+
+
 ## Working with different file types
 
 Pandas supports reading a multitude of [readers](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html).
