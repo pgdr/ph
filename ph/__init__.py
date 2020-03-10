@@ -77,7 +77,10 @@ def plot(index=None):
 
     Usage:  ph plot [index]
     """
-    import matplotlib.pyplot as plt
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        exit("plot depends on matplotlib")
 
     df = pipein()
     if index is not None:
