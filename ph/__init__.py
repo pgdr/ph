@@ -204,11 +204,23 @@ def tab():
 
 @register
 def tabulate(*args):
-    """Tabulate the output, meaning that the `ph` pipeline necessarily ends.
+    """Tabulate the output for pretty-printing.
 
-    Takes arguments --headers and --format=[grid, ...].
+    Usage: cat a.csv | ph tabulate --headers --noindex --format=grid
 
-    This function uses the tabulate project.
+    Takes arguments
+      * --headers
+      * --noindex
+      * --format=[grid, latex, pretty, ...].
+
+    For a full list of format styles confer the README.
+
+    This function uses the tabulate project available as a standalone
+    package from PyPI.
+
+    Using `tabulate` in a pipeline usually means that the `ph` pipeline ends.
+    This is because of `tabulate`'s focus on user readability over machine
+    readability.
 
     """
     headers = tuple()
