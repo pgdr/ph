@@ -228,6 +228,8 @@ x,y
 8,13
 ```
 
+**WARNING** Calling the following command [MIGHT BE ILLEGAL IN NORWAY](https://rettspraksis.no/wiki/TBERG-2019-141281).  Reader beware!
+
 
 ```bash
 $ ph open csv 'http://bit.ly/2cLzoxH' | ph query "country == 'Norway'" | ph tabulate --headers
