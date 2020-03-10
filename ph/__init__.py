@@ -51,7 +51,17 @@ def register(fn):
 
 
 def pipeout(df, sep=",", index=False, *args, **kwargs):
-    print(df.to_csv(sep=sep, index=index, *args, **kwargs))
+    try:
+        print(df.to_csv(sep=sep, index=index, *args, **kwargs))
+    except BrokenPipeError:
+        try:
+            sys.stdout.close()
+        except IOError:
+            pass
+        try:
+            sys.stderr.close()
+        except IOError:
+            pass
 
 
 def pipein():
