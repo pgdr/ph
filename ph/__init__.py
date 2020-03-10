@@ -4,6 +4,19 @@ from .tabulate import tabulate as tabulate_
 import pandas as pd
 import sys
 
+USAGE_TEXT = """
+ph is a command line tool for streaming csv data.
+
+If you have a csv file `a.csv`, you can pipe it through `ph` on the
+command line by using
+
+$ cat a.csv | ph columns x y | ph tabulate
+
+Use ph help [command] for help on the individual commands.
+
+A list of available commands follows.
+"""
+
 COMMANDS = {}
 
 
@@ -95,8 +108,9 @@ def help(*args, **kwargs):
     """Writes help (docstring) about the different commands."""
     if not args:
         print("Usage: ph command arguments")
+        print(USAGE_TEXT)
         print("       commands = {}".format(list(COMMANDS.keys())))
-        return
+        exit(0)
     cmd = args[0]
     import ph
 
@@ -152,13 +166,21 @@ def tail(n=10):
 
 @register
 def columns(*cols):
-    """Choose only the given columns with prescribed order.
+    """ph columns servers to purposes.
+
+    Called without any arguments, it lists the names of the columns in
+    the stream.
+
+    Called with arguments, it streams out the csv data from the given columns with prescribed order.
 
     `cat a.csv | ph columns c b` will print columns c and b to standard out,
     regardless of their order in a.csv.
 
     """
-    pipeout(pipein()[list(cols)])
+    if not cols:
+        print("\n".join(list(pipein().columns)))
+    else:
+        pipeout(pipein()[list(cols)])
 
 
 @register
