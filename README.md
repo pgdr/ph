@@ -165,7 +165,7 @@ a,b
 
 You can sum two columns `x` and `y` and place the result in column `z` using
 `eval` (from
-[`pandas.DataFrame.eval](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.eval.html#pandas.DataFrame.eval)).
+[`pandas.DataFrame.eval`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.eval.html#pandas.DataFrame.eval)).
 
 ```bash
 $ cat a.csv | ph eval "z = x + y"
