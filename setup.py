@@ -15,6 +15,7 @@ requirements = {
     "parquet": _min_req + ["pyarrow"],
     "xls": _min_req + ["xlrd"],
     "plot": _min_req + ["matplotlib"],
+    "data": _min_req + ["scikit-learn"],
 }
 requirements["complete"] = sorted(set(sum(requirements.values(), [])))
 
@@ -37,7 +38,7 @@ def readme():
 
 
 setup(
-    version="0.0.21",
+    version="0.0.22",
     name="ph",
     packages=["ph"],
     description=__description,

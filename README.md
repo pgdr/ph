@@ -50,6 +50,41 @@ in `csv` format.
 The goal is to create a tool which makes it nicer to work with tabular data in a
 pipeline.
 
+## Getting started
+
+If you have installed `ph[data]`, you can try out the examples above using
+
+```bash
+ph dataset boston | ph describe
+```
+
+Available datasets are from
+[scikit-learn.datasets](https://scikit-learn.org/stable/datasets/index.html)
+
+Toy datasets:
+
+* `boston`
+* `iris`
+* `diabetes`
+* `digits`
+* `linnerud`
+* `wine`
+* `breast_cancer`
+
+
+Real world:
+
+* `olivetti_faces`
+* `20newsgroups`
+* `20newsgroups_vectorized`
+* `lfw_people`
+* `lfw_pairs`
+* `covtype`
+* `rcv1`
+* `kddcup99`
+* `california_housing`
+
+
 ## Example usage
 
 Suppose you have a csv file `a.csv` that looks like this:

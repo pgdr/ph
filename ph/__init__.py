@@ -52,6 +52,56 @@ def register(fn):
     return fn
 
 
+@register
+def dataset(dset):
+    """Load dataset as csv.
+
+    Usage:  ph dataset linnerud | ph describe
+    """
+    try:
+        import sklearn.datasets
+    except ImportError:
+        exit("You need scikit-learn.  Install ph[data].")
+
+    REALDATA = {
+        "olivetti_faces": sklearn.datasets.fetch_olivetti_faces,
+        "20newsgroups": sklearn.datasets.fetch_20newsgroups,
+        "20newsgroups_vectorized": sklearn.datasets.fetch_20newsgroups_vectorized,
+        "lfw_people": sklearn.datasets.fetch_lfw_people,
+        "lfw_pairs": sklearn.datasets.fetch_lfw_pairs,
+        "covtype": sklearn.datasets.fetch_covtype,
+        "rcv1": sklearn.datasets.fetch_rcv1,
+        "kddcup99": sklearn.datasets.fetch_kddcup99,
+        "california_housing": sklearn.datasets.fetch_california_housing,
+    }
+
+    TOYDATA = {
+        "boston": sklearn.datasets.load_boston,
+        "iris": sklearn.datasets.load_iris,
+        "diabetes": sklearn.datasets.load_diabetes,
+        "digits": sklearn.datasets.load_digits,
+        "linnerud": sklearn.datasets.load_linnerud,
+        "wine": sklearn.datasets.load_wine,
+        "breast_cancer": sklearn.datasets.load_breast_cancer,
+    }
+    if dset not in TOYDATA.keys() | REALDATA.keys():
+        exit("Unknown dataset {}.  See ph help dataset.".format(dset))
+    if dset in TOYDATA:
+        data = TOYDATA[dset]()
+    else:
+        data = REALDATA[dset]()
+    try:
+        pipeout(pd.DataFrame(data.data, columns=data.feature_names))
+    except AttributeError:
+        pipeout(pd.DataFrame(data.data))
+
+
+@register
+def dropna():
+    """Remove rows with N/A values"""
+    pipeout(pipein().dropna())
+
+
 def pipeout(df, sep=",", index=False, *args, **kwargs):
     try:
         print(df.to_csv(sep=sep, index=index, *args, **kwargs))
