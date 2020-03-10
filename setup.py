@@ -9,9 +9,14 @@ __source = "https://github.com/pgdr/ph"
 __webpage = __source
 __description = "ph - the tabular data shell tool"
 
+_min_req = ["pandas"]
 requirements = {
-    "minimum": ["pandas"],
+    "minimum": _min_req,
+    "parquet": _min_req + ["pyarrow"],
+    "xls": _min_req + ["xlrd"],
+    "plot": _min_req + ["matplotlib"],
 }
+requirements["complete"] = sorted(set(sum(requirements.values(), [])))
 
 
 def src(x):
@@ -32,7 +37,7 @@ def readme():
 
 
 setup(
-    version="0.0.15",
+    version="0.0.16",
     name="ph",
     packages=["ph"],
     description=__description,

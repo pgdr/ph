@@ -72,6 +72,27 @@ def pipein():
 
 
 @register
+def monotonic(column, direction="+"):
+    """Check if a certain column is monotonically increasing or decreasing.
+
+    Usage:  cat a.csv | ph monotonic x
+            cat a.csv | ph monotonic x +  # equivalent to above
+            cat a.csv | ph monotonic x -  # for decreasing
+
+    """
+    df = pipein()
+    if column not in df:
+        exit("Unknown column {}".format(column))
+    if direction not in "+-":
+        exit("direction must be either + or -")
+    print("{}_monotonic".format(column))
+    if direction == "+":
+        print(df[column].is_monotonic)
+    else:
+        print(df[column].is_monotonic_decreasing)
+
+
+@register
 def plot(index=None):
     """Plot the csv file.
 
@@ -80,7 +101,7 @@ def plot(index=None):
     try:
         import matplotlib.pyplot as plt
     except ImportError:
-        exit("plot depends on matplotlib")
+        exit("plot depends on matplotlib, install ph[plot]")
 
     df = pipein()
     if index is not None:
