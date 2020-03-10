@@ -67,15 +67,21 @@ x,y
 Transpose:
 
 ```bash
-cat a.csv | ph transpose
+$ cat a.csv | ph transpose
+0,1,2,3,4,5
+3,4,5,6,7,8
+8,9,10,11,12,13
 ```
 
-`abs` (as well as many others, e.g.  `corr`, `count`, `cov`, `cummax`, `cumsum`,
-`diff`, `max`, `median`, `product`, `quantile`, `rank`, `round`, `sum`, `std`,
+`median` (as well as many others, e.g.  `abs`, `corr`, `count`, `cov`, `cummax`,
+`cumsum`, `diff`, `max`, `product`, `quantile`, `rank`, `round`, `sum`, `std`,
 `var` etc.):
 
 ```bash
-cat a.csv | ph abs
+$ cat a.csv | ph median
+0
+5.5
+10.5
 ```
 
 **Use `ph help` to list all commands**
@@ -85,45 +91,88 @@ Using `head` and `tail` works approximately as the normal shell equivalents,
 however they will preserve the header if there is one, e.g.
 
 ```bash
-cat a.csv | ph head 20 | ph tail
+$ cat a.csv | ph head 7 | ph tail 3
+x,y
+6,11
+7,12
+8,13
 ```
 
-If the `csv` file contains a column, e.g. named `t` containing timestamps, it
-can be parsed as such with `ph date t`:
+If the `csv` file contains a column, e.g. named `x` containing timestamps, it
+can be parsed as such with `ph date x`:
 
 ```bash
-cat a.csv | ph date t
+$ cat a.csv | ph date x
+x,y
+1970-01-01 00:00:00.000000003,8
+1970-01-01 00:00:00.000000004,9
+1970-01-01 00:00:00.000000005,10
+1970-01-01 00:00:00.000000006,11
+1970-01-01 00:00:00.000000007,12
+1970-01-01 00:00:00.000000008,13
 ```
 
 The normal Pandas `describe` is of course available:
 
 ```bash
-cat a.csv | ph describe
+$ cat a.csv | ph describe
+              x          y
+count  6.000000   6.000000
+mean   5.500000  10.500000
+std    1.870829   1.870829
+min    3.000000   8.000000
+25%    4.250000   9.250000
+50%    5.500000  10.500000
+75%    6.750000  11.750000
+max    8.000000  13.000000
+
 ```
 
 Selecting only certain columns, e.g. `a` and `b`
 
 ```bash
-cat a.csv | ph columns a b
+$ cat a.csv | ph columns x y
+x,y
+3,8
+4,9
+5,10
+6,11
+7,12
+8,13
 ```
 
 You can sum two columns `x` and `y` and place the result in column `z` using
 `apply`
 
 ```bash
-cat a.csv | ph apply + x y z
+$ cat a.csv | ph apply + x y z
+x,y,z
+3,8,11
+4,9,13
+5,10,15
+6,11,17
+7,12,19
+8,13,21
+
 ```
 
 If you only want the sum of two columns, then, you can pipe the last two using
 
 ```bash
-cat a.csv| ph apply + x y z | ph columns z
+$ cat a.csv| ph apply + x y z | ph columns z
+z
+11
+13
+15
+17
+19
+21
 ```
 
 You can normalize a column using `ph normalize col`.
 
 ```bash
-cat a.csv | ph apply \* x y z | ph normalize z
+$ cat a.csv | ph apply \* x y z | ph normalize z
 x,y,z
 3,8,0.0
 4,9,0.15
