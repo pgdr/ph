@@ -165,8 +165,20 @@ def tail(n=10):
 
 
 @register
+def rename(before, after):
+    """Rename a column name.
+
+    Usage:  ph rename before after
+
+    Example:  cat a.csv | ph rename x a | ph rename y b
+
+    """
+    pipeout(pipein().rename(columns={before: after}))
+
+
+@register
 def columns(*cols):
-    """ph columns servers to purposes.
+    """ph columns servers two purposes.
 
     Called without any arguments, it lists the names of the columns in
     the stream.

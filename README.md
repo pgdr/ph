@@ -128,6 +128,14 @@ max    8.000000  13.000000
 
 ```
 
+Print the column names:
+
+```bash
+$ cat a.csv | ph columns
+x
+y
+```
+
 Selecting only certain columns, e.g. `a` and `b`
 
 ```bash
@@ -140,6 +148,20 @@ x,y
 7,12
 8,13
 ```
+
+Rename:
+
+```bash
+$ cat a.csv | ph rename x a | ph rename y b
+a,b
+3,8
+4,9
+5,10
+6,11
+7,12
+8,13
+```
+
 
 You can sum two columns `x` and `y` and place the result in column `z` using
 `eval` (from
