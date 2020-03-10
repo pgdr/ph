@@ -72,6 +72,22 @@ def pipein():
 
 
 @register
+def plot(index=None):
+    """Plot the csv file.
+
+    Usage:  ph plot [index]
+    """
+    import matplotlib.pyplot as plt
+
+    df = pipein()
+    if index is not None:
+        df = df.set_index(index)
+    df.plot()
+    plt.show()
+    pipeout(df)
+
+
+@register
 def eval(expr):
     """Eval expr using pandas.DataFrame.eval.
 

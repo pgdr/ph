@@ -219,6 +219,18 @@ x,y,z
 ```
 
 
+## Plotting data
+
+You can plot data using `ph plot [index]`.
+
+```bash
+$ ph open parquet 1A_2019.parquet | ph columns Time Value | ph plot Time
+```
+
+This will take the columns `Time` and `Value` from the timeseries provided by
+the given `parquet` file and plot the `Value` series using `Time` as _index_.
+
+
 ## Working with different file types
 
 Pandas supports reading a multitude of [readers](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html).
