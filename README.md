@@ -1,5 +1,35 @@
 # ph - the tabular data shell tool
 
+Spoiler: Working with tabular data in the command line is difficult.  `ph` makes
+it easy:
+
+```bash
+$ pip install ph
+$ cat iris.csv | ph columns 4 150 | ph head 15 | ph tail 5 | ph tabulate --headers
+      4    150
+--  ---  -----
+ 0  3.7    5.4
+ 1  3.4    4.8
+ 2  3      4.8
+ 3  3      4.3
+ 4  4      5.8
+```
+
+```bash
+$ cat iris.csv | ph describe
+              150           4      setosa  versicolor   virginica
+count  150.000000  150.000000  150.000000  150.000000  150.000000
+mean     5.843333    3.057333    3.758000    1.199333    1.000000
+std      0.828066    0.435866    1.765298    0.762238    0.819232
+min      4.300000    2.000000    1.000000    0.100000    0.000000
+25%      5.100000    2.800000    1.600000    0.300000    0.000000
+50%      5.800000    3.000000    4.350000    1.300000    1.000000
+75%      6.400000    3.300000    5.100000    1.800000    2.000000
+max      7.900000    4.400000    6.900000    2.500000    2.000000
+```
+
+## Raison d'être
+
 Using the _pipeline_ in Linux is nothing short of a dream in the life of the
 computer super user.
 
