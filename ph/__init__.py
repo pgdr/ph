@@ -43,7 +43,7 @@ READERS = {
     "google": pd.read_gbq,
     "bigquery": pd.read_gbq,
     ### extras
-    "tsv": lambda fname : pd.read_csv(fname, sep='\t'),
+    "tsv": lambda fname: pd.read_csv(fname, sep="\t"),
 }
 
 
