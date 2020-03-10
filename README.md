@@ -169,7 +169,6 @@ You can sum two columns `x` and `y` and place the result in column `z` using
 
 ```bash
 $ cat a.csv | ph eval "z = x + y"
-z = x + y
 x,y,z
 3,8,11
 4,9,13
