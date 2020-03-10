@@ -24,27 +24,14 @@ def pipein():
 
 
 @register
-def apply(op, col1, col2, col3):
-    """Apply op on col1 and col2 and put into col3.
+def eval(expr):
+    """Eval expr using pandas.DataFrame.eval.
 
-    Example:  cat a.csv | ph apply + x y z.
+    Example:  cat a.csv | ph eval "z = x + y"
 
-    When multiplying, you may use `ph apply mul x y z`
-    or `ph apply \* x y z` or `ph apply "*" x y z`
-    in order to avoid globbing.
     """
     df = pipein()
-    if op in ("+", "add"):
-        df[col3] = df[col1] + df[col2]
-    elif op in ("*", "mul"):
-        df[col3] = df[col1] * df[col2]
-    elif op in ("-", "sub"):
-        df[col3] = df[col1] - df[col2]
-    elif op in ("**", "pow"):
-        df[col3] = df[col1] ** df[col2]
-    else:
-        exit("Unknown operation {}".format(op))
-    pipeout(df)
+    pipeout(df.eval(expr))
 
 
 @register

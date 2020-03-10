@@ -142,10 +142,12 @@ x,y
 ```
 
 You can sum two columns `x` and `y` and place the result in column `z` using
-`apply`
+`eval` (from
+[`pandas.DataFrame.eval](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.eval.html#pandas.DataFrame.eval)).
 
 ```bash
-$ cat a.csv | ph apply + x y z
+$ cat a.csv | ph eval "z = x + y"
+z = x + y
 x,y,z
 3,8,11
 4,9,13
@@ -153,13 +155,25 @@ x,y,z
 6,11,17
 7,12,19
 8,13,21
-
 ```
+
+
+```bash
+$ cat a.csv | ph eval "z = x**2 + y"
+x,y,z
+3,8,17
+4,9,25
+5,10,35
+6,11,47
+7,12,61
+8,13,77
+```
+
 
 If you only want the sum of two columns, then, you can pipe the last two using
 
 ```bash
-$ cat a.csv| ph apply + x y z | ph columns z
+$ cat a.csv | ph eval "z = x + y" | ph columns z
 z
 11
 13
@@ -172,7 +186,7 @@ z
 You can normalize a column using `ph normalize col`.
 
 ```bash
-$ cat a.csv | ph apply \* x y z | ph normalize z
+$ cat a.csv | ph eval "z = x * y" | ph normalize z
 x,y,z
 3,8,0.0
 4,9,0.15
