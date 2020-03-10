@@ -298,11 +298,11 @@ x,y
 8,13
 ```
 
-* `csv`
-* `fwf`
+* `csv` / `tsv` (the latter for tab-separated values)
+* `fwf` (fixed-width file format)
 * `json`
 * `html`
-* `clipboard`
+* `clipboard` (pastes tab-separated content from clipboard)
 * `xls`
 * `odf`
 * `hdf5`
