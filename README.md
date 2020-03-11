@@ -356,8 +356,14 @@ You can choose the _kind_ of plotting ( ‘line’, ‘bar’, ‘barh’, ‘hi
 and `--y=col2`, e.g.:
 
 ```bash
-$ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appendstr year -01-01 | ph columns lifeExp gdpPercap | ph plot --kind=scatter --x=lifeExp --y=gdpPercap
+$ ph open csv http://bit.ly/2cLzoxH | ph query "continent == 'Europe'" | ph plot --kind=scatter --x=lifeExp --y=gdpPercap
 ```
+
+![life-expectancy vs gdp](https://raw.githubusercontent.com/pgdr/ph/master/assets/scatter.png)
+
+
+
+
 
 To specify the styling `k--` gives a black dashed line:
 
