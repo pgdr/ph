@@ -4,6 +4,12 @@ from .tabulate import tabulate as tabulate_
 import sys
 import os.path
 import pandas as pd
+import re
+
+# Command line parsing of (1) --abc and (2) --abc=def
+KWARG = re.compile("^--[a-z0-9_-]+$")
+KWARG_WITH_VALUE = re.compile("^--[a-z0-9_-]+=")
+
 
 USAGE_TEXT = """
 ph is a command line tool for streaming csv data.
@@ -260,7 +266,7 @@ def tab():
 
 
 @register
-def tabulate(*args):
+def tabulate(*args, **kwargs):
     """Tabulate the output for pretty-printing.
 
     Usage: cat a.csv | ph tabulate --headers --noindex --format=grid
@@ -281,16 +287,12 @@ def tabulate(*args):
 
     """
     headers = tuple()
-    fmt = None
+    fmt = kwargs.get("format")
     index = True
     if "--noindex" in args:
         index = False
     if "--headers" in args:
         headers = "keys"
-    for opt in args:
-        if opt.startswith("--format="):
-            fmt = opt.split("--format=")[1]
-            break
     print(tabulate_(pipein(), tablefmt=fmt, headers=headers, showindex=index))
 
 
@@ -457,13 +459,28 @@ for attr in pandas_computations:
 
 
 def main():
-    args = sys.argv
-    if len(args) < 2:
+    if len(sys.argv) < 2:
         exit("Usage: ph command [args]\n       ph help")
-    cmd = args[1]
+    cmd = sys.argv[1]
     if cmd not in COMMANDS:
         exit("Unknown command {}.".format(cmd))
-    COMMANDS[cmd](*args[2:])
+
+    # Self-implemented parsing of arguments.
+    # Arguments of type "abc" and "--abc" go into args
+    # Arguments of type "--abc=def" go into kwargs as key, value pairs
+    args = []
+    kwarg = {}
+    for a in sys.argv[2:]:
+        if KWARG.match(a):
+            args.append(a)
+        elif KWARG_WITH_VALUE.match(a):
+            split = a.index("=")
+            k = a[2:split]
+            v = a[split + 1 :]
+            kwarg[k] = v
+        else:
+            args.append(a)
+    COMMANDS[cmd](*args, **kwarg)
 
 
 if __name__ == "__main__":
