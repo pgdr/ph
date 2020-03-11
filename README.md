@@ -28,6 +28,47 @@ min      4.300000    2.000000    1.000000    0.100000    0.000000
 max      7.900000    4.400000    6.900000    2.500000    2.000000
 ```
 
+Occasionally you would like to plot a CSV file real quick, in which case you can
+simply pipe it to `ph plot`:
+
+Suppose you have a dataset `covid.csv`
+
+```csv
+SK,Italy,Iran,France,Spain,US
+51,79,95,57,84,85
+104,150,139,100,125,111
+204,227,245,130,169,176
+433,320,388,191,228,252
+602,445,593,212,282,352
+833,650,978,285,365,495
+977,888,1501,423,430,640
+1261,1128,2336,613,674,926
+1766,1694,2922,949,1231,NaN
+2337,2036,3513,1126,1696,NaN
+3150,2502,4747,1412,NaN,NaN
+4212,3089,5823,1748,NaN,NaN
+4812,3858,6566,NaN,NaN,NaN
+5328,4638,7161,NaN,NaN,NaN
+5766,5883,8042,NaN,NaN,NaN
+6284,7375,NaN,NaN,NaN,NaN
+6767,9172,NaN,NaN,NaN,NaN
+7134,10149,NaN,NaN,NaN,NaN
+7382,NaN,NaN,NaN,NaN,NaN
+7513,NaN,NaN,NaN,NaN,NaN
+```
+
+With this simple command, you get a certified _"So fancy" plot_.
+
+```bash
+$ cat covid.csv | ph plot
+```
+
+![So fancy covid plot](https://raw.githubusercontent.com/pgdr/ph/master/assets/covid-plot.png)
+
+
+
+---
+
 ## Raison d'être
 
 Using the _pipeline_ in Linux is nothing short of a dream in the life of the
