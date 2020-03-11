@@ -323,10 +323,10 @@ Among the supported format styles are
 
 ## Plotting data
 
-You can plot data using `ph plot [index]`.
+You can plot data using `ph plot [--index=col]`.
 
 ```bash
-$ ph open parquet 1A_2019.parquet | ph columns Time Value | ph plot Time
+$ ph open parquet 1A_2019.parquet | ph columns Time Value | ph plot --index=Time
 ```
 
 This will take the columns `Time` and `Value` from the timeseries provided by
@@ -336,17 +336,36 @@ the given `parquet` file and plot the `Value` series using `Time` as _index_.
 The following example plots the life expectancy in Norway using `year` as _index_:
 
 ```bash
-$ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appendstr year -01-01 | ph columns year lifeExp | ph plot year
+$ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appendstr year -01-01 | ph columns year lifeExp | ph plot --index=year
 ```
 
 ![life-expectancy over time](https://raw.githubusercontent.com/pgdr/ph/master/assets/lifeexp.png)
 
-The strange `ph appendstr year -01-01` turns the items `1956` into
-`"1956-01-01"` and `2005` into `"2005-01-01"`.  These are necessary to make
-pandas to interpret `1956` as a _year_ and not as a _millisecond_.
+> _Note:_ The strange `ph appendstr year -01-01` turns the items `1956` into
+> `"1956-01-01"` and `2005` into `"2005-01-01"`.  These are necessary to make
+> pandas to interpret `1956` as a _year_ and not as a _millisecond_.
+>
+> The command `ph appendstr col str [newcol]` takes a string and appends it to a
+> column, overwriting the original column, or writing it to `newcol` if provided.
 
-The command `ph appendstr col str [newcol]` takes a string and appends it to a
-column, overwriting the original column, or writing it to `newcol` if provided.
+**Advanced plotting**
+
+You can choose the _kind_ of plotting ( ‘line’, ‘bar’, ‘barh’, ‘hist’, ‘box’,
+‘kde’, ‘density’, ‘area’, ‘pie’, ‘scatter’, ‘hexbin’), the _style_ of plotting
+(e.g. `--style=o`), and in case of scatter plot, you need to specify `--x=col1`
+and `--y=col2`, e.g.:
+
+```bash
+$ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appendstr year -01-01 | ph columns lifeExp gdpPercap | ph plot --kind=scatter --x=lifeExp --y=gdpPercap
+```
+
+To specify the styling `k--` gives a black dashed line:
+
+```bash
+$ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appendstr year -01-01 | ph columns year lifeExp | ph plot --index=year --style=k--
+```
+
+
 
 
 ## Working with different file types

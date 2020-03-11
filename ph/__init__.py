@@ -200,10 +200,14 @@ def monotonic(column, direction="+"):
 
 
 @register
-def plot(index=None):
+def plot(*args, **kwargs):
     """Plot the csv file.
 
-    Usage:  ph plot [index]
+    Usage:  ph plot
+            ph plot --index=col
+            ph plot --kind=bar
+            ph plot --kind=scatter --x=col1 --y=col2
+            ph plot --style=k--
     """
     try:
         import matplotlib.pyplot as plt
@@ -211,9 +215,15 @@ def plot(index=None):
         exit("plot depends on matplotlib, install ph[plot]")
 
     df = pipein()
+    index = kwargs.get("index")
     if index is not None:
         df = df.set_index(index)
-    df.plot()
+    df.plot(
+        kind=kwargs.get("kind", "line"),  # default pandas plot is line
+        style=kwargs.get("style"),
+        x=kwargs.get("x"),
+        y=kwargs.get("y"),
+    )
     plt.show()
     pipeout(df)
 

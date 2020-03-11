@@ -38,7 +38,7 @@ def readme():
 
 
 setup(
-    version="0.0.22",
+    version="0.0.23",
     name="ph",
     packages=["ph"],
     description=__description,
