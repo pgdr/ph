@@ -53,7 +53,7 @@ def register(fn):
 
 
 @register
-def dataset(dset):
+def dataset(dset=None):
     """Load dataset as csv.
 
     Usage:  ph dataset linnerud | ph describe
@@ -84,6 +84,13 @@ def dataset(dset):
         "wine": sklearn.datasets.load_wine,
         "breast_cancer": sklearn.datasets.load_breast_cancer,
     }
+
+    if dset is None:
+        print("type,name")
+        print("\n".join("{},{}".format("real", k) for k in REALDATA))
+        print("\n".join("{},{}".format("toy", k) for k in TOYDATA))
+        exit()
+
     if dset not in TOYDATA.keys() | REALDATA.keys():
         exit("Unknown dataset {}.  See ph help dataset.".format(dset))
     if dset in TOYDATA:
