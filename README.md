@@ -147,6 +147,22 @@ x,y
 1970-01-01 00:00:00.000000008,13
 ```
 
+To get a column with integers (e.g. 3-8) parsed as, e.g. 2003 - 2008, some
+amount of hacking is necessary.  We will go into details later on the `eval` and
+`appendstr`.
+
+```bash
+$ cat a.csv | ph eval "x = 2000 + x" | ph appendstr x "-01-01" | ph date x
+x,y
+2003-01-01,8
+2004-01-01,9
+2005-01-01,10
+2006-01-01,11
+2007-01-01,12
+2008-01-01,13
+```
+
+
 The normal Pandas `describe` is of course available:
 
 ```bash
@@ -226,7 +242,8 @@ x,y,z
 ```
 
 
-If you only want the sum of two columns, then, you can pipe the last two using
+If you only want the sum of two columns, you can chain the two previous
+commands:
 
 ```bash
 $ cat a.csv | ph eval "z = x + y" | ph columns z
