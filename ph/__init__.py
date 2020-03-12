@@ -105,9 +105,14 @@ def dataset(dset=None):
     else:
         data = REALDATA[dset]()
     try:
-        pipeout(pd.DataFrame(data.data, columns=data.feature_names))
+        df = pd.DataFrame(data.data, columns=data.feature_names)
     except AttributeError:
-        pipeout(pd.DataFrame(data.data))
+        df = pd.DataFrame(data.data)
+    try:
+        df["target"] = pd.Series(data.target)
+    except Exception:
+        pass
+    pipeout(df)
 
 
 @register
