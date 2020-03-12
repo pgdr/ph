@@ -185,6 +185,30 @@ def astype(type, column=None, newcolumn=None):
 
 
 @register
+def dtypes(t=None):
+    """If no argument is provided, output types, otherwise filter on types.
+
+    If no argument is provided, output a csv with two columns, "column" and
+    "dtype".  The "column" column contains the names of the columns in the input
+    csv and the "dtype" column contains their respective types.
+
+    If an argument is provided, all columns with the prescribed type is output.
+
+    Usage:  cat a.csv | ph dtypes
+            cat a.csv | ph dtypes float64
+
+    """
+    if t is None:
+        df = pipein()
+        newdf = pd.DataFrame(pd.Series(df.columns), columns=["column"])
+        newdf["dtype"] = pd.Series([str(e) for e in df.dtypes])
+        pipeout(newdf)
+    else:
+        df = pipein().select_dtypes(t)
+        pipeout(df)
+
+
+@register
 def monotonic(column, direction="+"):
     """Check if a certain column is monotonically increasing or decreasing.
 
