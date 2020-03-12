@@ -26,28 +26,29 @@ A list of available commands follows.
 
 COMMANDS = {}
 
-
+# These are all lambdas because they lazy load, and some of these
+# readers are introduced in later pandas.
 READERS = {
-    "csv": pd.read_csv,
-    "fwf": pd.read_fwf,
-    "json": pd.read_json,
-    "html": pd.read_html,
-    "clipboard": pd.read_clipboard,
-    "xls": pd.read_excel,
-    "odf": pd.read_excel,
-    "hdf5": pd.read_hdf,
-    "feather": pd.read_feather,
-    "parquet": pd.read_parquet,
-    "orc": pd.read_orc,
-    # TODO in pandas 1.0.1? "msgpack": pd.read_msgpack,
-    "stata": pd.read_stata,
-    "sas": pd.read_sas,
-    "spss": pd.read_spss,
-    "pickle": pd.read_pickle,
-    "sql": pd.read_sql,
-    "gbq": pd.read_gbq,
-    "google": pd.read_gbq,
-    "bigquery": pd.read_gbq,
+    "csv": lambda fname: pd.read_csv(fname),
+    "fwf": lambda fname: pd.read_fwf(fname),
+    "json": lambda fname: pd.read_json(fname),
+    "html": lambda fname: pd.read_html(fname),
+    "clipboard": lambda fname: pd.read_clipboard(fname),
+    "xls": lambda fname: pd.read_excel(fname),
+    "odf": lambda fname: pd.read_excel(fname),
+    "hdf5": lambda fname: pd.read_hdf(fname),
+    "feather": lambda fname: pd.read_feather(fname),
+    "parquet": lambda fname: pd.read_parquet(fname),
+    "orc": lambda fname: pd.read_orc(fname),
+    "msgpack": lambda fname: pd.read_msgpack(fname),
+    "stata": lambda fname: pd.read_stata(fname),
+    "sas": lambda fname: pd.read_sas(fname),
+    "spss": lambda fname: pd.read_spss(fname),
+    "pickle": lambda fname: pd.read_pickle(fname),
+    "sql": lambda fname: pd.read_sql(fname),
+    "gbq": lambda fname: pd.read_gbq(fname),
+    "google": lambda fname: pd.read_gbq(fname),
+    "bigquery": lambda fname: pd.read_gbq(fname),
     ### extras
     "tsv": lambda fname: pd.read_csv(fname, sep="\t"),
 }
@@ -345,7 +346,21 @@ def open(ftype, fname):
     if ftype not in READERS:
         exit("Unknown filetype {}".format(ftype))
     reader = READERS[ftype]
-    pipeout(reader(fname))
+    try:
+        df = reader(fname)
+    except AttributeError as err:
+        exit(
+            "{} is not supported in your Pandas installation\n{}".format(
+                ftype, err
+            )
+        )
+    except ImportError as err:
+        exit(
+            "{} is not supported in your Pandas installation\n{}".format(
+                ftype, err
+            )
+        )
+    pipeout(df)
 
 
 def _call(attr, *args, **kwargs):
