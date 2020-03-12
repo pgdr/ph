@@ -422,6 +422,38 @@ def tail(n=10):
     _call("tail", int(n))
 
 
+def __tryparse(x):
+    x_ = x
+    try:
+        x_ = float(x)
+        x_ = int(x)
+    except ValueError:
+        pass
+    return x_
+
+
+@register
+def replace(column, old, new, newcolumn=None):
+    """Replace a value in a column with a new value.
+
+    Usage: cat a.csv | ph replace y 8 100
+           cat a.csv | ph replace y 8 100 z
+
+    Beware that it is difficult to know which _types_ we are searching for,
+    therefore we only apply a heuristic, which is doomed to be faulty.
+    """
+    if newcolumn is None:
+        newcolumn = column
+    df = pipein()
+    if df[column].dtype != object:
+        old = __tryparse(old)
+        new = __tryparse(new)
+    if column not in df:
+        exit("Column {} does not exist.".format(column))
+    df[newcolumn] = df[column].replace(to_replace=old, value=new, inplace=False)
+    pipeout(df)
+
+
 @register
 def rename(before, after):
     """Rename a column name.
