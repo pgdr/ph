@@ -53,6 +53,31 @@ READERS = {
     "tsv": lambda fname: pd.read_csv(fname, sep="\t"),
 }
 
+WRITERS = {
+    "csv": "to_csv",
+    "fwf": "to_fwf",
+    "json": "to_json",
+    "html": "to_html",
+    "clipboard": "to_clipboard",
+    "xls": "to_excel",
+    "odf": "to_excel",
+    "hdf5": "to_hdf",
+    "feather": "to_feather",
+    "parquet": "to_parquet",
+    "orc": "to_orc",
+    "msgpack": "to_msgpack",
+    "stata": "to_stata",
+    "sas": "to_sas",
+    "spss": "to_spss",
+    "pickle": "to_pickle",
+    "sql": "to_sql",
+    "gbq": "to_gbq",
+    "google": "to_gbq",
+    "bigquery": "to_gbq",
+    ### extras
+    "tsv": "to_csv",
+}
+
 
 def register(fn):
     COMMANDS[fn.__name__] = fn
@@ -289,6 +314,50 @@ def date(col):
 @register
 def describe():
     print(pipein().describe())
+
+
+@register
+def info():
+    print(pipein().info())
+
+
+@register
+def to(ftype, fname=None):
+    """Export csv to given format (possibly csv).
+
+    Supports csv, html, json, parquet, bigquery, tsv, etc. (see README for full
+    list).
+
+    Usage: cat a.csv | ph to html
+           cat a.csv | ph to tsv
+           cat a.csv | ph to clipboard
+           cat a.csv | ph to json
+           cat a.csv | ph to parquet out.parquet
+
+    """
+    if ftype not in WRITERS:
+        exit("Unknown datatype {}.".format(ftype))
+
+    if not fname:
+        if ftype in ("parquet", "xls", "xlsx", "ods", "pickle"):
+            exit("{} needs a path".format(ftype))
+
+    if ftype == "sql":
+        exit("sql writer not implemented")
+
+    if ftype == "hdf5":
+        exit("hdf5 writer not implemented")
+
+    writer = WRITERS[ftype]
+    df = pipein()
+    fn = getattr(df, writer)
+    kwargs = {}
+    if ftype == "tsv":
+        kwargs["sep"] = "\t"
+    if fname is not None:
+        print(fn(fname, **kwargs))
+    else:
+        print(fn(**kwargs))
 
 
 @register

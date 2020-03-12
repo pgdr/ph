@@ -14,6 +14,7 @@ requirements = {
     "minimum": _min_req,
     "parquet": _min_req + ["pyarrow"],
     "xls": _min_req + ["xlrd"],
+    "xlsw": _min_req + ["xlrd", "xlwt"],
     "plot": _min_req + ["matplotlib"],
     "data": _min_req + ["scikit-learn"],
 }
@@ -38,7 +39,7 @@ def readme():
 
 
 setup(
-    version="0.0.24",
+    version="0.0.25",
     name="ph",
     packages=["ph"],
     description=__description,
