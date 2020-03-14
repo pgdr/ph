@@ -80,9 +80,19 @@ WRITERS = {
 }
 
 
-def register(fn):
-    COMMANDS[fn.__name__] = fn
+def register(fn, name=None):
+    if name is None:
+        name = fn.__name__
+    COMMANDS[name] = fn
     return fn
+
+
+def registerx(name):
+    def inner(fn):
+        register(fn, name)
+        return fn
+
+    return inner
 
 
 @register
@@ -359,6 +369,21 @@ def to(ftype, fname=None):
         print(fn(fname, **kwargs))
     else:
         print(fn(**kwargs))
+
+
+@registerx("from")
+def from_(ftype="csv"):
+    """Read a certain (default csv) format from standard in and stream out as csv.
+
+    Usage: cat a.json | ph from json
+
+    The following pipes should be equivalent:
+
+    cat a.csv
+    cat a.csv | ph to json | ph from json
+
+    """
+    pipeout(pipein(ftype))
 
 
 @register
