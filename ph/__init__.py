@@ -616,22 +616,41 @@ def rename(before, after):
 
 
 @register
-def columns(*cols):
+def columns(*cols, **kwargs):
     """ph columns servers two purposes.
 
     Called without any arguments, it lists the names of the columns in
     the stream.
 
-    Called with arguments, it streams out the csv data from the given columns with prescribed order.
+    Called with arguments, it streams out the csv data from the given columns
+    with prescribed order.
 
-    `cat a.csv | ph columns c b` will print columns c and b to standard out,
-    regardless of their order in a.csv.
+    Takes also arguments --startswith=the_prefix and --endswith=the_suffix which
+    selects all columns matching either pattern.
+
+
+    Usage: cat a.csv | ph columns      # will list all column names
+           cat a.csv | ph columns y x  # select only columns y and x
+           cat a.csv | ph columns --startswith=sepal
 
     """
-    if not cols:
-        print("\n".join(list(pipein().columns)))
+    cols = list(cols)
+    df = pipein()
+    if "startswith" in kwargs:
+        q = kwargs["startswith"]
+        for col in df.columns:
+            if col.startswith(q) and col not in cols:
+                cols.append(col)
+    if "endswith" in kwargs:
+        q = kwargs["endswith"]
+        for col in df.columns:
+            if col.endswith(q) and col not in cols:
+                cols.append(col)
+
+    if not cols and not kwargs:
+        print("\n".join(list(df.columns)))
     else:
-        pipeout(pipein()[list(cols)])
+        pipeout(df[cols])
 
 
 @register
