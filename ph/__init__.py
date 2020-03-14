@@ -245,6 +245,42 @@ def dtypes(t=None):
 
 
 @register
+def pivot(columns, index=None, values=None):
+    """Reshape csv organized by given index / column values.
+
+    Suppose b.csv is
+foo,bar,baz,zoo
+one,A,1,x
+one,B,2,y
+one,C,3,z
+two,A,4,q
+two,B,5,w
+two,C,6,t
+
+    Usage: cat b.csv | ph pivot bar --index=foo --values=baz
+
+      A    B    C
+--  ---  ---  ---
+ 0    1    2    3
+ 1    4    5    6
+
+    """
+    pipeout(pipein().pivot(index=index, columns=columns, values=values))
+
+
+@register
+def crosstab(column):
+    """Perform a very simplistic crosstabulation on one column of the input csv.
+
+    Usage:  cat b.csv | ph crosstab foo
+    """
+    newcol = "crosstab_{}".format(column)
+    df = pd.crosstab(pipein()[column], newcol)
+    df["id"] = list(df[newcol].index)
+    pipeout(df)
+
+
+@register
 def monotonic(column, direction="+"):
     """Check if a certain column is monotonically increasing or decreasing.
 
