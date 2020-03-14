@@ -161,9 +161,9 @@ def pipeout(df, sep=",", index=False, *args, **kwargs):
             pass
 
 
-def pipein():
+def pipein(ftype="csv"):
     try:
-        return pd.read_csv(sys.stdin)
+        return READERS[ftype](sys.stdin)
     except pd.errors.EmptyDataError:
         return pd.DataFrame()
 
