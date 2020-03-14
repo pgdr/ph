@@ -34,8 +34,9 @@ READERS = {
     "json": lambda fname: pd.read_json(fname),
     "html": lambda fname: pd.read_html(fname),
     "clipboard": lambda fname: pd.read_clipboard(fname),
-    "xls": lambda fname: pd.read_excel(fname),
-    "odf": lambda fname: pd.read_excel(fname),
+    "excel": lambda fname, sheet: pd.read_excel(fname, sheet),
+    "xls": lambda fname, sheet: pd.read_excel(fname, sheet),
+    "odf": lambda fname, sheet: pd.read_excel(fname, sheet),
     "hdf5": lambda fname: pd.read_hdf(fname),
     "feather": lambda fname: pd.read_feather(fname),
     "parquet": lambda fname: pd.read_parquet(fname),
@@ -431,33 +432,34 @@ def help(*args, **kwargs):
 
 
 @register
-def open(ftype, fname):
-    """Open an ftype file fname and stream out.
+def open(ftype, fname, sheet=0):
+    """Use a reader to open a file.
 
-    Usage:  `ph open csv a.csv`
-            `ph open odf a.ods`
-            `ph open xls a.xls[x]`
-            `ph open parquet a.parquet`
+    Open ftype file with name fname and stream out.
+
+    Usage: ph open csv a.csv
+           ph open json a.json
+           ph open parquet a.parquet
+           ph open excel a.ods
+           ph open excel a.xls
+           ph open excel a.xlsx
+           ph open excel a.xls --sheet=2
+           ph open excel a.xls --sheet="The Real Dataset sheet"
 
 
     """
     if ftype not in READERS:
         exit("Unknown filetype {}".format(ftype))
     reader = READERS[ftype]
+    kwargs = {}
+    if ftype in ("excel", "xls", "odf"):
+        kwargs["sheet"] = __tryparse(sheet)
     try:
-        df = reader(fname)
+        df = reader(fname, **kwargs)
     except AttributeError as err:
-        exit(
-            "{} is not supported in your Pandas installation\n{}".format(
-                ftype, err
-            )
-        )
+        exit("{} is not supported in your Pandas installation\n{}".format(ftype, err))
     except ImportError as err:
-        exit(
-            "{} is not supported in your Pandas installation\n{}".format(
-                ftype, err
-            )
-        )
+        exit("{} is not supported in your Pandas installation\n{}".format(ftype, err))
     pipeout(df)
 
 
