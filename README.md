@@ -5,7 +5,7 @@ it easy:
 
 ```bash
 $ pip install ph
-$ cat iris.csv | ph columns 4 150 | ph head 15 | ph tail 5 | ph tabulate --headers
+$ cat iris.csv | ph columns 4 150 | ph head 15 | ph tail 5 | ph show
       4    150
 --  ---  -----
  0  3.7    5.4
@@ -66,6 +66,8 @@ $ cat covid.csv | ph plot
 ![So fancy covid plot](https://raw.githubusercontent.com/pgdr/ph/master/assets/covid-plot.png)
 
 
+_(Notice that this needs [matplotlib](https://matplotlib.org/): `pip install ph[plot]`)_
+
 
 ---
 
@@ -93,7 +95,9 @@ pipeline.
 
 ## Getting started
 
-If you have installed `ph[data]`, you can try out the examples above using
+If you have installed `ph[data]`, you can experiment using `ph dataset` if you
+don't have an appropriate csv file available.
+
 
 ```bash
 ph dataset boston | ph describe
@@ -116,11 +120,8 @@ Toy datasets:
 Real world:
 
 * `olivetti_faces`
-* `20newsgroups`
-* `20newsgroups_vectorized`
 * `lfw_people`
 * `lfw_pairs`
-* `covtype`
 * `rcv1`
 * `kddcup99`
 * `california_housing`
@@ -193,7 +194,7 @@ amount of hacking is necessary.  We will go into details later on the `eval` and
 `appendstr`.
 
 ```bash
-$ cat a.csv | ph eval "x = 2000 + x" | ph appendstr x "-01-01" | ph date x
+$ cat a.csv | ph eval "x = 2000 + x" | ph appendstr x - | ph date x
 x,y
 2003-01-01,8
 2004-01-01,9
@@ -220,54 +221,81 @@ max    8.000000  13.000000
 
 ```
 
+---
+
+Consider `c.csv`:
+
+```csv
+it,fr,de
+79,57,79
+157,100,130
+229,130,165
+323,191,203
+470,212,262
+655,285,545
+889,423,670
+1128,653,800
+1701,949,1040
+2036,1209,1224
+2502,1412,1565
+3089,1784,1966
+3858,2281,2745
+4636,2876,3675
+5883,3661,4181
+```
+
 Print the column names:
 
 ```bash
-$ cat a.csv | ph columns
-x
-y
+$ cat c.csv | ph columns
+it
+fr
+de
 ```
 
-Selecting only certain columns, e.g. `a` and `b`
+Selecting only certain columns, e.g. `de` and `it`
 
 ```bash
-$ cat a.csv | ph columns x y
-x,y
-3,8
-4,9
-5,10
-6,11
-7,12
-8,13
+$ cat c.csv | ph columns de it | ph tail 3
+de,it
+2745,3858
+3675,4636
+4181,5883
 ```
 
 Rename:
 
 ```bash
-$ cat a.csv | ph rename x a | ph rename y b
-a,b
-3,8
-4,9
-5,10
-6,11
-7,12
-8,13
+$ cat c.csv | ph rename de Germany | ph rename it Italy | ph columns Italy Germany
+Italy,Germany
+79,79
+157,130
+229,165
+323,203
+470,262
+655,545
+889,670
+1128,800
+1701,1040
+2036,1224
+2502,1565
+3089,1966
+3858,2745
+4636,3675
+5883,4181
 ```
 
 
-You can sum two columns `x` and `y` and place the result in column `z` using
+You can sum columns and place the result in a new column using
 `eval` (from
 [`pandas.DataFrame.eval`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.eval.html#pandas.DataFrame.eval)).
 
 ```bash
-$ cat a.csv | ph eval "z = x + y"
-x,y,z
-3,8,11
-4,9,13
-5,10,15
-6,11,17
-7,12,19
-8,13,21
+$ cat c.csv | ph eval "total = it + fr + de" | ph tail 3
+it,fr,de,total
+3858,2281,2745,8884
+4636,2876,3675,11187
+5883,3661,4181,13725
 ```
 
 
@@ -283,18 +311,17 @@ x,y,z
 ```
 
 
-If you only want the sum of two columns, you can chain the two previous
-commands:
+If you only want the result, you leave the `eval` expression without assignment
 
 ```bash
-$ cat a.csv | ph eval "z = x + y" | ph columns z
-z
-11
-13
-15
-17
-19
-21
+$ cat a.csv | ph eval "x**2"
+x
+9
+16
+25
+36
+49
+64
 ```
 
 You can normalize a column using `ph normalize col`.
