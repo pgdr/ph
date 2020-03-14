@@ -360,7 +360,11 @@ def date(col):
 
 @register
 def describe():
-    print(pipein().describe())
+    df = pipein()
+    try:
+        print(pipein().describe())
+    except ValueError as err:
+        exit(err)
 
 
 @register
