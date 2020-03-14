@@ -472,6 +472,19 @@ def tabulate(*args, **kwargs):
 
 
 @register
+def show(noindex=False):
+    """Similar to ph tabulate --headers [--noindex].
+
+    Usage: cat a.csv | ph show
+           cat a.csv | ph show --noindex
+    """
+    if noindex:
+        tabulate("--headers", "--noindex")
+    else:
+        tabulate("--headers")
+
+
+@register
 def help(*args, **kwargs):
     """Writes help (docstring) about the different commands."""
     if not args:
