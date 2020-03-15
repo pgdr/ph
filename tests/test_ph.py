@@ -117,18 +117,13 @@ x,y
 def test_date(phmgr):
     with phmgr() as captured:
         ph.COMMANDS["date"]("x")
-    assert (
-        captured.out
-        == """\
-x,y
-1970-01-01 00:00:00.000000003,8
-1970-01-01 00:00:00.000000004,9
-1970-01-01 00:00:00.000000005,10
-1970-01-01 00:00:00.000000006,11
-1970-01-01 00:00:00.000000007,12
-1970-01-01 00:00:00.000000008,13
-"""
-    )
+    df = captured.df
+    df["x"] = pd.to_datetime(captured.df["x"])
+    assert list(df["y"]) == list(range(8, 14))
+    x = list(df["x"])
+    assert len(list(df["x"])) == 6
+    for i in range(6):
+        assert str(x[i]) == "1970-01-0{} 00:00:00".format(i + 4)
 
 
 def test_eval(phmgr):
