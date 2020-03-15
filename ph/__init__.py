@@ -158,8 +158,10 @@ def dropna():
 
 
 def pipeout(df, sep=",", index=False, *args, **kwargs):
+    csv = df.to_csv(sep=sep, index=index, *args, **kwargs)
+    output = csv.rstrip("\n")
     try:
-        print(df.to_csv(sep=sep, index=index, *args, **kwargs))
+        print(output)
     except BrokenPipeError:
         try:
             sys.stdout.close()
