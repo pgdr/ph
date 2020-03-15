@@ -31,10 +31,6 @@ def _read_file(fname, op):
         return op(fin.readlines())
 
 
-def _version():
-    return _read_file("ph/_version.py", lambda lines: "".join(lines).strip()).strip()
-
-
 def readme():
     try:
         return _read_file("README.md", lambda lines: "".join(lines))
@@ -42,8 +38,19 @@ def readme():
         return __description
 
 
+import re
+
+VERSIONFILE = "ph/_version.py"
+verstrline = open(VERSIONFILE, "rt").read()
+VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
+mo = re.search(VSRE, verstrline, re.M)
+if mo:
+    verstr = mo.group(1)
+else:
+    raise RuntimeError("Unable to find version string in %s." % (VERSIONFILE,))
+
 setup(
-    version=_version(),
+    version=verstr,
     name="ph",
     packages=["ph"],
     description=__description,
