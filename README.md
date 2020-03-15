@@ -162,8 +162,49 @@ $ cat a.csv | ph median
 10.5
 ```
 
-**Use `ph help` to list all commands**
+**_Use `ph help` to list all commands_**
 
+
+**dropna and fillna**
+
+Consider again the `covid.csv` file from above.
+
+```bash
+$ cat covid.csv | ph dropna
+```
+
+will remove all rows that contain N/A (`nan`) values.  If we want to keep all
+rows with at least 5 non-N/A values, we can use
+
+```bash
+$ cat covid.csv | ph dropna --thresh=5
+```
+
+If we want to drop all _columns_ with N/A values instead of all _rows_, we use
+`--axis=1`.
+
+If we want to drop only columns (resp. rows) with _all n/a_ values, we use
+`--how=all`.
+
+
+To _replace_ N/A values with other values, we can simply run
+
+```bash
+cat covid.csv | ph fillna 999.75
+```
+
+If we instead want to _pad_ the N/A values, we use `--method=pad`
+
+```bash
+cat covid.csv | ph fillna --method=pad
+```
+
+We can limit the number of consecutive N/A values that are filled by using
+(e.g.) `--limit=7`.
+
+
+
+**head and tail**
 
 Using `head` and `tail` works approximately as the normal shell equivalents,
 however they will preserve the header if there is one, e.g.
