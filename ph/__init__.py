@@ -510,8 +510,8 @@ def help(*args, **kwargs):
     print("       {}".format(ds))
 
 
-@register
-def open(ftype, fname, sheet=0):
+@registerx("open")
+def open_(ftype, fname, sheet=0):
     """Use a reader to open a file.
 
     Open ftype file with name fname and stream out.
