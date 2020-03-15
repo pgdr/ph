@@ -148,6 +148,34 @@ x,y
     )
 
 
+def test_dropna(phmgr):
+    with phmgr("covid") as captured:
+        ph.COMMANDS["dropna"]()
+    assert captured.df.shape == (5, 10)
+
+    with phmgr("covid") as captured:
+        ph.COMMANDS["dropna"](thresh=7)
+    assert captured.df.shape == (15, 10)
+
+    with phmgr("covid") as captured:
+        ph.COMMANDS["dropna"](axis=1, thresh=17)
+    assert captured.df.shape == (29, 5)
+
+
+def test_fillna(phmgr):
+    with phmgr("covid") as captured:
+        ph.COMMANDS["fillna"](17)
+    assert captured.df["Canada"].sum() == 1401
+
+    with phmgr("covid") as captured:
+        ph.COMMANDS["fillna"](19, limit=3)
+    assert captured.df["Canada"].sum() == 1050
+
+    with phmgr("covid") as captured:
+        ph.COMMANDS["fillna"](method="pad", limit=5)
+    assert captured.df["Canada"].sum() == 2493
+
+
 def test_version(phmgr):
     import ph._version
 
