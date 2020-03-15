@@ -18,7 +18,7 @@ def _data(x):
     return data
 
 
-files = ("a", "iris", "covid")
+files = ("a", "iris", "d", "covid")
 DATA = {}
 for f in files:
     DATA[f] = _data("test_data/{}.csv".format(f))
@@ -124,6 +124,22 @@ def test_date(phmgr):
     assert len(list(df["x"])) == 6
     for i in range(6):
         assert str(x[i]) == "1970-01-0{} 00:00:00".format(i + 4)
+
+    with phmgr("d") as captured:
+        ph.COMMANDS["date"]()
+    df = captured.df
+    assert len(df) == 6
+    assert df.columns == ["0"]
+    act = [str(x) for x in df["0"]]
+    exp = [
+        "2003-03-08",
+        "2004-04-09",
+        "2005-05-10",
+        "2006-06-11",
+        "2007-07-12",
+        "2008-08-13",
+    ]
+    assert act == exp
 
 
 def test_eval(phmgr):

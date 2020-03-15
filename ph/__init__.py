@@ -451,7 +451,7 @@ def normalize(col=None):
 
 
 @register
-def date(col=None, unit='D', origin='unix'):
+def date(col=None, unit="D", origin="unix"):
     """Assemble datetime from multiple columns or from one column
 
     --unit can be D, s, us, ns  (defaults to D, days from origin)
@@ -464,8 +464,7 @@ def date(col=None, unit='D', origin='unix'):
     """
     df = pipein()
     if col is None:
-        df = pipein()
-        df['__date'] = pd.to_datetime(df, unit=unit, origin=origin)
+        df = pd.to_datetime(df)
     else:
         df[col] = pd.to_datetime(df[col], unit=unit, origin=origin)
 
@@ -771,6 +770,10 @@ def columns(*cols, **kwargs):
         for col in df.columns:
             if col.endswith(q) and col not in cols:
                 cols.append(col)
+
+    for col in cols:
+        if col not in df.columns:
+            exit("No such column {}".format(col))
 
     if not cols and not kwargs:
         print("\n".join(list(df.columns)))
