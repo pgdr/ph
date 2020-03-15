@@ -1,4 +1,5 @@
-# ph - the tabular data shell tool
+# ph - the tabular data shell tool ![ph tests](https://github.com/pgdr/ph/workflows/ph%20tests/badge.svg?branch=master)
+
 
 Spoiler: Working with tabular data in the command line is difficult.  `ph` makes
 it easy:
