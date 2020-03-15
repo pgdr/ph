@@ -1,8 +1,11 @@
 import ph
-import sys
 
 import os.path
+import sys
 import io
+
+import pytest
+import contextlib
 
 
 def _src(x):
@@ -16,30 +19,45 @@ with open(A_CSV, "r") as fin:
     A_CSV_CONTENT = "".join(fin.readlines())
 
 
-def test_cat(capsys, monkeypatch):
-    monkeypatch.setattr("sys.stdin", io.StringIO(A_CSV_CONTENT))
-    ph.COMMANDS["cat"]()
-    captured = capsys.readouterr()
+class Capture:
+    # Just a mutable string container for ctx mgr around capture.out
+    def __init__(self):
+        self.out = ""
+
+
+@pytest.fixture
+def phmgr(capsys, monkeypatch):
+    @contextlib.contextmanager
+    def phmgr():
+        monkeypatch.setattr("sys.stdin", io.StringIO(A_CSV_CONTENT))
+        cap = Capture()
+        yield cap
+        outerr = capsys.readouterr()
+        cap.out, cap.err = outerr.out, outerr.err
+        assert not cap.err, "Std error not empty: {}".format(cap.err)
+
+    return phmgr
+
+
+def test_cat(phmgr):
+    with phmgr() as captured:
+        ph.COMMANDS["cat"]()
     assert captured.out == A_CSV_CONTENT
-    assert not captured.err
 
 
-def test_describe(capsys, monkeypatch):
-    monkeypatch.setattr("sys.stdin", io.StringIO(A_CSV_CONTENT))
-    ph.COMMANDS["describe"]()
-    captured = capsys.readouterr()
+def test_describe(phmgr):
+    with phmgr() as captured:
+        ph.COMMANDS["describe"]()
     assert len(captured.out.split("\n")) == 10
     header = set(captured.out.split("\n")[0].split())
     assert "x" in header
     assert "y" in header
     assert "max" in captured.out
-    assert not captured.err
 
 
-def test_transpose(capsys, monkeypatch):
-    monkeypatch.setattr("sys.stdin", io.StringIO(A_CSV_CONTENT))
-    ph.COMMANDS["transpose"]()
-    captured = capsys.readouterr()
+def test_transpose(phmgr):
+    with phmgr() as captured:
+        ph.COMMANDS["transpose"]()
     assert (
         captured.out
         == """\
@@ -48,13 +66,11 @@ def test_transpose(capsys, monkeypatch):
 8,9,10,11,12,13
 """
     )
-    assert not captured.err
 
 
-def test_median(capsys, monkeypatch):
-    monkeypatch.setattr("sys.stdin", io.StringIO(A_CSV_CONTENT))
-    ph.COMMANDS["median"]()
-    captured = capsys.readouterr()
+def test_median(phmgr):
+    with phmgr() as captured:
+        ph.COMMANDS["median"]()
     assert (
         captured.out
         == """\
@@ -63,7 +79,6 @@ def test_median(capsys, monkeypatch):
 10.5
 """
     )
-    assert not captured.err
 
 
 def test_head_tail(capsys, monkeypatch):
@@ -87,11 +102,9 @@ x,y
     assert not captured.err
 
 
-def test_date(capsys, monkeypatch):
-    monkeypatch.setattr("sys.stdin", io.StringIO(A_CSV_CONTENT))
-    ph.COMMANDS["date"]("x")
-    captured = capsys.readouterr()
-    assert not captured.err
+def test_date(phmgr):
+    with phmgr() as captured:
+        ph.COMMANDS["date"]("x")
     assert (
         captured.out
         == """\
@@ -106,11 +119,9 @@ x,y
     )
 
 
-def test_eval(capsys, monkeypatch):
-    monkeypatch.setattr("sys.stdin", io.StringIO(A_CSV_CONTENT))
-    ph.COMMANDS["eval"]("x = x**2")
-    captured = capsys.readouterr()
-    assert not captured.err
+def test_eval(phmgr):
+    with phmgr() as captured:
+        ph.COMMANDS["eval"]("x = x**2")
     assert (
         captured.out
         == """\
