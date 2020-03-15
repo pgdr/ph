@@ -32,7 +32,7 @@ def _read_file(fname, op):
 
 
 def _version():
-    return _read_file("ph/version.txt", lambda lines: "".join(lines).strip()).strip()
+    return _read_file("ph/_version.py", lambda lines: "".join(lines).strip()).strip()
 
 
 def readme():

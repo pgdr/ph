@@ -7,18 +7,14 @@ import pandas as pd
 import re
 
 
-def __src(x):
-    root = os.path.dirname(__file__)
-    return os.path.abspath(os.path.join(root, x))
+def _get_version():
+    import ph._version
+
+    return ph._version.__version__
 
 
-def __read_file(fname):
-    with open(__src(fname), "r") as fin:
-        return "".join([e.strip() for e in fin.readlines()]).strip()
-
-
-def _version():
-    return __read_file("version.txt")
+def print_version():
+    print(_get_version())
 
 
 # Command line parsing of (1) --abc and (2) --abc=def
@@ -733,7 +729,7 @@ def main():
         exit("Usage: ph command [args]\n       ph help")
     cmd = sys.argv[1]
     if cmd in ("-v", "--version"):
-        print(_version())
+        print_version()
         exit()
     if cmd not in COMMANDS:
         exit("Unknown command {}.".format(cmd))

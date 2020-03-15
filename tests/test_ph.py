@@ -134,3 +134,12 @@ x,y
 64,13
 """
     )
+
+
+def test_version(phmgr):
+    import ph._version
+
+    with phmgr() as captured:
+        ph.print_version()
+    assert not captured.err
+    assert captured.out == ph._version.__version__ + "\n"
