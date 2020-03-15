@@ -229,6 +229,46 @@ def pipein(ftype="csv"):
 
 
 @register
+def fillna(value=None, method=None, limit=None):
+    """Fill na values with a certain value or method, at most `limit` many.
+
+    Takes either a value, or a method using (e.g.) --method=ffill.
+
+    Argument: value
+    If provided, replaces all N/A values with prescribed value.
+
+    Argument: --method=pad
+    If provided, value cannot be provided.  Allowed methods are
+    backfill, bfill, pad, ffill
+
+    Argument: --limit=x
+    If provided, limits number of consecutive N/A values to fill.
+
+
+    Usage: cat a.csv | ph fillna 999.75
+           cat a.csv | ph fillna -1
+           cat a.csv | ph fillna --method=pad
+           cat a.csv | ph fillna --method=pad --limit=5
+
+    """
+    if limit is not None:
+        try:
+            limit = int(limit)
+        except ValueError:
+            exit("--limit=x must be an integer, not {}".format(limit))
+    METHODS = ("backfill", "bfill", "pad", "ffill")
+    if method is not None:
+        if method not in METHODS:
+            exit("method must be one of {}, not {}".format(METHODS, method))
+        pipeout(pipein().fillna(method=method, limit=limit))
+    elif value is not None:
+        value = __tryparse(value)
+        pipeout(pipein().fillna(value=value, limit=limit))
+    else:
+        exit("'ph dropna' needs exactly one of value and method")
+
+
+@register
 def query(expr):
     """Using pandas queries.
 
