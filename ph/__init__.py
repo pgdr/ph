@@ -826,7 +826,10 @@ def main():
             kwarg[k] = v
         else:
             args.append(a)
-    COMMANDS[cmd](*args, **kwarg)
+    try:
+        COMMANDS[cmd](*args, **kwarg)
+    except TypeError as err:
+        exit(err)
 
 
 if __name__ == "__main__":
