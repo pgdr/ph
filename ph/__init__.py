@@ -433,6 +433,15 @@ def eval(expr):
 
 @register
 def normalize(col=None):
+    """Normalize a column or an entire dataframe.
+
+    Usage: cat a.csv | ph normalize
+           cat a.csv | ph normalize x
+
+
+    Warning:  This is probably not what you want.
+
+    """
     df = pipein()
     if col is None:
         df = (df - df.min()) / (df.max() - df.min())
@@ -465,6 +474,12 @@ def date(col=None, unit='D', origin='unix'):
 
 @register
 def describe():
+    """Run DataFrame's describe method.
+
+    The result is NOT tabular data, so pipeline ends.
+
+    Usage: cat a.csv | ph describe
+    """
     try:
         print(pipein().describe())
     except ValueError as err:
@@ -473,6 +488,12 @@ def describe():
 
 @register
 def info():
+    """Run DataFrame's info method.
+
+    The result is NOT tabular data, so pipeline ends.
+
+    Usage: cat a.csv | ph info
+    """
     print(pipein().info())
 
 
