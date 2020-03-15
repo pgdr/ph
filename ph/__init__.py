@@ -163,9 +163,46 @@ def dataset(dset=None):
 
 
 @register
-def dropna():
-    """Remove rows with N/A values"""
-    pipeout(pipein().dropna())
+def dropna(axis=0, how="any", thresh=None):
+    """Remove rows (or columns) with N/A values.
+
+    Argument: --axis=0
+    Defaults to axis=0 (columns), use --axis=1 to remove rows.
+
+    Argument: --how=any
+    Defaults to how='any', which removes columns (resp. rows) containing
+    nan values.  Use how='all' to remove columns (resp. rows) containing
+    only nan values.
+
+    Argument: --thresh=5
+    If --thresh=x is specified, will delete any column (resp. row) with
+    fewer than x non-na values.
+
+    Usage: cat a.csv | ph dropna
+           cat a.csv | ph dropna --axis=1    # for row-wise
+           cat a.csv | ph dropna --thresh=5  # keep cols with >= 5 non-na
+           cat a.csv | ph dropna --how=all   # delete only if all vals na
+
+    """
+    try:
+        axis = int(axis)
+        if axis not in (0, 1):
+            exit("ph dropna --axis=0 or --axis=1, not {}".format(axis))
+    except ValueError:
+        exit("ph dropna --axis=0 or --axis=1, not {}".format(axis))
+
+    if thresh is not None:
+        try:
+            thresh = int(thresh)
+        except ValueError:
+            exit("ph dropna --thresh=0 or --thresh=1, not {}".format(thresh))
+
+    df = pipein()
+    try:
+        df = df.dropna(axis=axis, how=how, thresh=thresh)
+    except Exception as err:
+        exit(err)
+    pipeout(df)
 
 
 def pipeout(df, sep=",", index=False, *args, **kwargs):
