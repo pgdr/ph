@@ -7,16 +7,21 @@ import io
 import pytest
 import contextlib
 
+import pandas as pd
 
-def _src(x):
+
+def _data(x):
     root = os.path.dirname(__file__)
-    return os.path.abspath(os.path.join(root, x))
+    path = os.path.abspath(os.path.join(root, x))
+    with open(path, "r") as fin:
+        data = "".join(fin.readlines())
+    return data
 
 
-A_CSV = _src("test_data/a.csv")
-A_CSV_CONTENT = ""
-with open(A_CSV, "r") as fin:
-    A_CSV_CONTENT = "".join(fin.readlines())
+files = ("a", "iris", "covid")
+DATA = {}
+for f in files:
+    DATA[f] = _data("test_data/{}.csv".format(f))
 
 
 class Capture:
@@ -24,12 +29,16 @@ class Capture:
     def __init__(self):
         self.out = ""
 
+    @property
+    def df(self):
+        return pd.read_csv(io.StringIO(self.out))
+
 
 @pytest.fixture
 def phmgr(capsys, monkeypatch):
     @contextlib.contextmanager
-    def phmgr():
-        monkeypatch.setattr("sys.stdin", io.StringIO(A_CSV_CONTENT))
+    def phmgr(dataset="a"):
+        monkeypatch.setattr("sys.stdin", io.StringIO(DATA[dataset]))
         cap = Capture()
         yield cap
         outerr = capsys.readouterr()
@@ -42,7 +51,7 @@ def phmgr(capsys, monkeypatch):
 def test_cat(phmgr):
     with phmgr() as captured:
         ph.COMMANDS["cat"]()
-    assert captured.out == A_CSV_CONTENT
+    assert captured.out == DATA["a"]
 
 
 def test_describe(phmgr):
@@ -53,6 +62,15 @@ def test_describe(phmgr):
     assert "x" in header
     assert "y" in header
     assert "max" in captured.out
+
+
+def test_shape(phmgr):
+    with phmgr("covid") as captured:
+        ph.COMMANDS["shape"]()
+    df = captured.df
+    assert list(df.columns) == ["rows", "columns"]
+    assert list(df["rows"]) == [29]
+    assert list(df["columns"]) == [10]
 
 
 def test_transpose(phmgr):
@@ -71,18 +89,12 @@ def test_transpose(phmgr):
 def test_median(phmgr):
     with phmgr() as captured:
         ph.COMMANDS["median"]()
-    assert (
-        captured.out
-        == """\
-0
-5.5
-10.5
-"""
-    )
+    df = captured.df["0"]
+    assert list(df) == [5.5, 10.5]
 
 
 def test_head_tail(capsys, monkeypatch):
-    monkeypatch.setattr("sys.stdin", io.StringIO(A_CSV_CONTENT))
+    monkeypatch.setattr("sys.stdin", io.StringIO(DATA["a"]))
     ph.COMMANDS["head"](7)
     captured = capsys.readouterr()
     assert not captured.err
