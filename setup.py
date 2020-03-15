@@ -31,6 +31,10 @@ def _read_file(fname, op):
         return op(fin.readlines())
 
 
+def _version():
+    return _read_file("ph/version.txt", lambda lines: "".join(lines).strip()).strip()
+
+
 def readme():
     try:
         return _read_file("README.md", lambda lines: "".join(lines))
@@ -39,7 +43,7 @@ def readme():
 
 
 setup(
-    version="0.0.27",
+    version=_version(),
     name="ph",
     packages=["ph"],
     description=__description,

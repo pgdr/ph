@@ -6,6 +6,21 @@ import os.path
 import pandas as pd
 import re
 
+
+def __src(x):
+    root = os.path.dirname(__file__)
+    return os.path.abspath(os.path.join(root, x))
+
+
+def __read_file(fname):
+    with open(__src(fname), "r") as fin:
+        return "".join([e.strip() for e in fin.readlines()]).strip()
+
+
+def _version():
+    return __read_file("version.txt")
+
+
 # Command line parsing of (1) --abc and (2) --abc=def
 KWARG = re.compile("^--[a-z0-9_-]+$")
 KWARG_WITH_VALUE = re.compile("^--[a-z0-9_-]+=")
@@ -717,6 +732,9 @@ def main():
     if len(sys.argv) < 2:
         exit("Usage: ph command [args]\n       ph help")
     cmd = sys.argv[1]
+    if cmd in ("-v", "--version"):
+        print(_version())
+        exit()
     if cmd not in COMMANDS:
         exit("Unknown command {}.".format(cmd))
 
