@@ -116,7 +116,7 @@ x,y
 
 def test_date(phmgr):
     with phmgr() as captured:
-        ph.COMMANDS["date"]("x")
+        ph.COMMANDS["date"]("x", unit="D")
     df = captured.df
     df["x"] = pd.to_datetime(captured.df["x"])
     assert list(df["y"]) == list(range(8, 14))

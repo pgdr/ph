@@ -451,10 +451,10 @@ def normalize(col=None):
 
 
 @register
-def date(col=None, unit="D", origin="unix"):
+def date(col=None, unit=None, origin="unix"):
     """Assemble datetime from multiple columns or from one column
 
-    --unit can be D, s, us, ns  (defaults to D, days from origin)
+    --unit can be D, s, us, ns (defaults to ns, ns from origin)
 
     --origin can be unix, julian, or time offset, e.g. '2000-01-01'
 
@@ -463,10 +463,13 @@ def date(col=None, unit="D", origin="unix"):
 
     """
     df = pipein()
-    if col is None:
-        df = pd.to_datetime(df)
-    else:
-        df[col] = pd.to_datetime(df[col], unit=unit, origin=origin)
+    try:
+        if col is None:
+            df = pd.to_datetime(df)
+        else:
+            df[col] = pd.to_datetime(df[col], unit=unit, origin=origin)
+    except Exception as err:
+        exit(err)
 
     pipeout(df)
 
