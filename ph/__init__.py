@@ -28,7 +28,7 @@ ph is a command line tool for streaming csv data.
 If you have a csv file `a.csv`, you can pipe it through `ph` on the
 command line by using
 
-$ cat a.csv | ph columns x y | ph tabulate
+$ cat a.csv | ph columns x y | ph eval "z = x**2 - y" | ph show
 
 Use ph help [command] for help on the individual commands.
 
@@ -626,13 +626,21 @@ def show(noindex=False):
         tabulate("--headers")
 
 
+def _print_commands(cmds):
+    num_cols = 72 // max(len(cmd) for cmd in cmds)
+    while (len(cmds) % num_cols) != 0:
+        cmds.append("")
+    df = pd.DataFrame(pd.Series(cmds).values.reshape(num_cols, -1))
+    print(tabulate_(df.transpose(), showindex=False))
+
+
 @register
 def help(*args, **kwargs):
     """Writes help (docstring) about the different commands."""
     if not args:
         print("Usage: ph command arguments")
         print(USAGE_TEXT)
-        print("       commands = {}".format(list(COMMANDS.keys())))
+        _print_commands(sorted(COMMANDS.keys()))
         exit(0)
     cmd = args[0]
     import ph
