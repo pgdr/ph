@@ -71,13 +71,13 @@ def test_cat_many(capsys):
     cap = Capture(capsys.readouterr())
     assert not cap.err
     df = cap.df
-    assert len(df) == 35
+    assert list(df.shape) == [35, 12]
 
     ph.cat(pth("a"), pth("covid"), axis="columns")
     cap = Capture(capsys.readouterr())
     assert not cap.err
     df = cap.df
-    assert len(df) == 29
+    assert list(df.shape) == [29, 12]
 
 
 def test_describe(phmgr):

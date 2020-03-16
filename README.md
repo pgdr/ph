@@ -165,6 +165,23 @@ $ cat a.csv | ph median
 **_Use `ph help` to list all commands_**
 
 
+**cat**
+
+It is possible to _concatenate_ (`cat`) multiple csv-files with `ph cat`:
+
+```bash
+$ ph cat a.csv b.csv --axis=index
+```
+
+```bash
+$ ph cat a.csv b.csv --axis=columns
+```
+
+The functionality is described in
+[`pandas.concat`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.concat.html).
+
+
+
 **dropna and fillna**
 
 Consider again the `covid.csv` file from above.
