@@ -10,9 +10,14 @@ import contextlib
 import pandas as pd
 
 
-def _data(x):
+def _src(pth):
     root = os.path.dirname(__file__)
-    path = os.path.abspath(os.path.join(root, x))
+    path = os.path.abspath(os.path.join(root, pth))
+    return path
+
+
+def _data(pth):
+    path = _src(pth)
     with open(path, "r") as fin:
         data = "".join(fin.readlines())
     return data
@@ -26,8 +31,13 @@ for f in files:
 
 class Capture:
     # Just a mutable string container for ctx mgr around capture.out
-    def __init__(self):
-        self.out = ""
+    def __init__(self, outerr=None):
+        if outerr is not None:
+            self.out = outerr.out
+            self.err = outerr.err
+        else:
+            self.out = ""
+            self.err = ""
 
     @property
     def df(self):
@@ -52,6 +62,22 @@ def test_cat(phmgr):
     with phmgr() as captured:
         ph.COMMANDS["cat"]()
     assert captured.out == DATA["a"]
+
+
+def test_cat_many(capsys):
+    pth = lambda f: _src("test_data/{}.csv".format(f))
+
+    ph.cat(pth("a"), pth("covid"), axis="index")
+    cap = Capture(capsys.readouterr())
+    assert not cap.err
+    df = cap.df
+    assert len(df) == 35
+
+    ph.cat(pth("a"), pth("covid"), axis="columns")
+    cap = Capture(capsys.readouterr())
+    assert not cap.err
+    df = cap.df
+    assert len(df) == 29
 
 
 def test_describe(phmgr):

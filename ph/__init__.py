@@ -554,12 +554,27 @@ def from_(ftype="csv"):
 
 
 @register
-def cat(fname=None):
-    """Opens a file if provided (like `open`), or else cats it."""
-    if fname is None:
+def cat(*fnames, axis="index"):
+    """Concatenates all files provided.
+
+    Usage: ph cat a.csv b.csv c.csv
+           ph cat a.csv b.csv c.csv --axis=index  # default
+           ph cat a.csv b.csv c.csv --axis=columns
+
+    If no arguments are provided, read from std in.
+
+    """
+    if axis not in ("index", "columns"):
+        exit("Unknown axis command '{}'".format(axis))
+    if not fnames:
         pipeout(pipein())
     else:
-        pipeout(pd.read_csv(fname))
+        dfs = []
+        for fname in fnames:
+            df = pd.read_csv(fname)
+            dfs.append(df)
+        retval = pd.concat(dfs, axis=axis)
+        pipeout(retval)
 
 
 @register
