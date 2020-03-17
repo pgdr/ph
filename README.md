@@ -165,7 +165,11 @@ $ cat a.csv | ph median
 **_Use `ph help` to list all commands_**
 
 
-**cat**
+## The tools
+
+### Concatenating, merging, filtering
+
+#### `cat`
 
 It is possible to _concatenate_ (`cat`) multiple csv-files with `ph cat`:
 
@@ -182,7 +186,9 @@ The functionality is described in
 
 
 
-**dropna and fillna**
+
+#### `dropna` and `fillna`
+
 
 Consider again the `covid.csv` file from above.
 
@@ -221,7 +227,12 @@ We can limit the number of consecutive N/A values that are filled by using
 
 
 
-**head and tail**
+
+
+
+
+
+#### `head` and `tail`
 
 Using `head` and `tail` works approximately as the normal shell equivalents,
 however they will preserve the header if there is one, e.g.
@@ -264,23 +275,69 @@ x,y
 ```
 
 
-The normal Pandas `describe` is of course available:
+#### `merge`
 
-```bash
-$ cat a.csv | ph describe
-              x          y
-count  6.000000   6.000000
-mean   5.500000  10.500000
-std    1.870829   1.870829
-min    3.000000   8.000000
-25%    4.250000   9.250000
-50%    5.500000  10.500000
-75%    6.750000  11.750000
-max    8.000000  13.000000
+Merging two csv files is made available through `ph merge f1 f2`.
 
+Consider `left.csv`
+
+```csv
+key1,key2,A,B
+K0,K0,A0,B0
+K0,K1,A1,B1
+K1,K0,A2,B2
+K2,K1,A3,B3
 ```
 
----
+and `right.csv`
+
+```csv
+key1,key2,C,D
+K0,K0,C0,D0
+K1,K0,C1,D1
+K1,K0,C2,D2
+K2,K0,C3,D3
+```
+
+We can merge them using (default to `--how=inner`)
+
+```bash
+$ ph merge left.csv right.csv
+key1,key2,A,B,C,D
+K0,K0,A0,B0,C0,D0
+K1,K0,A2,B2,C1,D1
+K1,K0,A2,B2,C2,D2
+```
+
+or using an _outer_ join:
+
+```bash
+$ ph merge left.csv right.csv --how=outer
+key1,key2,A,B,C,D
+K0,K0,A0,B0,C0,D0
+K0,K1,A1,B1,,
+K1,K0,A2,B2,C1,D1
+K1,K0,A2,B2,C2,D2
+K2,K1,A3,B3,,
+K2,K0,,,C3,D3
+```
+
+and we can specify on which column to join:
+
+```bash
+$ ph merge left.csv right.csv --on=key1 --how=outer
+key1,key2_x,A,B,key2_y,C,D
+K0,K0,A0,B0,K0,C0,D0
+K0,K1,A1,B1,K0,C0,D0
+K1,K0,A2,B2,K0,C1,D1
+K1,K0,A2,B2,K0,C2,D2
+K2,K1,A3,B3,K0,C3,D3
+```
+
+
+### Editing the csv
+
+#### `columns`, listing, selecting and re-ordering of
 
 Consider `c.csv`:
 
@@ -322,7 +379,8 @@ de,it
 4181,5883
 ```
 
-Rename:
+
+#### `rename`
 
 ```bash
 $ cat c.csv | ph rename de Germany | ph rename it Italy | ph columns Italy Germany
@@ -344,6 +402,8 @@ Italy,Germany
 5883,4181
 ```
 
+
+#### `eval`; Mathematipulating and creating new columns
 
 You can sum columns and place the result in a new column using
 `eval` (from
@@ -383,6 +443,9 @@ x
 64
 ```
 
+
+#### `normalize`
+
 You can normalize a column using `ph normalize col`.
 
 ```bash
@@ -395,6 +458,10 @@ x,y,z
 7,12,0.75
 8,13,1.0
 ```
+
+
+
+#### `query`
 
 We can [query](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html) data using `ph query expr`.
 
@@ -430,7 +497,44 @@ $ ph open csv 'http://bit.ly/2cLzoxH' | ph query "country == 'Norway'" | ph tabu
 11  Norway       2007  4.62793e+06  Europe          80.196      49357.2
 ```
 
-## Tabulate
+### Analyzing the csv file
+
+
+#### `describe`
+
+The normal Pandas `describe` is of course available:
+
+```bash
+$ cat a.csv | ph describe
+              x          y
+count  6.000000   6.000000
+mean   5.500000  10.500000
+std    1.870829   1.870829
+min    3.000000   8.000000
+25%    4.250000   9.250000
+50%    5.500000  10.500000
+75%    6.750000  11.750000
+max    8.000000  13.000000
+```
+
+
+#### `show`
+
+The shorthand `ph show` simply calls the below `ph tabulate --headers`.
+
+```bash
+$ cat a.csv | ph show
+      x    y
+--  ---  ---
+ 0    3    8
+ 1    4    9
+ 2    5   10
+ 3    6   11
+ 4    7   12
+ 5    8   13
+```
+
+#### `tabulate`
 
 The amazing _tabulate_ tool comes from the Python package
 [tabulate on PyPI](https://pypi.org/project/tabulate/).
@@ -448,7 +552,7 @@ Among the supported format styles are
   [python-tabulate](https://github.com/astanin/python-tabulate).)
 
 
-## Plotting data
+#### `plot`
 
 You can plot data using `ph plot [--index=col]`.
 
@@ -501,7 +605,10 @@ $ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appen
 
 
 
-## Working with different file types
+## Working with different formats
+
+
+### `open`
 
 Pandas supports reading a multitude of [readers](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html).
 
@@ -522,6 +629,57 @@ x,y
 7,12
 8,13
 ```
+
+
+### `to` and `from`; Exporting and importing
+
+Observe the following:
+
+```bash
+{"x":{"0":3,"1":4,"2":5,"3":6,"4":7,"5":8},
+ "y":{"0":8,"1":9,"2":10,"3":11,"4":12,"5":13}}
+```
+
+Of course, then,
+
+```bash
+$ cat a.csv | ph to json | ph from json
+x,y
+3,8
+4,9
+5,10
+6,11
+7,12
+8,13
+```
+
+This also means that
+
+```bash
+$ cat a.csv | ph to json > a.json
+$ cat a.json
+{"x":{"0":3,"1":4,"2":5,"3":6,"4":7,"5":8},
+ "y":{"0":8,"1":9,"2":10,"3":11,"4":12,"5":13}}
+$ cat a.json | ph from json
+x,y
+3,8
+4,9
+5,10
+6,11
+7,12
+8,13
+```
+
+You can open Excel-like formats using `ph open excel fname.xls[x]`, `parquet`
+files with `ph open parquet data.parquet`.  Note that these two examples require
+`xlrd` and `pyarrow`, respectively, or simply
+
+```
+pip install ph[complete]
+```
+
+
+### Supported formats
 
 * `csv` / `tsv` (the latter for tab-separated values)
 * `fwf` (fixed-width file format)
