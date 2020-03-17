@@ -301,12 +301,15 @@ def astype(type, column=None, newcolumn=None):
 
     """
     df = pipein()
-    if column is None:
-        df = df.astype(type)
-    elif newcolumn is not None:
-        df[newcolumn] = df[column].astype(type)
-    else:
-        df[column] = df[column].astype(type)
+    try:
+        if column is None:
+            df = df.astype(type)
+        elif newcolumn is not None:
+            df[newcolumn] = df[column].astype(type)
+        else:
+            df[column] = df[column].astype(type)
+    except ValueError as err:
+        exit("Could not convert to {}: {}".format(type, err))
     pipeout(df)
 
 
@@ -525,6 +528,17 @@ def to(ftype, fname=None):
 
     if ftype == "hdf5":
         exit("hdf5 writer not implemented")
+
+    if ftype == "fwf":
+        # pandas has not yet implemented to_fwf
+        df = pipein()
+        content = tabulate_(df.values.tolist(), list(df.columns), tablefmt="plain")
+        if fname:
+            with open(fname, "w") as wout:
+                wout.write(content)
+        else:
+            print(content)
+        exit()
 
     writer = WRITERS[ftype]
     df = pipein()
