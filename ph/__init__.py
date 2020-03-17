@@ -578,6 +578,25 @@ def cat(*fnames, axis="index"):
 
 
 @register
+def merge(fname1, fname2, how="inner", on=None):
+    """
+    Merging two csv files.
+
+    Usage: ph merge a.csv b.csv --on=ijk
+
+    """
+    hows = ("left", "right", "outer", "inner")
+    if how not in hows:
+        exit("Unknown merge --how={}, must be one of {}".format(how, hows))
+    df1 = pd.read_csv(fname1)
+    df2 = pd.read_csv(fname2)
+    if on is None:
+        pipeout(pd.merge(df1, df2, how=how))
+    else:
+        pipeout(pd.merge(df1, df2, how=how, on=on))
+
+
+@register
 def tab():
     pipeout(pipein(), sep="\t")
 
