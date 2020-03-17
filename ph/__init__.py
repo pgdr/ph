@@ -44,7 +44,7 @@ READERS = {
     "fwf": lambda fname: pd.read_fwf(fname),
     "json": lambda fname: pd.read_json(fname),
     "html": lambda fname: pd.read_html(fname),
-    "clipboard": lambda fname: pd.read_clipboard(fname),
+    "clipboard": lambda: pd.read_clipboard(),
     "excel": lambda fname, sheet: pd.read_excel(fname, sheet),
     "xls": lambda fname, sheet: pd.read_excel(fname, sheet),
     "odf": lambda fname, sheet: pd.read_excel(fname, sheet),
@@ -550,7 +550,10 @@ def from_(ftype="csv"):
     cat a.csv | ph to json | ph from json
 
     """
-    pipeout(pipein(ftype))
+    if ftype == "clipboard":
+        pipeout(READERS["clipboard"]())
+    else:
+        pipeout(pipein(ftype))
 
 
 @register
