@@ -94,6 +94,37 @@ in `csv` format.
 The goal is to create a tool which makes it nicer to work with tabular data in a
 pipeline.
 
+
+---
+
+* [Getting started](#getting-started)
+* [Example usage](#example-usage)
+* [The tools](#the-tools)
+  * [Concatenating, merging, filtering](#concatenating--merging--filtering)
+    * [`cat`](#-cat-)
+    * [`dropna` and `fillna`](#-dropna--and--fillna-)
+    * [`head` and `tail`](#-head--and--tail-)
+    * [`merge`](#-merge-)
+  * [Editing the csv](#editing-the-csv)
+    * [`columns`, listing, selecting and re-ordering of](#-columns---listing--selecting-and-re-ordering-of)
+    * [`rename`](#-rename-)
+    * [`eval`; Mathematipulating and creating new columns](#-eval---mathematipulating-and-creating-new-columns)
+    * [`normalize`](#-normalize-)
+    * [`query`](#-query-)
+  * [Analyzing the csv file](#analyzing-the-csv-file)
+    * [`describe`](#-describe-)
+    * [`show`](#-show-)
+    * [`tabulate`](#-tabulate-)
+    * [`plot`](#-plot-)
+* [Working with different formats](#working-with-different-formats)
+  * [`open`](#-open-)
+  * [`to` and `from`; Exporting and importing](#-to--and--from---exporting-and-importing)
+  * [Supported formats](#supported-formats)
+
+
+---
+
+
 ## Getting started
 
 If you have installed `ph[data]`, you can experiment using `ph dataset` if you
