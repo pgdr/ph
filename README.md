@@ -583,6 +583,20 @@ Among the supported format styles are
   [python-tabulate](https://github.com/astanin/python-tabulate).)
 
 
+#### `sort` values by column
+
+You can the columns in the csv data by a certain column:
+
+```bash
+$ cat iris.csv  | ph sort setosa | ph tail 5
+150,4,setosa,versicolor,virginica
+7.9,3.8,6.4,2.0,2
+7.6,3.0,6.6,2.1,2
+7.7,3.8,6.7,2.2,2
+7.7,2.8,6.7,2.0,2
+7.7,2.6,6.9,2.3,2
+```
+
 #### `plot`
 
 You can plot data using `ph plot [--index=col]`.

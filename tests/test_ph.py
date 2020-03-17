@@ -236,6 +236,23 @@ def test_merge(capsys):
     assert list(cap.df.shape) == [5, 7]
 
 
+def test_sort(phmgr):
+    with phmgr("iris") as captured:
+        ph.sort("setosa")
+    assert not captured.err
+    lst = list(captured.df["setosa"])
+    assert lst == sorted(lst)
+
+
+def test_polyfit(phmgr):
+    with phmgr() as captured:
+        ph.polyfit("x", "y")
+    assert not captured.err
+    df = captured.df
+    assert list(df.columns) == ["x", "y", "polyfit_1"]
+    assert df["y"].equals(df["polyfit_1"].astype(int))
+
+
 def test_version(phmgr):
     import ph._version
 

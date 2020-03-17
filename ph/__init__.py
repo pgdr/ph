@@ -846,6 +846,49 @@ def empty():
     print("empty\n{}".format(pipein().empty))
 
 
+@register
+def sort(col):
+    """Sort csv input by column.
+
+    Usage: cat iris.csv | ph sort setosa
+
+    """
+    df = pipein()
+    if not col in df.columns:
+        exit("Unknown column {}".format(col))
+    pipeout(df.sort_values(col))
+
+
+@register
+def polyfit(x, y, deg=1):
+    """Perform linear/polynomial regression.
+
+    Usage: cat a.csv | ph polyfix x y
+           cat a.csv | ph polyfix x y --deg=1  # default
+           cat a.csv | ph polyfix x y --deg=2  # default
+
+    Outputs a column polyfit_{deg} containing the evaluated index.
+
+    """
+    df = pipein()
+    if x not in df.columns:
+        exit("Unknown column x={}".format(x))
+    if y not in df.columns:
+        exit("Unknown column y={}".format(y))
+    deg = __tryparse(deg)
+    if not isinstance(deg, int) or deg <= 0:
+        exit("deg={} should be a positive int".format(deg))
+    try:
+        import numpy
+    except ImportError:
+        exit("numpy needed for polyfit.  pip install numpy")
+    polynomial = numpy.polyfit(df[x], df[y], deg=deg)
+    f = numpy.poly1d(polynomial)
+
+    df["polyfit_{}".format(deg)] = df[x].apply(f)
+    pipeout(df)
+
+
 pandas_computations = [
     "abs",
     "all",
