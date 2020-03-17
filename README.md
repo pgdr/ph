@@ -102,13 +102,13 @@ pipeline.
 * [The tools](#the-tools)
   * [Concatenating, merging, filtering](#concatenating--merging--filtering)
     * [`cat`](#cat)
-    * [`dropna` and `fillna`](#dropna--and--fillna)
-    * [`head` and `tail`](#head--and--tail)
+    * [`dropna` and `fillna`](#dropna-and-fillna)
+    * [`head` and `tail`](#head-and-tail)
     * [`merge`](#merge)
   * [Editing the csv](#editing-the-csv)
-    * [`columns`, listing, selecting and re-ordering of](#columns---listing--selecting-and-re-ordering-of)
+    * [`columns`, listing, selecting and re-ordering of](#columns-listing-selecting-and-re-ordering-of)
     * [`rename`](#rename)
-    * [`eval`; Mathematipulating and creating new columns](#eval---mathematipulating-and-creating-new-columns)
+    * [`eval`; Mathematipulating and creating new columns](#eval-mathematipulating-and-creating-new-columns)
     * [`normalize`](#normalize)
     * [`query`](#query)
   * [Analyzing the csv file](#analyzing-the-csv-file)
@@ -121,7 +121,7 @@ pipeline.
     * [`polyfit`](#polyfit)
 * [Working with different formats](#working-with-different-formats)
   * [`open`](#open)
-  * [`to` and `from`; Exporting and importing](#to--and--from---exporting-and-importing)
+  * [`to` and `from`; Exporting and importing](#to-and-from-exporting-and-importing)
   * [Supported formats](#supported-formats)
 
 
@@ -670,7 +670,7 @@ index,x,y
 #### `polyfit`
 
 You can perform **linear regression** and **polynomial regression** on a certain
-index column `x` and an `y = f(x)` column using `ph polyfit`.  It takes two
+index column `x` and a `y = f(x)` column using `ph polyfit`.  It takes two
 arguments, the `x` column name, the `y` column name and an optional
 `--deg=<degree>`, the degree of the polynomial.  The default option is `--deg=1`
 which corresponds to a linear regression.
