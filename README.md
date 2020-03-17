@@ -101,24 +101,26 @@ pipeline.
 * [Example usage](#example-usage)
 * [The tools](#the-tools)
   * [Concatenating, merging, filtering](#concatenating--merging--filtering)
-    * [`cat`](#-cat-)
-    * [`dropna` and `fillna`](#-dropna--and--fillna-)
-    * [`head` and `tail`](#-head--and--tail-)
-    * [`merge`](#-merge-)
+    * [`cat`](#cat)
+    * [`dropna` and `fillna`](#dropna--and--fillna)
+    * [`head` and `tail`](#head--and--tail)
+    * [`merge`](#merge)
   * [Editing the csv](#editing-the-csv)
-    * [`columns`, listing, selecting and re-ordering of](#-columns---listing--selecting-and-re-ordering-of)
-    * [`rename`](#-rename-)
-    * [`eval`; Mathematipulating and creating new columns](#-eval---mathematipulating-and-creating-new-columns)
-    * [`normalize`](#-normalize-)
-    * [`query`](#-query-)
+    * [`columns`, listing, selecting and re-ordering of](#columns---listing--selecting-and-re-ordering-of)
+    * [`rename`](#rename)
+    * [`eval`; Mathematipulating and creating new columns](#eval---mathematipulating-and-creating-new-columns)
+    * [`normalize`](#normalize)
+    * [`query`](#query)
   * [Analyzing the csv file](#analyzing-the-csv-file)
-    * [`describe`](#-describe-)
-    * [`show`](#-show-)
-    * [`tabulate`](#-tabulate-)
-    * [`plot`](#-plot-)
+    * [`describe`](#describe)
+    * [`sort`](#sort)
+    * [`show`](#show)
+    * [`tabulate`](#tabulate)
+    * [`plot`](#plot)
+    * [`polyfit`](#polyfit)
 * [Working with different formats](#working-with-different-formats)
-  * [`open`](#-open-)
-  * [`to` and `from`; Exporting and importing](#-to--and--from---exporting-and-importing)
+  * [`open`](#open)
+  * [`to` and `from`; Exporting and importing](#to--and--from---exporting-and-importing)
   * [Supported formats](#supported-formats)
 
 
@@ -649,6 +651,43 @@ $ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appen
 
 
 
+
+#### `polyfit`
+
+You can perform **linear regression** and **polynomial regression** on a certain
+index column `x` and an `y = f(x)` column using `ph polyfit`.  It takes two
+arguments, the `x` column name, the `y` column name and an optional
+`--deg=<degree>`, the degree of the polynomial.  The default option is `--deg=1`
+which corresponds to a linear regression.
+
+Suppose you have a csv file `lr.csv` with content
+
+```csv
+x,y
+4,12
+5,19
+6,17
+7,24
+8,28
+9,34
+```
+
+With linear (polynomial) regression, you get an extra column, `polyfit_{deg}`:
+
+```bash
+$ cat lr.csv | ph polyfit x y | ph astype int
+x,y,polyfit_1
+4,12,12
+5,19,16
+6,17,20
+7,24,24
+8,28,28
+9,34,32
+```
+
+Using `ph plot --index=x` results in this plot:
+
+![polyfit](https://raw.githubusercontent.com/pgdr/ph/master/assets/polyfit.png)
 
 ## Working with different formats
 
