@@ -10,23 +10,24 @@ import contextlib
 import pandas as pd
 
 
-def _src(pth):
+def _get_path(name):
+    pth = "test_data/{}.csv".format(name)
     root = os.path.dirname(__file__)
     path = os.path.abspath(os.path.join(root, pth))
+
     return path
 
 
-def _data(pth):
-    path = _src(pth)
+def _get_data(name):
+    path = _get_path(name)
     with open(path, "r") as fin:
         data = "".join(fin.readlines())
+
     return data
 
 
-files = ("a", "iris", "d", "covid")
-DATA = {}
-for f in files:
-    DATA[f] = _data("test_data/{}.csv".format(f))
+def _get_io(name):
+    return io.StringIO(_get_data(name))
 
 
 class Capture:
@@ -48,7 +49,7 @@ class Capture:
 def phmgr(capsys, monkeypatch):
     @contextlib.contextmanager
     def phmgr(dataset="a"):
-        monkeypatch.setattr("sys.stdin", io.StringIO(DATA[dataset]))
+        monkeypatch.setattr("sys.stdin", _get_io(dataset))
         cap = Capture()
         yield cap
         outerr = capsys.readouterr()
@@ -61,19 +62,17 @@ def phmgr(capsys, monkeypatch):
 def test_cat(phmgr):
     with phmgr() as captured:
         ph.COMMANDS["cat"]()
-    assert captured.out == DATA["a"]
+    assert captured.out == _get_data("a")
 
 
 def test_cat_many(capsys):
-    pth = lambda f: _src("test_data/{}.csv".format(f))
-
-    ph.cat(pth("a"), pth("covid"), axis="index")
+    ph.cat(_get_path("a"), _get_path("covid"), axis="index")
     cap = Capture(capsys.readouterr())
     assert not cap.err
     df = cap.df
     assert list(df.shape) == [35, 12]
 
-    ph.cat(pth("a"), pth("covid"), axis="columns")
+    ph.cat(_get_path("a"), _get_path("covid"), axis="columns")
     cap = Capture(capsys.readouterr())
     assert not cap.err
     df = cap.df
@@ -120,7 +119,7 @@ def test_median(phmgr):
 
 
 def test_head_tail(capsys, monkeypatch):
-    monkeypatch.setattr("sys.stdin", io.StringIO(DATA["a"]))
+    monkeypatch.setattr("sys.stdin", _get_io("a"))
     ph.COMMANDS["head"](7)
     captured = capsys.readouterr()
     assert not captured.err
