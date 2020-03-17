@@ -17,17 +17,18 @@ requirements = {
     "xlsw": _min_req + ["xlrd", "xlwt"],
     "plot": _min_req + ["matplotlib"],
     "data": _min_req + ["scikit-learn"],
+    "math": _min_req + ["numpy"],
 }
 requirements["complete"] = sorted(set(sum(requirements.values(), [])))
 
 
-def src(x):
+def _src(x):
     root = os.path.dirname(__file__)
     return os.path.abspath(os.path.join(root, x))
 
 
 def _read_file(fname, op):
-    with open(src(fname), "r") as fin:
+    with open(_src(fname), "r") as fin:
         return op(fin.readlines())
 
 
