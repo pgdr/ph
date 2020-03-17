@@ -847,6 +847,17 @@ def empty():
 
 
 @register
+def index():
+    """Reset the index to a 0..n-1 counter.
+
+    Usage: cat a.csv | ph index
+
+    Adds a left-most column `index`.
+    """
+    pipeout(pipein().reset_index())
+
+
+@register
 def sort(col):
     """Sort csv input by column.
 

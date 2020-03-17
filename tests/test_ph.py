@@ -236,6 +236,14 @@ def test_merge(capsys):
     assert list(cap.df.shape) == [5, 7]
 
 
+def test_index(phmgr):
+    with phmgr("a") as captured:
+        ph.index()
+
+    assert not captured.err
+    assert list(captured.df["index"]) == [i for i in range(6)]
+
+
 def test_sort(phmgr):
     with phmgr("iris") as captured:
         ph.sort("setosa")

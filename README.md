@@ -651,6 +651,20 @@ $ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appen
 
 
 
+#### `index`
+
+Occasionally you need to have an index, in which case `ph index` is your tool:
+
+```bash
+$ cat a.csv | ph index
+index,x,y
+0,3,8
+1,4,9
+2,5,10
+3,6,11
+4,7,12
+5,8,13
+```
 
 #### `polyfit`
 
