@@ -117,6 +117,7 @@ pipeline.
     * [`show`](#show)
     * [`tabulate`](#tabulate)
     * [`plot`](#plot)
+    * [`index`](#index)
     * [`polyfit`](#polyfit)
 * [Working with different formats](#working-with-different-formats)
   * [`open`](#open)
