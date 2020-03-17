@@ -682,7 +682,7 @@ def help(*args, **kwargs):
 
 
 @registerx("open")
-def open_(ftype, fname, sheet=0):
+def open_(ftype, fname=None, sheet=0):
     """Use a reader to open a file.
 
     Open ftype file with name fname and stream out.
@@ -704,8 +704,17 @@ def open_(ftype, fname, sheet=0):
     kwargs = {}
     if ftype in ("excel", "xls", "odf"):
         kwargs["sheet"] = __tryparse(sheet)
+
+    if ftype == "clipboard" and fname is not None:
+        exit("clipboard does not take fname")
+    if ftype != "clipboard" and fname is None:
+        exit("filename is required for {}".format(ftype))
+
     try:
-        df = reader(fname, **kwargs)
+        if ftype == "clipboard":
+            df = reader(**kwargs)
+        else:
+            df = reader(fname, **kwargs)
     except AttributeError as err:
         exit("{} is not supported in your Pandas installation\n{}".format(ftype, err))
     except ImportError as err:
