@@ -400,6 +400,33 @@ def monotonic(column, direction="+"):
 
 
 @register
+def iplot(*args, **kwargs):
+    """Use plotly/cufflinks for interactive plot.
+
+    This option is similar to `plot` but creates an HTML file and opens a
+    browser for an interactive plot.
+
+    Usage: cat a.csv | ph iplot
+           cat a.csv | ph iplot --kind=bar
+           cat a.csv | ph iplot --kind=bar --barmode=stack
+
+
+    Depends on cufflinks: pip install ph[iplot].
+
+    """
+    try:
+        import cufflinks as cf
+        import plotly as py
+    except ImportError as err:
+        exit("iplot needs cufflinks, pip install ph[iplot]")
+
+    df = pipein()
+    fig = df.iplot(*args, asFigure=True, **kwargs)
+    py.offline.plot(fig)
+    pipeout(df)
+
+
+@register
 def plot(*args, **kwargs):
     """Plot the csv file.
 

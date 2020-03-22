@@ -18,6 +18,7 @@ requirements = {
     "plot": _min_req + ["matplotlib"],
     "data": _min_req + ["scikit-learn"],
     "math": _min_req + ["numpy"],
+    "iplot": _min_req + ["cufflinks"],
 }
 requirements["complete"] = sorted(set(sum(requirements.values(), [])))
 
