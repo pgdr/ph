@@ -41,6 +41,7 @@ COMMANDS = {}
 # readers are introduced in later pandas.
 READERS = {
     "csv": lambda fname: pd.read_csv(fname),
+    "csv_with_sep": lambda fname, sep: pd.read_csv(fname, sep),
     "fwf": lambda fname: pd.read_fwf(fname),
     "json": lambda fname: pd.read_json(fname),
     "html": lambda fname: pd.read_html(fname),
@@ -221,8 +222,12 @@ def pipeout(df, sep=",", index=False, *args, **kwargs):
             pass
 
 
-def pipein(ftype="csv"):
+def pipein(ftype="csv", sep=None):
     try:
+        if sep is not None:
+            if ftype != "csv":
+                exit("Only csv mode handles separators")
+            return READERS["csv_with_sep"](sys.stdin, sep)
         return READERS[ftype](sys.stdin)
     except pd.errors.EmptyDataError:
         return pd.DataFrame()
@@ -503,7 +508,7 @@ def info():
 
 
 @register
-def to(ftype, fname=None):
+def to(ftype, fname=None, sep=None):
     """Export csv to given format (possibly csv).
 
     Supports csv, html, json, parquet, bigquery, tsv, etc. (see README for full
@@ -511,6 +516,7 @@ def to(ftype, fname=None):
 
     Usage: cat a.csv | ph to html
            cat a.csv | ph to tsv
+           cat a.csv | ph to csv --sep=';'
            cat a.csv | ph to clipboard
            cat a.csv | ph to json
            cat a.csv | ph to parquet out.parquet
@@ -540,12 +546,18 @@ def to(ftype, fname=None):
             print(content)
         exit()
 
+    if sep is not None:
+        if ftype != "csv":
+            exit("Only csv mode supports separator")
+
     writer = WRITERS[ftype]
     df = pipein()
     fn = getattr(df, writer)
     kwargs = {}
     if ftype == "tsv":
         kwargs["sep"] = "\t"
+    elif ftype == "csv" and sep is not None:
+        kwargs["sep"] = sep
     if fname is not None:
         print(fn(fname, **kwargs))
     else:
@@ -553,7 +565,7 @@ def to(ftype, fname=None):
 
 
 @registerx("from")
-def from_(ftype="csv"):
+def from_(ftype="csv", sep=None):
     """Read a certain (default csv) format from standard in and stream out as csv.
 
     Usage: cat a.json | ph from json
@@ -567,7 +579,13 @@ def from_(ftype="csv"):
     if ftype == "clipboard":
         pipeout(READERS["clipboard"]())
     else:
-        pipeout(pipein(ftype))
+        if sep is not None:
+            if ftype != "csv":
+                exit("Only csv mode accepts separator")
+            pipeout(pipein(ftype, sep=sep))
+
+        else:
+            pipeout(pipein(ftype))
 
 
 @register
@@ -696,7 +714,7 @@ def help(*args, **kwargs):
 
 
 @registerx("open")
-def open_(ftype, fname=None, sheet=0):
+def open_(ftype, fname=None, sheet=0, sep=None):
     """Use a reader to open a file.
 
     Open ftype file with name fname and stream out.
@@ -718,6 +736,9 @@ def open_(ftype, fname=None, sheet=0):
     kwargs = {}
     if ftype in ("excel", "xls", "odf"):
         kwargs["sheet"] = __tryparse(sheet)
+    if ftype == "csv" and sep is not None:
+        ftype = "csv_with_sep"
+        kwargs["sep"] = sep
 
     if ftype == "clipboard" and fname is not None:
         exit("clipboard does not take fname")

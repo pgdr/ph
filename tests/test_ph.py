@@ -10,24 +10,24 @@ import contextlib
 import pandas as pd
 
 
-def _get_path(name):
-    pth = "test_data/{}.csv".format(name)
+def _get_path(name, extension="csv"):
+    pth = "test_data/{}.{}".format(name, extension)
     root = os.path.dirname(__file__)
     path = os.path.abspath(os.path.join(root, pth))
 
     return path
 
 
-def _get_data(name):
-    path = _get_path(name)
+def _get_data(name, extension="csv"):
+    path = _get_path(name, extension)
     with open(path, "r") as fin:
         data = "".join(fin.readlines())
 
     return data
 
 
-def _get_io(name):
-    return io.StringIO(_get_data(name))
+def _get_io(name, extension="csv"):
+    return io.StringIO(_get_data(name, extension))
 
 
 class Capture:
@@ -48,8 +48,8 @@ class Capture:
 @pytest.fixture
 def phmgr(capsys, monkeypatch):
     @contextlib.contextmanager
-    def phmgr(dataset="a"):
-        monkeypatch.setattr("sys.stdin", _get_io(dataset))
+    def phmgr(dataset="a", extension="csv"):
+        monkeypatch.setattr("sys.stdin", _get_io(dataset, extension))
         cap = Capture()
         yield cap
         outerr = capsys.readouterr()
@@ -77,6 +77,30 @@ def test_cat_many(capsys):
     assert not cap.err
     df = cap.df
     assert list(df.shape) == [29, 12]
+
+
+def test_sep_from(phmgr):
+    with phmgr("d", extension="scsv") as captured:
+        ph.COMMANDS["from"]("csv", sep=";")
+    assert not captured.err
+    assert list(captured.df.shape) == [6, 3]
+
+
+def test_sep_to(capsys, monkeypatch):
+    monkeypatch.setattr("sys.stdin", _get_io("d"))
+    ph.COMMANDS["to"]("csv", sep="_")
+    captured = Capture(capsys.readouterr())
+
+    assert not captured.err
+    assert list(captured.df.shape) == [6, 3]
+
+
+def test_sep_to(capsys, monkeypatch):
+    monkeypatch.setattr("sys.stdin", _get_io("d", extension="scsv"))
+    ph.COMMANDS["from"]("csv", sep=";")
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    assert list(captured.df.shape) == [6, 3]
 
 
 def test_describe(phmgr):
