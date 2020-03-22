@@ -652,6 +652,19 @@ $ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appen
 
 
 
+**_`iplot`_ with `plotly` and `cufflinks`**
+
+Instead of using the `matplotlib` backend, there is an option for using `plotly`
+and [`cufflinks`](https://github.com/santosjorge/cufflinks) to generate
+interactive plots.
+This depends on `cufflinks`, and can be installed with `pip install ph[iplot]`.
+
+```bash
+$ cat a.csv | ph iplot --kind=bar --barmode=stack
+```
+
+
+
 #### `index`
 
 Occasionally you need to have an index, in which case `ph index` is your tool:
