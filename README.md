@@ -743,6 +743,14 @@ x,y
 ```
 
 
+You can open a _semicolon separated values_ file using `--sep=";"`
+
+```bash
+$ ph open csv --sep=";" fname.csv
+```
+
+
+
 ### `to` and `from`; Exporting and importing
 
 Observe the following:
