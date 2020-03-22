@@ -764,7 +764,7 @@ def open_(ftype, fname=None, sheet=0, sep=None):
     if ftype in ("excel", "xls", "odf"):
         kwargs["sheet"] = __tryparse(sheet)
     if ftype == "csv" and sep is not None:
-        ftype = "csv_with_sep"
+        reader = READERS["csv_with_sep"]
         kwargs["sep"] = sep
 
     if ftype == "clipboard" and fname is not None:
@@ -781,6 +781,8 @@ def open_(ftype, fname=None, sheet=0, sep=None):
         exit("{} is not supported in your Pandas installation\n{}".format(ftype, err))
     except ImportError as err:
         exit("{} is not supported in your Pandas installation\n{}".format(ftype, err))
+    except FileNotFoundError as err:
+        exit("File not found: {}".format(err))
     pipeout(df)
 
 
