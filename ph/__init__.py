@@ -486,12 +486,14 @@ def normalize(col=None):
 
 
 @register
-def date(col=None, unit=None, origin="unix"):
+def date(col=None, unit=None, origin="unix", errors="raise"):
     """Assemble datetime from multiple columns or from one column
 
     --unit can be D, s, us, ns (defaults to ns, ns from origin)
 
     --origin can be unix, julian, or time offset, e.g. '2000-01-01'
+
+    --errors can be raise, coerce, ignore (see pandas.to_datetime)
 
     Usage: cat a.csv | ph date x
            cat a.csv | ph date x --unit=s --origin="1984-05-17 09:30"
@@ -502,7 +504,7 @@ def date(col=None, unit=None, origin="unix"):
         if col is None:
             df = pd.to_datetime(df)
         else:
-            df[col] = pd.to_datetime(df[col], unit=unit, origin=origin)
+            df[col] = pd.to_datetime(df[col], unit=unit, origin=origin, errors=errors)
     except Exception as err:
         exit(err)
 
