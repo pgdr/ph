@@ -507,7 +507,7 @@ def date(col=None, unit=None, origin="unix", errors="raise"):
     df = pipein()
     try:
         if col is None:
-            df = pd.to_datetime(df)
+            df = pd.to_datetime(df, unit=unit, origin=origin, errors=errors)
         else:
             if col not in df.columns:
                 exit("No such column {}".format(col))
