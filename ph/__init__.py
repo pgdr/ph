@@ -497,13 +497,20 @@ def date(col=None, unit=None, origin="unix", errors="raise"):
 
     Usage: cat a.csv | ph date x
            cat a.csv | ph date x --unit=s --origin="1984-05-17 09:30"
+           cat a.csv | ph date  # if a.csv contains year, month, date
 
     """
+    DATE_ERRORS = ("ignore", "raise", "coerce")
+    if errors not in DATE_ERRORS:
+        exit("Errors must be one of {}, not {}.".format(DATE_ERRORS, errors))
+
     df = pipein()
     try:
         if col is None:
             df = pd.to_datetime(df)
         else:
+            if col not in df.columns:
+                exit("No such column {}".format(col))
             df[col] = pd.to_datetime(df[col], unit=unit, origin=origin, errors=errors)
     except Exception as err:
         exit(err)

@@ -8,6 +8,7 @@ import pytest
 import contextlib
 
 import pandas as pd
+import datetime as dt
 
 
 def _get_path(name, extension="csv"):
@@ -189,6 +190,35 @@ def test_date(phmgr):
         "2008-08-13",
     ]
     assert act == exp
+
+
+def test_date_errors(phmgr):
+    with pytest.raises(SystemExit) as exit_:
+        with phmgr("derr") as captured:
+            ph.COMMANDS["date"](col="x")
+    assert str(exit_.value) == "No such column x"
+
+    with pytest.raises(SystemExit) as exit_:
+        with phmgr("derr") as captured:
+            ph.COMMANDS["date"](col="year")
+    assert str(exit_.value).startswith("Out of bounds nanosecond timestamp")
+
+    with pytest.raises(SystemExit) as exit_:
+        with phmgr("derr") as captured:
+            ph.COMMANDS["date"](col="year", errors="nosucherr")
+    assert str(exit_.value).startswith("Errors must be one of")
+
+    with phmgr("derr") as captured:
+        ph.COMMANDS["date"](col="year", errors="coerce")
+    assert not captured.err
+    df = captured.df
+    assert df["year"].dtype == dt.datetime
+
+    with phmgr("derr") as captured:
+        ph.COMMANDS["date"](col="year", errors="ignore")
+    assert not captured.err
+    df = captured.df
+    assert "200-01" in list(df["year"])
 
 
 def test_eval(phmgr):
