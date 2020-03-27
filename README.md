@@ -6,14 +6,20 @@ it easy:
 
 ```bash
 $ pip install ph
-$ cat iris.csv | ph columns 4 150 | ph head 15 | ph tail 5 | ph show
-      4    150
---  ---  -----
- 0  3.7    5.4
- 1  3.4    4.8
- 2  3      4.8
- 3  3      4.3
- 4  4      5.8
+$ cat iris.csv | ph columns
+150
+4
+setosa
+versicolor
+virginica
+$ cat iris.csv | ph columns setosa versicolor | ph head 15 | ph tail 5 | ph show
+      setosa    versicolor
+--  --------  ------------
+ 0       1.5           0.2
+ 1       1.6           0.2
+ 2       1.4           0.1
+ 3       1.1           0.1
+ 4       1.2           0.2
 ```
 
 ```bash
