@@ -37,11 +37,16 @@ A list of available commands follows.
 
 COMMANDS = {}
 
+
+def _csv_with_sep(fname, sep=None, thousands=None):
+    return pd.read_csv(fname, sep=sep, thousands=thousands)
+
+
 # These are all lambdas because they lazy load, and some of these
 # readers are introduced in later pandas.
 READERS = {
     "csv": lambda fname: pd.read_csv(fname),
-    "csv_with_sep": lambda fname, sep: pd.read_csv(fname, sep),
+    "csv_with_sep": _csv_with_sep,
     "fwf": lambda fname: pd.read_fwf(fname),
     "json": lambda fname: pd.read_json(fname),
     "html": lambda fname: pd.read_html(fname),
@@ -222,12 +227,12 @@ def pipeout(df, sep=",", index=False, *args, **kwargs):
             pass
 
 
-def pipein(ftype="csv", sep=None):
+def pipein(ftype="csv", sep=None, thousands=None):
     try:
         if sep is not None:
             if ftype != "csv":
                 exit("Only csv mode handles separators")
-            return READERS["csv_with_sep"](sys.stdin, sep)
+            return READERS["csv_with_sep"](sys.stdin, sep=sep, thousands=thousands)
         return READERS[ftype](sys.stdin)
     except pd.errors.EmptyDataError:
         return pd.DataFrame()
@@ -601,7 +606,7 @@ def to(ftype, fname=None, sep=None):
 
 
 @registerx("from")
-def from_(ftype="csv", sep=None):
+def from_(ftype="csv", sep=None, thousands=None):
     """Read a certain (default csv) format from standard in and stream out as csv.
 
     Usage: cat a.json | ph from json
@@ -610,18 +615,29 @@ def from_(ftype="csv", sep=None):
 
     cat a.csv
     cat a.csv | ph to json | ph from json
+    cat a.tsv | ph from tsv
+    cat a.tsv | ph from csv --sep='\t'
+    cat a.tsv | ph from csv --sep='\t' --thousands=','
+
 
     """
+
     if ftype == "clipboard":
         pipeout(READERS["clipboard"]())
-    else:
-        if sep is not None:
-            if ftype != "csv":
-                exit("Only csv mode accepts separator")
-            pipeout(pipein(ftype, sep=sep))
+        return
 
-        else:
-            pipeout(pipein(ftype))
+    if sep is not None:
+        if ftype != "csv":
+            exit("Only csv mode accepts separator")
+        pipeout(pipein(ftype, sep=sep, thousands=thousands))
+        return
+    if thousands is not None:
+        if ftype != "csv":
+            exit("Only csv mode accepts thousands")
+        pipeout(pipein(ftype, sep=sep, thousands=thousands))
+        return
+
+    pipeout(pipein(ftype))
 
 
 @register
@@ -750,7 +766,7 @@ def help(*args, **kwargs):
 
 
 @registerx("open")
-def open_(ftype, fname=None, sheet=0, sep=None):
+def open_(ftype, fname=None, sheet=0, sep=None, thousands=None):
     """Use a reader to open a file.
 
     Open ftype file with name fname and stream out.
@@ -763,6 +779,7 @@ def open_(ftype, fname=None, sheet=0, sep=None):
            ph open excel a.xlsx
            ph open excel a.xls --sheet=2
            ph open excel a.xls --sheet="The Real Dataset sheet"
+           ph open csv a.csv --thousands=','
 
 
     """
@@ -775,6 +792,10 @@ def open_(ftype, fname=None, sheet=0, sep=None):
     if ftype == "csv" and sep is not None:
         reader = READERS["csv_with_sep"]
         kwargs["sep"] = sep
+
+    if ftype == "csv" and "thousands" is not None:
+        reader = READERS["csv_with_sep"]
+        kwargs["thousands"] = thousands
 
     if ftype == "clipboard" and fname is not None:
         exit("clipboard does not take fname")
