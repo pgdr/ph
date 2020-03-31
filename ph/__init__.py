@@ -970,7 +970,7 @@ def sort(col):
 
     """
     df = pipein()
-    if not col in df.columns:
+    if col not in df.columns:
         exit("Unknown column {}".format(col))
     pipeout(df.sort_values(col))
 

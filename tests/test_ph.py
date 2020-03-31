@@ -276,24 +276,24 @@ def test_fillna(phmgr):
 
 
 def test_merge(capsys):
-    l = _get_path("left")
-    r = _get_path("right")
-    ph.merge(l, r)
+    lft = _get_path("left")
+    rht = _get_path("right")
+    ph.merge(lft, rht)
     cap = Capture(capsys.readouterr())
     assert not cap.err
     assert list(cap.df.shape) == [3, 6]
 
-    ph.merge(l, r, how="left")
+    ph.merge(lft, rht, how="left")
     cap = Capture(capsys.readouterr())
     assert not cap.err
     assert list(cap.df.shape) == [5, 6]
 
-    ph.merge(l, r, how="outer")
+    ph.merge(lft, rht, how="outer")
     cap = Capture(capsys.readouterr())
     assert not cap.err
     assert list(cap.df.shape) == [6, 6]
 
-    ph.merge(l, r, on="key1")
+    ph.merge(lft, rht, on="key1")
     cap = Capture(capsys.readouterr())
     assert not cap.err
     assert list(cap.df.shape) == [5, 7]
