@@ -86,21 +86,16 @@ def test_sep_from(phmgr):
     assert list(captured.df.shape) == [6, 3]
 
 
-def test_sep_to(capsys, monkeypatch):
+def test_sep_to_sub(capsys, monkeypatch):
     monkeypatch.setattr("sys.stdin", _get_io("d"))
     ph.COMMANDS["to"]("csv", sep="_")
     captured = Capture(capsys.readouterr())
-
     assert not captured.err
-    assert list(captured.df.shape) == [6, 3]
+    assert list(captured.df.shape) == [6, 1]
 
-
-def test_sep_to(capsys, monkeypatch):
-    monkeypatch.setattr("sys.stdin", _get_io("d", extension="scsv"))
-    ph.COMMANDS["from"]("csv", sep=";")
-    captured = Capture(capsys.readouterr())
-    assert not captured.err
-    assert list(captured.df.shape) == [6, 3]
+    df = pd.read_csv(io.StringIO(captured.out), sep="_")
+    assert list(df.shape) == [6, 4]
+    assert list(df["year"]) == list(range(2003, 2009))
 
 
 def test_thousands_from(capsys, monkeypatch):
