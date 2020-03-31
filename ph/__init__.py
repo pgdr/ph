@@ -66,7 +66,7 @@ READERS = {
     "gbq": lambda fname: pd.read_gbq(fname),
     "google": lambda fname: pd.read_gbq(fname),
     "bigquery": lambda fname: pd.read_gbq(fname),
-    ### extras
+    # extras
     "tsv": lambda fname: pd.read_csv(fname, sep="\t"),
 }
 
@@ -91,7 +91,7 @@ WRITERS = {
     "gbq": "to_gbq",
     "google": "to_gbq",
     "bigquery": "to_gbq",
-    ### extras
+    # extras
     "tsv": "to_csv",
 }
 
@@ -419,9 +419,9 @@ def iplot(*args, **kwargs):
 
     """
     try:
-        import cufflinks as cf
+        import cufflinks  # noqa
         import plotly as py
-    except ImportError as err:
+    except ImportError:
         exit("iplot needs cufflinks, pip install ph[iplot]")
 
     df = pipein()
@@ -753,11 +753,11 @@ def help(*args, **kwargs):
     try:
         fn = getattr(ph, cmd)
         ds = getattr(fn, "__doc__")
-    except AttributeError as err:
+    except AttributeError:
         try:
             fn = getattr(pd.DataFrame, cmd)
             ds = getattr(fn, "__doc__")
-        except AttributeError as err:
+        except AttributeError:
             ds = ""
 
     print("Usage: ph {} [?]".format(cmd))
