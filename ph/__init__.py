@@ -50,7 +50,7 @@ READERS = {
     "fwf": lambda fname: pd.read_fwf(fname),
     "json": lambda fname: pd.read_json(fname),
     "html": lambda fname: pd.read_html(fname),
-    "clipboard": lambda: pd.read_clipboard(),
+    "clipboard": lambda sep, thousands: pd.read_clipboard(sep=sep, thousands=thousands),
     "excel": lambda fname, sheet: pd.read_excel(fname, sheet),
     "xls": lambda fname, sheet: pd.read_excel(fname, sheet),
     "odf": lambda fname, sheet: pd.read_excel(fname, sheet),
@@ -623,7 +623,7 @@ def from_(ftype="csv", sep=None, thousands=None):
     """
 
     if ftype == "clipboard":
-        pipeout(READERS["clipboard"]())
+        pipeout(READERS["clipboard"](sep=sep, thousands=thousands))
         return
 
     if sep is not None:
@@ -804,7 +804,7 @@ def open_(ftype, fname=None, sheet=0, sep=None, thousands=None):
 
     try:
         if ftype == "clipboard":
-            df = reader(**kwargs)
+            df = reader(sep=sep, thousands=thousands)
         else:
             df = reader(fname, **kwargs)
     except AttributeError as err:
