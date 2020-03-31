@@ -96,6 +96,10 @@ WRITERS = {
 }
 
 
+FALSY = ("False", "false", "No", "no", "0")
+TRUTHY = ("True", "true", "Yes", "yes", "1")
+
+
 def register(fn, name=None):
     if name is None:
         name = fn.__name__
@@ -548,7 +552,7 @@ def info():
 
 
 @register
-def to(ftype, fname=None, sep=None):
+def to(ftype, fname=None, sep=None, index=False):
     """Export csv to given format (possibly csv).
 
     Supports csv, html, json, parquet, bigquery, tsv, etc. (see README for full
@@ -556,6 +560,7 @@ def to(ftype, fname=None, sep=None):
 
     Usage: cat a.csv | ph to html
            cat a.csv | ph to tsv
+           cat a.csv | ph to csv --index=True
            cat a.csv | ph to csv --sep=';'
            cat a.csv | ph to clipboard
            cat a.csv | ph to json
@@ -574,6 +579,13 @@ def to(ftype, fname=None, sep=None):
 
     if ftype == "hdf5":
         exit("hdf5 writer not implemented")
+
+    if index in TRUTHY:
+        index = True
+    elif index in FALSY:
+        index = False
+    if index not in (True, False):
+        exit("index must be False or True")
 
     if ftype == "fwf":
         # pandas has not yet implemented to_fwf
@@ -598,10 +610,14 @@ def to(ftype, fname=None, sep=None):
         kwargs["sep"] = "\t"
     elif ftype == "csv" and sep is not None:
         kwargs["sep"] = sep
+
+    if ftype == "json":
+        index = True
+
     if fname is not None:
-        print(fn(fname, **kwargs))
+        print(fn(fname, index=index, **kwargs))
     else:
-        print(fn(**kwargs))
+        print(fn(index=index, **kwargs))
 
 
 @registerx("from")
