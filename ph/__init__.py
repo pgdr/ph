@@ -2,7 +2,6 @@
 from __future__ import print_function
 from .tabulate import tabulate as tabulate_
 import sys
-import os.path
 import pandas as pd
 import re
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
+import os
+import re
 from setuptools import setup
 
-import os
 
 __pgdr = "PG Drange <pgdr@equinor.com>"
 __source = "https://github.com/pgdr/ph"
@@ -39,8 +40,6 @@ def readme():
     except:
         return __description
 
-
-import re
 
 VERSIONFILE = "ph/_version.py"
 verstrline = open(VERSIONFILE, "rt").read()

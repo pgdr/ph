@@ -1,7 +1,6 @@
 import ph
 
 import os.path
-import sys
 import io
 
 import pytest
