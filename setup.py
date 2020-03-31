@@ -37,7 +37,7 @@ def _read_file(fname, op):
 def readme():
     try:
         return _read_file("README.md", lambda lines: "".join(lines))
-    except:
+    except Exception:
         return __description
 
 
