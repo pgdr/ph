@@ -792,7 +792,7 @@ def open_(ftype, fname=None, sheet=0, sep=None, thousands=None):
         reader = READERS["csv_with_sep"]
         kwargs["sep"] = sep
 
-    if ftype == "csv" and "thousands" is not None:
+    if ftype == "csv" and thousands is not None:
         reader = READERS["csv_with_sep"]
         kwargs["thousands"] = thousands
 
