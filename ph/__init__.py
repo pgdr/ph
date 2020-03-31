@@ -443,6 +443,10 @@ def plot(*args, **kwargs):
             ph plot --kind=bar
             ph plot --kind=scatter --x=col1 --y=col2
             ph plot --style=k--
+            ph plot --logx=True
+            ph plot --logy=True
+            ph plot --loglog=True
+
     """
     try:
         import matplotlib.pyplot as plt
@@ -453,11 +457,18 @@ def plot(*args, **kwargs):
     index = kwargs.get("index")
     if index is not None:
         df = df.set_index(index)
+    for log_ in ("logx", "logy", "loglog"):
+        if kwargs.get(log_) in TRUTHY:
+            kwargs[log_] = True
+
     df.plot(
         kind=kwargs.get("kind", "line"),  # default pandas plot is line
         style=kwargs.get("style"),
         x=kwargs.get("x"),
         y=kwargs.get("y"),
+        logx=kwargs.get("logx"),
+        logy=kwargs.get("logy"),
+        loglog=kwargs.get("loglog"),
     )
     plt.show()
     pipeout(df)
