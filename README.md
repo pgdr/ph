@@ -285,8 +285,8 @@ x,y
 8,13
 ```
 
-If the `csv` file contains a column, e.g. named `x` containing timestamps, it
-can be parsed as such with `ph date x`:
+If the `csv` file contains a column, e.g. named `x` containing
+timestamps, it can be parsed as such with `ph date x`:
 
 ```bash
 $ cat a.csv | ph date x
@@ -298,6 +298,30 @@ x,y
 1970-01-08,12
 1970-01-09,13
 ```
+
+If your column is formatted with _freedom units_, `mm/dd/yyyy`, you can
+use the flag `--dayfirst=True`:
+
+```csv
+dateRep,geoId
+01/04/2020,US
+31/03/2020,US
+30/03/2020,US
+29/03/2020,US
+28/03/2020,US
+```
+
+```bash
+$ cat ~/cov.csv | ph date dateRep --dayfirst=True
+dateRep,geoId
+2020-04-01,US
+2020-03-31,US
+2020-03-30,US
+2020-03-29,US
+2020-03-28,US
+```
+
+
 
 To get a column with integers (e.g. 3-8) parsed as, e.g. 2003 - 2008, some
 amount of hacking is necessary.  We will go into details later on the `eval` and

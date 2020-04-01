@@ -96,8 +96,8 @@ WRITERS = {
 }
 
 
-FALSY = ("False", "false", "No", "no", "0")
-TRUTHY = ("True", "true", "Yes", "yes", "1")
+FALSY = ("False", "false", "No", "no", "0", False, 0)
+TRUTHY = ("True", "true", "Yes", "yes", "1", True, 1)
 
 
 def register(fn, name=None):
@@ -505,7 +505,7 @@ def normalize(col=None):
 
 
 @register
-def date(col=None, unit=None, origin="unix", errors="raise"):
+def date(col=None, unit=None, origin="unix", errors="raise", dayfirst=False):
     """Assemble datetime from multiple columns or from one column
 
     --unit can be D, s, us, ns (defaults to ns, ns from origin)
@@ -516,12 +516,15 @@ def date(col=None, unit=None, origin="unix", errors="raise"):
 
     Usage: cat a.csv | ph date x
            cat a.csv | ph date x --unit=s --origin="1984-05-17 09:30"
+           cat a.csv | ph date x --dayfirst=True
            cat a.csv | ph date  # if a.csv contains year, month, date
 
     """
     DATE_ERRORS = ("ignore", "raise", "coerce")
     if errors not in DATE_ERRORS:
         exit("Errors must be one of {}, not {}.".format(DATE_ERRORS, errors))
+
+    dayfirst = dayfirst in TRUTHY
 
     df = pipein()
     try:
@@ -530,7 +533,9 @@ def date(col=None, unit=None, origin="unix", errors="raise"):
         else:
             if col not in df.columns:
                 exit("No such column {}".format(col))
-            df[col] = pd.to_datetime(df[col], unit=unit, origin=origin, errors=errors)
+            df[col] = pd.to_datetime(
+                df[col], unit=unit, origin=origin, errors=errors, dayfirst=dayfirst
+            )
     except Exception as err:
         exit(err)
 
@@ -591,12 +596,9 @@ def to(ftype, fname=None, sep=None, index=False):
     if ftype == "hdf5":
         exit("hdf5 writer not implemented")
 
-    if index in TRUTHY:
-        index = True
-    elif index in FALSY:
-        index = False
-    if index not in (True, False):
-        exit("index must be False or True")
+    if index not in TRUTHY + FALSY:
+        exit("Index must be True or False, not {}".format(index))
+    index = index in TRUTHY
 
     if ftype == "fwf":
         # pandas has not yet implemented to_fwf

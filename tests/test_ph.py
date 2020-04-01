@@ -204,6 +204,16 @@ def test_date(phmgr):
     assert act == exp
 
 
+def test_date_dayfirst(phmgr):
+    with phmgr("usa") as captured:
+        ph.COMMANDS["date"]("dateRep", dayfirst=True)
+    df = captured.df
+    assert list(df.shape) == [93, 7]
+    df["dateRep"] = pd.to_datetime(df["dateRep"])
+    df["realdate"] = pd.to_datetime(df[["year", "month", "day"]])
+    assert all(df["realdate"] == df["dateRep"])
+
+
 def test_date_errors(phmgr):
     with pytest.raises(SystemExit) as exit_:
         with phmgr("derr") as captured:
