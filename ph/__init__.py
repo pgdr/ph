@@ -762,7 +762,7 @@ def from_(ftype="csv", **kwargs):
         kwargs["sep"] = "\t"
 
     if ftype == "clipboard":
-        pipeout(READERS["clipboard"], **kwargs)
+        pipeout(READERS["clipboard"](**kwargs))
         return
 
     pipeout(pipein(ftype, **kwargs))

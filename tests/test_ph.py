@@ -89,6 +89,19 @@ def test_open_skiprows(capsys):
     assert list(df.iloc[1]) == [16, 21]
 
 
+def test_clipboard(capsys):
+    import pandas as pd
+
+    df = pd.read_csv(_get_path("a"))
+    df.to_clipboard()
+
+    ph.COMMANDS["from"]("clipboard")
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    df = captured.df
+    assert list(df.shape) == [6, 2]
+
+
 def test_sep_from(phmgr):
     with phmgr("d", extension="scsv") as captured:
         ph.COMMANDS["from"]("csv", sep=";")
