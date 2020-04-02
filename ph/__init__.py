@@ -758,23 +758,11 @@ def from_(ftype="csv", **kwargs):
             exit("skiprows must be a non-negative int, not {}".format(skiprows))
         kwargs["skiprows"] = skiprows
 
-    sep = kwargs.get("sep")
-    thousands = kwargs.get("thousands")
+    if kwargs.get("sep") == "\\t":
+        kwargs["sep"] = "\t"
 
     if ftype == "clipboard":
         pipeout(READERS["clipboard"], **kwargs)
-        return
-
-    if sep is not None:
-        if ftype != "csv":
-            exit("Only csv mode accepts separator")
-        pipeout(pipein(ftype, **kwargs))
-        return
-
-    if thousands is not None:
-        if ftype != "csv":
-            exit("Only csv mode accepts thousands")
-        pipeout(pipein(ftype, **kwargs))
         return
 
     pipeout(pipein(ftype, **kwargs))
@@ -973,8 +961,8 @@ def open_(ftype, fname, **kwargs):
     if ftype in ("excel", "xls", "odf"):
         kwargs["sheet"] = __tryparse(sheet)
 
-    sep = kwargs.get("sep")
-    thousands = kwargs.get("thousands")
+    if kwargs.get("sep") == "\\t":
+        kwargs["sep"] = "\t"
 
     if ftype == "clipboard" and fname is not None:
         exit("clipboard does not take fname")

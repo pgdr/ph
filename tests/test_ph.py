@@ -136,6 +136,16 @@ def test_thousands_from(capsys, monkeypatch):
     assert all(df["a"] == 10 ** df["b"])
 
 
+def test_thousands_from_escaped_tab(capsys, monkeypatch):
+    monkeypatch.setattr("sys.stdin", _get_io("t", extension="tsv"))
+    ph.COMMANDS["from"]("csv", thousands=",", sep="\\t")
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    df = captured.df
+    assert list(df.shape) == [7, 2]
+    assert all(df["a"] == 10 ** df["b"])
+
+
 def test_describe(phmgr):
     with phmgr() as captured:
         ph.COMMANDS["describe"]()
