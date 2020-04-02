@@ -299,14 +299,10 @@ def pipein(ftype="csv", **kwargs):
             exit("skiprows must be a non-negative int, not {}".format(skiprows))
         kwargs["skiprows"] = skiprows
 
-    sep = kwargs.get("sep")
-    thousands = kwargs.get("thousands")
+    if kwargs.get("sep") == "\\t":
+        kwargs["sep"] = "\t"
 
     try:
-        if sep is not None:
-            if ftype != "csv":
-                exit("Only csv mode handles separators")
-            return READERS[ftype](sys.stdin, **kwargs)
         return READERS[ftype](sys.stdin, **kwargs)
     except pd.errors.EmptyDataError:
         return pd.DataFrame()
