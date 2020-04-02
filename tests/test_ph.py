@@ -356,6 +356,47 @@ def test_merge(capsys):
     assert list(cap.df.shape) == [5, 7]
 
 
+def test_groupby_sum_default(phmgr):
+    with phmgr("group") as captured:
+        ph.COMMANDS["groupby"]("Animal")
+    assert not captured.err
+    df = captured.df
+    assert list(df.shape) == [2, 1]
+    assert list(df.iloc[0]) == [750.0]
+    assert list(df.iloc[1]) == [50.0]
+
+
+def test_groupby_sum(phmgr):
+    with phmgr("group") as captured:
+        ph.COMMANDS["groupby"]("Animal", how="sum")
+    assert not captured.err
+    df = captured.df
+    assert list(df.shape) == [2, 1]
+    assert list(df.iloc[0]) == [750.0]
+    assert list(df.iloc[1]) == [50.0]
+
+
+def test_groupby_mean(phmgr):
+    with phmgr("group") as captured:
+        ph.COMMANDS["groupby"]("Animal", how="mean")
+    assert not captured.err
+    df = captured.df
+    assert list(df.shape) == [2, 1]
+    assert list(df.iloc[0]) == [375.0]
+    assert list(df.iloc[1]) == [25.0]
+
+
+def test_groupby_first(phmgr):
+    with phmgr("group") as captured:
+        ph.COMMANDS["groupby"]("Animal", how="first", as_index=False)
+    assert not captured.err
+    df = captured.df
+    print(df)
+    assert list(df.shape) == [2, 2]
+    assert list(df.iloc[0]) == ["Falcon", 380.0]
+    assert list(df.iloc[1]) == ["Parrot", 24.0]
+
+
 def test_index(phmgr):
     with phmgr("a") as captured:
         ph.index()

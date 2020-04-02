@@ -458,6 +458,38 @@ def crosstab(column):
 
 
 @register
+def groupby(*columns, how="sum", as_index=True):
+    """Group by columns, then apply `how` function.
+
+    Usage: cat a.csv | ph groupby animal --how=mean
+           cat a.csv | ph groupby animal --how=mean --as_index=False
+    """
+    columns = list(columns)
+    if not columns:
+        exit("Needs at least one column to group by")
+    df = pipein()
+    for c in columns:
+        if c not in df.columns:
+            exit("Unknown column name {}".format(c))
+    if as_index in TRUTHY:
+        as_index = True
+    elif as_index in FALSY:
+        as_index = False
+    else:
+        exit("--as_index=True or False, not {}".format(as_index))
+    grouped = df.groupby(columns, as_index=as_index)
+    if how == "sum":
+        retval = grouped.sum()
+    elif how == "mean":
+        retval = grouped.mean()
+    elif how == "first":
+        retval = grouped.first()
+    else:
+        exit("Unknown how={}".format(how))
+    pipeout(retval)
+
+
+@register
 def monotonic(column, direction="+"):
     """Check if a certain column is monotonically increasing or decreasing.
 

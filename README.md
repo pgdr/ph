@@ -731,6 +731,36 @@ $ cat a.csv | ph iplot --kind=bar --barmode=stack
 ```
 
 
+#### `groupby`
+
+Suppose you have a csv file
+
+```csv
+Animal,Max Speed
+Falcon,380.0
+Falcon,370.0
+Parrot,24.0
+Parrot,26.0
+```
+
+You can use Pandas' `groupby` functionality to get the aggregated `sum`,
+`mean`, or `first` value:
+
+```bash
+$ cat group.csv | ph groupby Animal --how=mean
+Max Speed
+375.0
+25.0
+```
+
+If you want to retain the index column,
+
+```bash
+$ cat group.csv | ph groupby Animal --how=mean --as_index=False
+Animal,Max Speed
+Falcon,375.0
+Parrot,25.0
+```
 
 #### `index`
 
