@@ -37,38 +37,98 @@ A list of available commands follows.
 COMMANDS = {}
 
 
-def _csv_with_sep(fname, sep=None, thousands=None):
-    return pd.read_csv(fname, sep=sep, thousands=thousands)
+def _tsv(*args, **kwargs):
+    kwargs["sep"] = "\t"
+    return pd.read_csv(*args, **kwargs)
 
 
 # These are all lambdas because they lazy load, and some of these
 # readers are introduced in later pandas.
 READERS = {
-    "csv": lambda fname: pd.read_csv(fname),
-    "csv_with_sep": _csv_with_sep,
-    "fwf": lambda fname: pd.read_fwf(fname),
-    "json": lambda fname: pd.read_json(fname),
-    "html": lambda fname: pd.read_html(fname),
-    "clipboard": lambda sep, thousands: pd.read_clipboard(sep=sep, thousands=thousands),
+    "csv": pd.read_csv,
+    "csv_with_sep": pd.read_csv,
+    "clipboard": pd.read_clipboard,
+    "fwf": pd.read_fwf,
+    "json": pd.read_json,
+    "html": pd.read_html,
     "excel": lambda fname, sheet: pd.read_excel(fname, sheet),
     "xls": lambda fname, sheet: pd.read_excel(fname, sheet),
     "odf": lambda fname, sheet: pd.read_excel(fname, sheet),
-    "hdf5": lambda fname: pd.read_hdf(fname),
-    "feather": lambda fname: pd.read_feather(fname),
-    "parquet": lambda fname: pd.read_parquet(fname),
-    "orc": lambda fname: pd.read_orc(fname),
-    "msgpack": lambda fname: pd.read_msgpack(fname),
-    "stata": lambda fname: pd.read_stata(fname),
-    "sas": lambda fname: pd.read_sas(fname),
-    "spss": lambda fname: pd.read_spss(fname),
-    "pickle": lambda fname: pd.read_pickle(fname),
-    "sql": lambda fname: pd.read_sql(fname),
-    "gbq": lambda fname: pd.read_gbq(fname),
-    "google": lambda fname: pd.read_gbq(fname),
-    "bigquery": lambda fname: pd.read_gbq(fname),
-    # extras
-    "tsv": lambda fname: pd.read_csv(fname, sep="\t"),
+    "tsv": _tsv,
 }
+
+
+try:
+    READERS["hdf5"] = pd.read_hdf
+except AttributeError:
+    pass
+
+
+try:
+    READERS["feather"] = pd.read_feather
+except AttributeError:
+    pass
+
+
+try:
+    READERS["parquet"] = pd.read_parquet
+except AttributeError:
+    pass
+
+
+try:
+    READERS["orc"] = pd.read_orc
+except AttributeError:
+    pass
+
+
+try:
+    READERS["msgpack"] = pd.read_msgpack
+except AttributeError:
+    pass
+
+
+try:
+    READERS["stata"] = pd.read_stata
+except AttributeError:
+    pass
+
+
+try:
+    READERS["sas"] = pd.read_sas
+except AttributeError:
+    pass
+
+
+try:
+    READERS["spss"] = pd.read_spss
+except AttributeError:
+    pass
+
+
+try:
+    READERS["pickle"] = pd.read_pickle
+except AttributeError:
+    pass
+
+
+try:
+    READERS["gbq"] = pd.read_gbq
+except AttributeError:
+    pass
+
+
+try:
+    READERS["google"] = pd.read_gbq
+except AttributeError:
+    pass
+
+
+try:
+    READERS["bigquery"] = pd.read_gb
+except AttributeError:
+    pass
+
 
 WRITERS = {
     "csv": "to_csv",
@@ -87,7 +147,6 @@ WRITERS = {
     "sas": "to_sas",
     "spss": "to_spss",
     "pickle": "to_pickle",
-    "sql": "to_sql",
     "gbq": "to_gbq",
     "google": "to_gbq",
     "bigquery": "to_gbq",
@@ -589,9 +648,6 @@ def to(ftype, fname=None, sep=None, index=False):
     if not fname:
         if ftype in ("parquet", "xls", "xlsx", "ods", "pickle"):
             exit("{} needs a path".format(ftype))
-
-    if ftype == "sql":
-        exit("sql writer not implemented")
 
     if ftype == "hdf5":
         exit("hdf5 writer not implemented")
