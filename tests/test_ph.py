@@ -89,6 +89,9 @@ def test_open_skiprows(capsys):
     assert list(df.iloc[1]) == [16, 21]
 
 
+@pytest.mark.skipif(
+    os.getenv("GITHUB_WORKFLOW") is not None, reason="clipboard not on headless"
+)
 def test_clipboard(capsys):
     import pandas as pd
 
