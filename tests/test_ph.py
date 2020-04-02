@@ -378,12 +378,12 @@ def test_groupby_sum(phmgr):
 
 def test_groupby_mean(phmgr):
     with phmgr("group") as captured:
-        ph.COMMANDS["groupby"]("Animal", how="mean")
+        ph.COMMANDS["groupby"]("Animal", how="count")
     assert not captured.err
     df = captured.df
     assert list(df.shape) == [2, 1]
-    assert list(df.iloc[0]) == [375.0]
-    assert list(df.iloc[1]) == [25.0]
+    assert list(df.iloc[0]) == [2]
+    assert list(df.iloc[1]) == [2]
 
 
 def test_groupby_first(phmgr):

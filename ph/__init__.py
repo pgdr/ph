@@ -477,15 +477,14 @@ def groupby(*columns, how="sum", as_index=True):
         as_index = False
     else:
         exit("--as_index=True or False, not {}".format(as_index))
+
     grouped = df.groupby(columns, as_index=as_index)
-    if how == "sum":
-        retval = grouped.sum()
-    elif how == "mean":
-        retval = grouped.mean()
-    elif how == "first":
-        retval = grouped.first()
-    else:
-        exit("Unknown how={}".format(how))
+    try:
+        fn = getattr(grouped, how)
+    except AttributeError:
+        exit("Unknown --how={}, should be sum, mean, ...".format(how))
+    retval = fn()
+
     pipeout(retval)
 
 
