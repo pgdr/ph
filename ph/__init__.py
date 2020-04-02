@@ -874,6 +874,47 @@ def help(*args, **kwargs):
     print("       {}".format(ds))
 
 
+def slugify_name(name):
+    if not name:
+        return "unnamed"
+    if name == "_":
+        return "_"
+    lead_under = name[0] == "_"
+    trail_under = name[-1] == "_"
+
+    name = name.strip().lower()
+    unwanted = set(c for c in name if not c.isalnum())
+    for u in unwanted:
+        name = name.replace(u, "_").strip()
+    while "__" in name:
+        name = name.replace("__", "_").strip()
+    name = name.strip("_")
+    if lead_under:
+        name = "_" + name
+    if trail_under:
+        name = name + "_"
+    return name
+
+
+@register
+def slugify():
+    """Slugify the column headers.
+
+    Usage: cat a.csv | ph slugify
+
+    Removes all non-alphanumeric characters aside from the underscore.
+
+    Is useful in scenarios where you have possibly many columns with
+    very ugly names.  Can be a good preprocessor to @rename:
+
+    Usage: cat a.csv | ph slugify | ph rename less_bad_name good_name
+
+    """
+    df = pipein()
+    df.columns = [slugify_name(name) for name in df.columns]
+    pipeout(df)
+
+
 @registerx("open")
 def open_(ftype, fname, **kwargs):
     """Use a reader to open a file.

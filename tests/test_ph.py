@@ -388,3 +388,28 @@ def test_version(phmgr):
         ph.print_version()
     assert not captured.err
     assert captured.out == ph._version.__version__ + "\n"
+
+
+def test_slugify_method():
+    actexp = {
+        "abc": "abc",
+        "abc123": "abc123",
+        "abc_ 123 ": "abc_123",
+        "abc(123)": "abc_123",
+        "abc(123)_": "abc_123_",
+        "(abc)/123": "abc_123",
+        "_abc: 123": "_abc_123",
+        '[]()abc-^  \\ "': "abc",
+    }
+    for act, exp in actexp.items():
+        assert ph.slugify_name(act) == exp
+
+
+def test_slugify_df(phmgr):
+    with phmgr("slugit") as captured:
+        ph.COMMANDS["slugify"]()
+
+    assert not captured.err
+
+    cols = list(captured.df.columns)
+    assert cols == ["stupid_column_1", "jerky_column_no_2"]

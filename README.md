@@ -466,6 +466,43 @@ Italy,Germany
 5883,4181
 ```
 
+In addition to `rename` there is an auxiliary function `slugify` that
+lets you _slugify_ the column names.  Consider `slugit.csv`
+
+```csv
+  Stupid column 1,  Jerky-column No. 2
+3,8
+4,9
+5,10
+6,11
+7,12
+8,13
+```
+
+```bash
+$ cat slugit.csv | ph slugify
+stupid_column_1,jerky_column_no_2
+3,8
+4,9
+5,10
+6,11
+7,12
+8,13
+```
+
+Then you can do
+
+```bash
+$ cat slugit.csv | ph slugify | ph rename stupid_column_1 first | ph rename jerky_column_no_2 second
+first,second
+3,8
+4,9
+5,10
+6,11
+7,12
+8,13
+```
+
 
 #### `eval`; Mathematipulating and creating new columns
 
