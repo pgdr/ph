@@ -123,6 +123,7 @@ pipeline.
     * [`show`](#show)
     * [`tabulate`](#tabulate)
     * [`plot`](#plot)
+    * [`groupby`](#groupby)
     * [`index`](#index)
     * [`polyfit`](#polyfit)
 * [Working with different formats](#working-with-different-formats)
