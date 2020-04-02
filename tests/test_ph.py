@@ -196,6 +196,30 @@ x,y
     assert not captured.err
 
 
+def test_open_with_decimals(phmgr):
+    with phmgr("padded_decimals") as captured:
+        ph.COMMANDS["from"]("csv", decimal=",", thousands=".")
+    assert not captured.err
+    df = captured.df
+    assert list(df.shape) == [7, 2]
+    assert "paddecim" in df.columns
+    assert str(df["paddecim"].dtype).startswith("float")
+    assert df["paddecim"].sum() == 1470.0 * 2
+
+
+def test_from_with_decimals(capsys, monkeypatch):
+    monkeypatch.setattr("sys.stdin", _get_io("padded_decimals"))
+    ph.COMMANDS["from"]("csv", decimal=",", thousands=".")
+    captured = Capture(capsys.readouterr())
+
+    assert not captured.err
+    df = captured.df
+    assert list(df.shape) == [7, 2]
+    assert "paddecim" in df.columns
+    assert str(df["paddecim"].dtype).startswith("float")
+    assert df["paddecim"].sum() == 1470.0 * 2
+
+
 def test_date(phmgr):
     with phmgr() as captured:
         ph.COMMANDS["date"]("x", unit="D")

@@ -46,7 +46,6 @@ def _tsv(*args, **kwargs):
 # readers are introduced in later pandas.
 READERS = {
     "csv": pd.read_csv,
-    "csv_with_sep": pd.read_csv,
     "clipboard": pd.read_clipboard,
     "fwf": pd.read_fwf,
     "json": pd.read_json,
@@ -289,7 +288,8 @@ def pipeout(df, sep=",", index=False, *args, **kwargs):
             pass
 
 
-def pipein(ftype="csv", sep=None, thousands=None, skiprows=None):
+def pipein(ftype="csv", **kwargs):
+    skiprows = kwargs.get("skiprows")
     if skiprows is not None:
         try:
             skiprows = int(skiprows)
@@ -297,15 +297,17 @@ def pipein(ftype="csv", sep=None, thousands=None, skiprows=None):
                 raise ValueError("Negative")
         except ValueError:
             exit("skiprows must be a non-negative int, not {}".format(skiprows))
+        kwargs["skiprows"] = skiprows
+
+    sep = kwargs.get("sep")
+    thousands = kwargs.get("thousands")
 
     try:
         if sep is not None:
             if ftype != "csv":
                 exit("Only csv mode handles separators")
-            return READERS["csv_with_sep"](
-                sys.stdin, sep=sep, thousands=thousands, skiprows=skiprows
-            )
-        return READERS[ftype](sys.stdin, skiprows=skiprows)
+            return READERS[ftype](sys.stdin, **kwargs)
+        return READERS[ftype](sys.stdin, **kwargs)
     except pd.errors.EmptyDataError:
         return pd.DataFrame()
 
@@ -700,7 +702,7 @@ def to(ftype, fname=None, sep=None, index=False):
 
 
 @registerx("from")
-def from_(ftype="csv", sep=None, thousands=None, skiprows=None):
+def from_(ftype="csv", **kwargs):
     """Read a certain (default csv) format from standard in and stream out as csv.
 
     Usage: cat a.json | ph from json
@@ -715,7 +717,7 @@ def from_(ftype="csv", sep=None, thousands=None, skiprows=None):
 
 
     """
-
+    skiprows = kwargs.get("skiprows")
     if skiprows is not None:
         try:
             skiprows = int(skiprows)
@@ -723,23 +725,28 @@ def from_(ftype="csv", sep=None, thousands=None, skiprows=None):
                 raise ValueError("Negative")
         except ValueError:
             exit("skiprows must be a non-negative int, not {}".format(skiprows))
+        kwargs["skiprows"] = skiprows
+
+    sep = kwargs.get("sep")
+    thousands = kwargs.get("thousands")
 
     if ftype == "clipboard":
-        pipeout(READERS["clipboard"](sep=sep, thousands=thousands, skiprows=skiprows))
+        pipeout(READERS["clipboard"], **kwargs)
         return
 
     if sep is not None:
         if ftype != "csv":
             exit("Only csv mode accepts separator")
-        pipeout(pipein(ftype, sep=sep, thousands=thousands, skiprows=skiprows))
+        pipeout(pipein(ftype, **kwargs))
         return
+
     if thousands is not None:
         if ftype != "csv":
             exit("Only csv mode accepts thousands")
-        pipeout(pipein(ftype, sep=sep, thousands=thousands, skiprows=skiprows))
+        pipeout(pipein(ftype, **kwargs))
         return
 
-    pipeout(pipein(ftype, skiprows=skiprows))
+    pipeout(pipein(ftype, **kwargs))
 
 
 @register
@@ -868,7 +875,7 @@ def help(*args, **kwargs):
 
 
 @registerx("open")
-def open_(ftype, fname=None, sheet=0, sep=None, thousands=None, skiprows=None):
+def open_(ftype, fname, **kwargs):
     """Use a reader to open a file.
 
     Open ftype file with name fname and stream out.
@@ -889,22 +896,20 @@ def open_(ftype, fname=None, sheet=0, sep=None, thousands=None, skiprows=None):
     if ftype not in READERS:
         exit("Unknown filetype {}".format(ftype))
     reader = READERS[ftype]
-    kwargs = {}
+
+    sheet = kwargs.get("sheet")
     if ftype in ("excel", "xls", "odf"):
         kwargs["sheet"] = __tryparse(sheet)
-    if ftype == "csv" and sep is not None:
-        reader = READERS["csv_with_sep"]
-        kwargs["sep"] = sep
 
-    if ftype == "csv" and thousands is not None:
-        reader = READERS["csv_with_sep"]
-        kwargs["thousands"] = thousands
+    sep = kwargs.get("sep")
+    thousands = kwargs.get("thousands")
 
     if ftype == "clipboard" and fname is not None:
         exit("clipboard does not take fname")
     if ftype != "clipboard" and fname is None:
         exit("filename is required for {}".format(ftype))
 
+    skiprows = kwargs.get("skiprows")
     if skiprows is not None:
         try:
             skiprows = int(skiprows)
@@ -916,7 +921,7 @@ def open_(ftype, fname=None, sheet=0, sep=None, thousands=None, skiprows=None):
 
     try:
         if ftype == "clipboard":
-            df = reader(sep=sep, thousands=thousands)
+            df = reader(**kwargs)
         else:
             df = reader(fname, **kwargs)
     except AttributeError as err:
