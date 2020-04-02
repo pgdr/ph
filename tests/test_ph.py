@@ -79,11 +79,31 @@ def test_cat_many(capsys):
     assert list(df.shape) == [29, 12]
 
 
+def test_open_skiprows(capsys):
+    ph.COMMANDS["open"]("csv", _get_path("f"), skiprows=6)
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    df = captured.df
+    assert list(df.shape) == [2, 2]
+    assert list(df.iloc[0]) == [14, 13]
+    assert list(df.iloc[1]) == [16, 21]
+
+
 def test_sep_from(phmgr):
     with phmgr("d", extension="scsv") as captured:
         ph.COMMANDS["from"]("csv", sep=";")
     assert not captured.err
     assert list(captured.df.shape) == [6, 3]
+
+
+def test_from_skiprows(phmgr):
+    with phmgr("f") as captured:
+        ph.COMMANDS["from"]("csv", skiprows=6)
+    assert not captured.err
+    df = captured.df
+    assert list(df.shape) == [2, 2]
+    assert list(df.iloc[0]) == [14, 13]
+    assert list(df.iloc[1]) == [16, 21]
 
 
 def test_sep_to_with_sep(capsys, monkeypatch):

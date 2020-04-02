@@ -289,13 +289,23 @@ def pipeout(df, sep=",", index=False, *args, **kwargs):
             pass
 
 
-def pipein(ftype="csv", sep=None, thousands=None):
+def pipein(ftype="csv", sep=None, thousands=None, skiprows=None):
+    if skiprows is not None:
+        try:
+            skiprows = int(skiprows)
+            if skiprows < 0:
+                raise ValueError("Negative")
+        except ValueError:
+            exit("skiprows must be a non-negative int, not {}".format(skiprows))
+
     try:
         if sep is not None:
             if ftype != "csv":
                 exit("Only csv mode handles separators")
-            return READERS["csv_with_sep"](sys.stdin, sep=sep, thousands=thousands)
-        return READERS[ftype](sys.stdin)
+            return READERS["csv_with_sep"](
+                sys.stdin, sep=sep, thousands=thousands, skiprows=skiprows
+            )
+        return READERS[ftype](sys.stdin, skiprows=skiprows)
     except pd.errors.EmptyDataError:
         return pd.DataFrame()
 
@@ -690,7 +700,7 @@ def to(ftype, fname=None, sep=None, index=False):
 
 
 @registerx("from")
-def from_(ftype="csv", sep=None, thousands=None):
+def from_(ftype="csv", sep=None, thousands=None, skiprows=None):
     """Read a certain (default csv) format from standard in and stream out as csv.
 
     Usage: cat a.json | ph from json
@@ -706,22 +716,30 @@ def from_(ftype="csv", sep=None, thousands=None):
 
     """
 
+    if skiprows is not None:
+        try:
+            skiprows = int(skiprows)
+            if skiprows < 0:
+                raise ValueError("Negative")
+        except ValueError:
+            exit("skiprows must be a non-negative int, not {}".format(skiprows))
+
     if ftype == "clipboard":
-        pipeout(READERS["clipboard"](sep=sep, thousands=thousands))
+        pipeout(READERS["clipboard"](sep=sep, thousands=thousands, skiprows=skiprows))
         return
 
     if sep is not None:
         if ftype != "csv":
             exit("Only csv mode accepts separator")
-        pipeout(pipein(ftype, sep=sep, thousands=thousands))
+        pipeout(pipein(ftype, sep=sep, thousands=thousands, skiprows=skiprows))
         return
     if thousands is not None:
         if ftype != "csv":
             exit("Only csv mode accepts thousands")
-        pipeout(pipein(ftype, sep=sep, thousands=thousands))
+        pipeout(pipein(ftype, sep=sep, thousands=thousands, skiprows=skiprows))
         return
 
-    pipeout(pipein(ftype))
+    pipeout(pipein(ftype, skiprows=skiprows))
 
 
 @register
@@ -850,12 +868,13 @@ def help(*args, **kwargs):
 
 
 @registerx("open")
-def open_(ftype, fname=None, sheet=0, sep=None, thousands=None):
+def open_(ftype, fname=None, sheet=0, sep=None, thousands=None, skiprows=None):
     """Use a reader to open a file.
 
     Open ftype file with name fname and stream out.
 
     Usage: ph open csv a.csv
+           ph open csv a.csv --skiprows=7
            ph open json a.json
            ph open parquet a.parquet
            ph open excel a.ods
@@ -885,6 +904,15 @@ def open_(ftype, fname=None, sheet=0, sep=None, thousands=None):
         exit("clipboard does not take fname")
     if ftype != "clipboard" and fname is None:
         exit("filename is required for {}".format(ftype))
+
+    if skiprows is not None:
+        try:
+            skiprows = int(skiprows)
+            if skiprows < 0:
+                raise ValueError("Negative")
+        except ValueError:
+            exit("skiprows must be a non-negative int, not {}".format(skiprows))
+        kwargs["skiprows"] = skiprows
 
     try:
         if ftype == "clipboard":
