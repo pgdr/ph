@@ -93,16 +93,22 @@ def test_open_skiprows(capsys):
     os.getenv("GITHUB_WORKFLOW") is not None, reason="clipboard not on headless"
 )
 def test_clipboard(capsys):
-    import pandas as pd
+    # This test is a bit nasty as we necessarily need to modify the
+    # clipboard.  We do, however, try to preserve the content.  YMMV.
+    import pandas.io.clipboard as cp
 
-    df = pd.read_csv(_get_path("a"))
-    df.to_clipboard()
+    old = cp.paste()
+    try:
+        df = pd.read_csv(_get_path("a"))
+        df.to_clipboard()
 
-    ph.COMMANDS["from"]("clipboard")
-    captured = Capture(capsys.readouterr())
-    assert not captured.err
-    df = captured.df
-    assert list(df.shape) == [6, 2]
+        ph.COMMANDS["from"]("clipboard")
+        captured = Capture(capsys.readouterr())
+        assert not captured.err
+        df = captured.df
+        assert list(df.shape) == [6, 2]
+    finally:
+        cp.copy(old)
 
 
 def test_sep_from(phmgr):
