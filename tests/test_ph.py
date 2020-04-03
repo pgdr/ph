@@ -486,3 +486,10 @@ def test_slugify_df(phmgr):
 
     cols = list(captured.df.columns)
     assert cols == ["stupid_column_1", "jerky_column_no_2"]
+
+
+def test_doc_plot(capsys):
+    ph.COMMANDS["help"]("plot")
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    assert "Plot the csv file" in captured.out
