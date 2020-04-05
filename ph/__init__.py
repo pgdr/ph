@@ -1253,43 +1253,14 @@ def polyfit(x, y, deg=1):
     pipeout(df)
 
 
-pandas_computations = [
-    "abs",
-    "all",
-    "any",
-    "clip",
-    "corr",
-    "count",
-    "cov",
-    "cummax",
-    "cummin",
-    "cumprod",
-    "cumsum",
-    "diff",
-    "kurt",
-    "kurtosis",
-    "mad",
-    "max",
-    "mean",
-    "median",
-    "min",
-    "mode",
-    "pct_change",
-    "prod",
-    "product",
-    "quantile",
-    "rank",
-    "round",
-    "sem",
-    "skew",
-    "sum",
-    "std",
-    "var",
-    "nunique",
-    "transpose",
-]
-for attr in pandas_computations:
-    register_forward(attr)
+def __process(attr):
+    if attr in COMMANDS:
+        return False
+    if attr.startswith("_"):
+        return False
+    if attr.startswith("to_"):
+        return False
+    return True
 
 
 for attr in dir(pd.DataFrame):
