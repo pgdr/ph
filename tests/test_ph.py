@@ -68,20 +68,26 @@ def phmgr(capsys, monkeypatch):
     return phmgr
 
 
+def _call(cmd, extra=None):
+    if extra is None:
+        extra = []
+    ph._main(["ph"] + cmd.split(" ") + extra)
+
+
 def test_cat(phmgr):
     with phmgr() as captured:
-        ph.COMMANDS["cat"]()
+        _call("cat")
     assert captured.out == _get_data("a")
 
 
 def test_cat_many(capsys):
-    ph.cat(_get_path("a"), _get_path("covid"), axis="index")
+    _call("cat {} {} --axis=index".format(_get_path("a"), _get_path("covid")))
     cap = Capture(capsys.readouterr())
     assert not cap.err
     df = cap.df
     cap.assert_shape(35, 12)
 
-    ph.cat(_get_path("a"), _get_path("covid"), axis="columns")
+    _call("cat {} {} --axis=columns".format(_get_path("a"), _get_path("covid")))
     cap = Capture(capsys.readouterr())
     assert not cap.err
     df = cap.df
@@ -90,7 +96,7 @@ def test_cat_many(capsys):
 
 def test_columns(phmgr):
     with phmgr("iris") as captured:
-        ph.COMMANDS["columns"]()
+        _call("columns")
     assert not captured.err
     captured.assert_columns(["columns"])
     assert list(captured.df["columns"]) == [
@@ -104,7 +110,7 @@ def test_columns(phmgr):
 
 def test_drop_columns(phmgr):
     with phmgr("iris") as captured:
-        ph.COMMANDS["drop"]("setosa", "virginica", axis="columns")
+        _call("drop setosa virginica --axis=columns")
     assert not captured.err
     df = captured.df
     captured.assert_shape(150, 3)
@@ -116,7 +122,7 @@ def test_drop_columns(phmgr):
 
 def test_drop_index(phmgr):
     with phmgr("iris") as captured:
-        ph.COMMANDS["drop"](0, axis="index")
+        _call("drop 0 --axis=index")
     assert not captured.err
     df = captured.df
     captured.assert_shape(149, 5)
@@ -124,7 +130,7 @@ def test_drop_index(phmgr):
 
 
 def test_open_skiprows(capsys):
-    ph.COMMANDS["open"]("csv", _get_path("f"), skiprows=6)
+    _call("open csv {} --skiprows=6".format(_get_path("f")))
     captured = Capture(capsys.readouterr())
     assert not captured.err
     df = captured.df
@@ -146,7 +152,7 @@ def test_clipboard(capsys):
         df = pd.read_csv(_get_path("a"))
         df.to_clipboard()
 
-        ph.COMMANDS["from"]("clipboard")
+        _call("from clipboard")
         captured = Capture(capsys.readouterr())
         assert not captured.err
         df = captured.df
@@ -157,14 +163,14 @@ def test_clipboard(capsys):
 
 def test_sep_from(phmgr):
     with phmgr("d", extension="scsv") as captured:
-        ph.COMMANDS["from"]("csv", sep=";")
+        _call("from csv --sep=;")
     assert not captured.err
     captured.assert_shape(6, 3)
 
 
 def test_from_skiprows(phmgr):
     with phmgr("f") as captured:
-        ph.COMMANDS["from"]("csv", skiprows=6)
+        _call("from csv --skiprows=6")
     assert not captured.err
     df = captured.df
     captured.assert_shape(2, 2)
@@ -174,7 +180,7 @@ def test_from_skiprows(phmgr):
 
 def test_sep_to_with_sep(capsys, monkeypatch):
     monkeypatch.setattr("sys.stdin", _get_io("d"))
-    ph.COMMANDS["to"]("csv", sep="_")
+    _call("to csv --sep=_")
     captured = Capture(capsys.readouterr())
     assert not captured.err
     captured.assert_shape(6, 1)
@@ -186,7 +192,7 @@ def test_sep_to_with_sep(capsys, monkeypatch):
 
 def test_sep_to_with_index(capsys, monkeypatch):
     monkeypatch.setattr("sys.stdin", _get_io("d"))
-    ph.COMMANDS["to"]("csv", index="true")
+    _call("to csv --index=true")
     captured = Capture(capsys.readouterr())
     assert not captured.err
     captured.assert_shape(6, 4)
@@ -194,7 +200,7 @@ def test_sep_to_with_index(capsys, monkeypatch):
 
 def test_thousands_from(capsys, monkeypatch):
     monkeypatch.setattr("sys.stdin", _get_io("t", extension="tsv"))
-    ph.COMMANDS["from"]("csv", thousands=",", sep="\t")
+    _call("from csv --thousands=, --sep=\t")
     captured = Capture(capsys.readouterr())
     assert not captured.err
     df = captured.df
@@ -204,7 +210,7 @@ def test_thousands_from(capsys, monkeypatch):
 
 def test_thousands_from_escaped_tab(capsys, monkeypatch):
     monkeypatch.setattr("sys.stdin", _get_io("t", extension="tsv"))
-    ph.COMMANDS["from"]("csv", thousands=",", sep="\\t")
+    _call("from csv --thousands=, --sep=\\t")
     captured = Capture(capsys.readouterr())
     assert not captured.err
     df = captured.df
@@ -214,7 +220,7 @@ def test_thousands_from_escaped_tab(capsys, monkeypatch):
 
 def test_describe(phmgr):
     with phmgr() as captured:
-        ph.COMMANDS["describe"]()
+        _call("describe")
     assert len(captured.out.split("\n")) == 10
     header = set(captured.out.split("\n")[0].split())
     assert "x" in header
@@ -224,7 +230,7 @@ def test_describe(phmgr):
 
 def test_shape(phmgr):
     with phmgr("covid") as captured:
-        ph.COMMANDS["shape"]()
+        _call("shape")
     df = captured.df
     captured.assert_columns(["rows", "columns"])
     assert list(df["rows"]) == [29]
@@ -233,7 +239,7 @@ def test_shape(phmgr):
 
 def test_transpose(phmgr):
     with phmgr() as captured:
-        ph.COMMANDS["transpose"]()
+        _call("transpose")
     assert (
         captured.out
         == """\
@@ -246,19 +252,19 @@ def test_transpose(phmgr):
 
 def test_median(phmgr):
     with phmgr() as captured:
-        ph.COMMANDS["median"]()
+        _call("median")
     df = captured.df["0"]
     assert list(df) == [5.5, 10.5]
 
 
 def test_head_tail(capsys, monkeypatch):
     monkeypatch.setattr("sys.stdin", _get_io("a"))
-    ph.COMMANDS["head"](7)
+    _call("head 7")
     captured = capsys.readouterr()
     assert not captured.err
 
     monkeypatch.setattr("sys.stdin", io.StringIO(captured.out))
-    ph.COMMANDS["tail"](3)
+    _call("tail 3")
     captured = capsys.readouterr()
     assert (
         captured.out
@@ -274,7 +280,7 @@ x,y
 
 def test_open_with_decimals(phmgr):
     with phmgr("padded_decimals") as captured:
-        ph.COMMANDS["from"]("csv", decimal=",", thousands=".")
+        _call("from csv --decimal=, --thousands=.")
     assert not captured.err
     df = captured.df
     captured.assert_shape(7, 2)
@@ -285,7 +291,7 @@ def test_open_with_decimals(phmgr):
 
 def test_from_with_decimals(capsys, monkeypatch):
     monkeypatch.setattr("sys.stdin", _get_io("padded_decimals"))
-    ph.COMMANDS["from"]("csv", decimal=",", thousands=".")
+    _call("from csv --decimal=, --thousands=.")
     captured = Capture(capsys.readouterr())
 
     assert not captured.err
@@ -298,7 +304,7 @@ def test_from_with_decimals(capsys, monkeypatch):
 
 def test_date(phmgr):
     with phmgr() as captured:
-        ph.COMMANDS["date"]("x", unit="D")
+        _call("date x --unit=D")
     df = captured.df
     df["x"] = pd.to_datetime(captured.df["x"])
     assert list(df["y"]) == list(range(8, 14))
@@ -308,7 +314,7 @@ def test_date(phmgr):
         assert str(x[i]) == "1970-01-0{} 00:00:00".format(i + 4)
 
     with phmgr("d") as captured:
-        ph.COMMANDS["date"]()
+        _call("date")
     df = captured.df
     assert len(df) == 6
     captured.assert_columns(["0"])
@@ -326,7 +332,7 @@ def test_date(phmgr):
 
 def test_date_dayfirst(phmgr):
     with phmgr("usa") as captured:
-        ph.COMMANDS["date"]("dateRep", dayfirst=True)
+        _call("date dateRep --dayfirst=True")
     df = captured.df
     captured.assert_shape(93, 7)
     df["dateRep"] = pd.to_datetime(df["dateRep"])
@@ -337,27 +343,27 @@ def test_date_dayfirst(phmgr):
 def test_date_errors(phmgr):
     with pytest.raises(SystemExit) as exit_:
         with phmgr("derr") as captured:
-            ph.COMMANDS["date"](col="x")
+            _call("date --col=x")
     assert str(exit_.value) == "No such column x"
 
     with pytest.raises(SystemExit) as exit_:
         with phmgr("derr") as captured:
-            ph.COMMANDS["date"](col="year")
+            _call("date --col=year")
     assert str(exit_.value).startswith("Out of bounds nanosecond timestamp")
 
     with pytest.raises(SystemExit) as exit_:
         with phmgr("derr") as captured:
-            ph.COMMANDS["date"](col="year", errors="nosucherr")
+            _call("date --col=year --errors=nosucherr")
     assert str(exit_.value).startswith("Errors must be one of")
 
     with phmgr("derr") as captured:
-        ph.COMMANDS["date"](col="year", errors="coerce")
+        _call("date --col=year --errors=coerce")
     assert not captured.err
     df = captured.df
     assert df["year"].dtype == dt.datetime
 
     with phmgr("derr") as captured:
-        ph.COMMANDS["date"](col="year", errors="ignore")
+        _call("date --col=year --errors=ignore")
     assert not captured.err
     df = captured.df
     assert "200-01" in list(df["year"])
@@ -365,7 +371,7 @@ def test_date_errors(phmgr):
 
 def test_eval(phmgr):
     with phmgr() as captured:
-        ph.COMMANDS["eval"]("x = x**2")
+        _call("eval", ["x = x**2"])
     assert (
         captured.out
         == """\
@@ -382,29 +388,29 @@ x,y
 
 def test_dropna(phmgr):
     with phmgr("covid") as captured:
-        ph.COMMANDS["dropna"]()
+        _call("dropna")
     captured.assert_shape(5, 10)
 
     with phmgr("covid") as captured:
-        ph.COMMANDS["dropna"](thresh=7)
+        _call("dropna --thresh=7")
     captured.assert_shape(15, 10)
 
     with phmgr("covid") as captured:
-        ph.COMMANDS["dropna"](axis=1, thresh=17)
+        _call("dropna --axis=1 --thresh=17")
     captured.assert_shape(29, 5)
 
 
 def test_fillna(phmgr):
     with phmgr("covid") as captured:
-        ph.COMMANDS["fillna"](17)
+        _call("fillna 17")
     assert captured.df["Canada"].sum() == 1401
 
     with phmgr("covid") as captured:
-        ph.COMMANDS["fillna"](19, limit=3)
+        _call("fillna 19 --limit=3")
     assert captured.df["Canada"].sum() == 1050
 
     with phmgr("covid") as captured:
-        ph.COMMANDS["fillna"](method="pad", limit=5)
+        _call("fillna --method=pad --limit=5")
     assert captured.df["Canada"].sum() == 2493
 
 
@@ -434,7 +440,7 @@ def test_merge(capsys):
 
 def test_groupby_sum_default(phmgr):
     with phmgr("group") as captured:
-        ph.COMMANDS["groupby"]("Animal")
+        _call("groupby Animal")
     assert not captured.err
     df = captured.df
     captured.assert_shape(2, 1)
@@ -444,7 +450,7 @@ def test_groupby_sum_default(phmgr):
 
 def test_groupby_sum(phmgr):
     with phmgr("group") as captured:
-        ph.COMMANDS["groupby"]("Animal", how="sum")
+        _call("groupby Animal --how=sum")
     assert not captured.err
     df = captured.df
     captured.assert_shape(2, 1)
@@ -454,7 +460,7 @@ def test_groupby_sum(phmgr):
 
 def test_groupby_mean(phmgr):
     with phmgr("group") as captured:
-        ph.COMMANDS["groupby"]("Animal", how="count")
+        _call("groupby Animal --how=count")
     assert not captured.err
     df = captured.df
     captured.assert_shape(2, 1)
@@ -464,7 +470,7 @@ def test_groupby_mean(phmgr):
 
 def test_groupby_first(phmgr):
     with phmgr("group") as captured:
-        ph.COMMANDS["groupby"]("Animal", how="first", as_index=False)
+        _call("groupby Animal --how=first --as_index=False")
     assert not captured.err
     df = captured.df
     captured.assert_shape(2, 2)
@@ -523,7 +529,7 @@ def test_slugify_method():
 
 def test_slugify_df(phmgr):
     with phmgr("slugit") as captured:
-        ph.COMMANDS["slugify"]()
+        _call("slugify")
 
     assert not captured.err
 
@@ -532,7 +538,7 @@ def test_slugify_df(phmgr):
 
 
 def test_doc_plot(capsys):
-    ph.COMMANDS["help"]("plot")
+    _call("help plot")
     captured = Capture(capsys.readouterr())
     assert not captured.err
     assert "Plot the csv file" in captured.out
@@ -540,6 +546,6 @@ def test_doc_plot(capsys):
 
 def test_median(phmgr):
     with phmgr() as captured:
-        ph.COMMANDS["median"]()
+        _call("median")
     assert not captured.err
     assert captured.out == "x,y\n5.5,10.5\n"

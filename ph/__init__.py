@@ -1292,10 +1292,15 @@ for attr in pandas_computations:
     register_forward(attr)
 
 
-def main():
-    if len(sys.argv) < 2:
+for attr in dir(pd.DataFrame):
+    if __process(attr):
+        register_forward(attr)
+
+
+def _main(argv):
+    if len(argv) < 2:
         exit("Usage: ph command [args]\n       ph help")
-    cmd = sys.argv[1]
+    cmd = argv[1]
     if cmd in ("-v", "--version"):
         print_version()
         exit()
@@ -1307,7 +1312,7 @@ def main():
     # Arguments of type "--abc=def" go into kwargs as key, value pairs
     args = []
     kwarg = {}
-    for a in sys.argv[2:]:
+    for a in argv[2:]:
         if KWARG.match(a):
             args.append(a)
         elif KWARG_WITH_VALUE.match(a):
@@ -1316,11 +1321,15 @@ def main():
             v = a[split + 1 :]
             kwarg[k] = v
         else:
-            args.append(a)
+            args.append(__tryparse(a))
     try:
         COMMANDS[cmd](*args, **kwarg)
     except TypeError as err:
         exit(err)
+
+
+def main():
+    _main(sys.argv)
 
 
 if __name__ == "__main__":
