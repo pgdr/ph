@@ -98,6 +98,29 @@ def test_columns(phmgr):
     ]
 
 
+def test_drop_columns(phmgr):
+    with phmgr("iris") as captured:
+        ph.COMMANDS["drop"]("setosa", "virginica", axis="columns")
+    assert not captured.err
+    df = captured.df
+    captured.assert_shape(150, 3)
+    assert list(captured.df.columns) == [
+        "150",
+        "4",
+        "versicolor",
+    ]
+    assert list(df.iloc[0]) == [5.1, 3.5, 0.2]
+
+
+def test_drop_index(phmgr):
+    with phmgr("iris") as captured:
+        ph.COMMANDS["drop"](0, axis="index")
+    assert not captured.err
+    df = captured.df
+    captured.assert_shape(149, 5)
+    assert list(df.iloc[0]) == [4.9, 3.0, 1.4, 0.2, 0]
+
+
 def test_open_skiprows(capsys):
     ph.COMMANDS["open"]("csv", _get_path("f"), skiprows=6)
     captured = Capture(capsys.readouterr())

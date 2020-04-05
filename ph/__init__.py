@@ -1099,10 +1099,47 @@ def columns(*cols, **kwargs):
         if col not in df.columns:
             exit("No such column {}".format(col))
 
+    print("columns")
     if not cols and not kwargs:
         print("\n".join(list(df.columns)))
     else:
         pipeout(df[cols])
+
+
+@register
+def drop(*columns, **kwargs):
+    """Drop specified labels from rows or columns.
+
+    Remove rows or columns by specifying label names and corresponding
+    axis, or by specifying directly index or column names.
+
+    Usage: cat a.csv | ph drop 'x' --axis=columns
+           cat a.csv | ph drop 0   --axis=index
+
+    """
+    for opt in ("axis", "levels"):
+        if opt in kwargs:
+            kwargs[opt] = __tryparse(kwargs[opt])
+    if "inplace" in kwargs:
+        exit("inplace in nonsensical in ph")
+
+    df = pipein()
+
+    if kwargs.get("axis") in (None, 0, "index"):
+        columns = [__tryparse(col) for col in columns]
+    elif kwargs.get("axis") in (1, "columns"):
+        for col in columns:
+            if not col in df.columns:
+                exit("Unknown column {}.".format(col))
+    else:
+        exit(
+            "--axis=index (or 0) or --axis=columns (or 1), not {}".format(
+                kwargs.get("axis")
+            )
+        )
+
+    ndf = df.drop(list(columns), **kwargs)
+    pipeout(ndf)
 
 
 @register
