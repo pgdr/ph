@@ -50,6 +50,9 @@ class Capture:
     def assert_shape(self, rows, cols):
         assert list(self.df.shape) == [rows, cols]
 
+    def assert_columns(self, columns):
+        assert list(self.df.columns) == list(columns)
+
 
 @pytest.fixture
 def phmgr(capsys, monkeypatch):
@@ -89,6 +92,7 @@ def test_columns(phmgr):
     with phmgr("iris") as captured:
         ph.COMMANDS["columns"]()
     assert not captured.err
+    captured.assert_columns(["columns"])
     assert list(captured.df["columns"]) == [
         "150",
         "4",
@@ -104,11 +108,9 @@ def test_drop_columns(phmgr):
     assert not captured.err
     df = captured.df
     captured.assert_shape(150, 3)
-    assert list(captured.df.columns) == [
-        "150",
-        "4",
-        "versicolor",
-    ]
+    captured.assert_columns(
+        ["150", "4", "versicolor",]
+    )
     assert list(df.iloc[0]) == [5.1, 3.5, 0.2]
 
 
@@ -224,7 +226,7 @@ def test_shape(phmgr):
     with phmgr("covid") as captured:
         ph.COMMANDS["shape"]()
     df = captured.df
-    assert list(df.columns) == ["rows", "columns"]
+    captured.assert_columns(["rows", "columns"])
     assert list(df["rows"]) == [29]
     assert list(df["columns"]) == [10]
 
@@ -309,7 +311,7 @@ def test_date(phmgr):
         ph.COMMANDS["date"]()
     df = captured.df
     assert len(df) == 6
-    assert df.columns == ["0"]
+    captured.assert_columns(["0"])
     act = [str(x) for x in df["0"]]
     exp = [
         "2003-03-08",
@@ -534,3 +536,10 @@ def test_doc_plot(capsys):
     captured = Capture(capsys.readouterr())
     assert not captured.err
     assert "Plot the csv file" in captured.out
+
+
+def test_median(phmgr):
+    with phmgr() as captured:
+        ph.COMMANDS["median"]()
+    assert not captured.err
+    assert captured.out == "x,y\n5.5,10.5\n"

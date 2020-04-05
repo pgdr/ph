@@ -993,8 +993,37 @@ def open_(ftype, fname, **kwargs):
     pipeout(df)
 
 
+_ATTRS_WITH_SERIES_OUTPUT = (
+    "all",
+    "any",
+    "count",
+    "kurt",
+    "kurtosis",
+    "mad",
+    "mean",
+    "median",
+    "min",
+    "nunique",
+    "prod",
+    "product",
+    "quantile",
+    "sem",
+    "skew",
+    "std",
+    "sum",
+    "var",
+)
+
+
 def _call(attr, *args, **kwargs):
-    pipeout(getattr(pipein(), attr)(*args, **kwargs))
+    df = pipein()
+    dfn = getattr(df, attr)(*args, **kwargs)
+    if attr in _ATTRS_WITH_SERIES_OUTPUT:
+        dfn = dfn.reset_index()
+        dfn = dfn.T
+        pipeout(dfn, header=False)
+    else:
+        pipeout(dfn)
 
 
 def register_forward(attr):
