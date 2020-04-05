@@ -1008,6 +1008,10 @@ def head(n=10):
     Print the header followed by the first 10 (or n) lines of the stream to
     standard output.
 
+    Usage: cat a.csv | ph head
+           cat a.csv | ph head 8
+
+
     """
     _call("head", int(n))
 
