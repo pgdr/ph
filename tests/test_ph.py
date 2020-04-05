@@ -82,7 +82,20 @@ def test_cat_many(capsys):
     cap = Capture(capsys.readouterr())
     assert not cap.err
     df = cap.df
-    assert list(df.shape) == [29, 12]
+    cap.assert_shape(29, 12)
+
+
+def test_columns(phmgr):
+    with phmgr("iris") as captured:
+        ph.COMMANDS["columns"]()
+    assert not captured.err
+    assert list(captured.df["columns"]) == [
+        "150",
+        "4",
+        "setosa",
+        "versicolor",
+        "virginica",
+    ]
 
 
 def test_open_skiprows(capsys):
