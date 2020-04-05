@@ -411,7 +411,7 @@ def dtypes(t=None):
         df = pipein()
         newdf = pd.DataFrame(pd.Series(df.columns), columns=["column"])
         newdf["dtype"] = pd.Series([str(e) for e in df.dtypes])
-        pipeout(newdf)
+        pipeout(newdf.T, header=False)
     else:
         df = pipein().select_dtypes(t)
         pipeout(df)
@@ -809,6 +809,10 @@ def merge(fname1, fname2, how="inner", on=None):
 
 @register
 def tab():
+    """Equivalent to `ph to tsv`.
+
+    Usage: cat a.csv | ph tab
+    """
     pipeout(pipein(), sep="\t")
 
 
