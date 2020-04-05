@@ -108,6 +108,14 @@ def test_columns(phmgr):
     ]
 
 
+def test_columns_args(phmgr):
+    with phmgr("iris") as captured:
+        _call("columns setosa versicolor")
+    assert not captured.err
+    captured.assert_shape(150, 2)
+    captured.assert_columns(["setosa", "versicolor"])
+
+
 def test_drop_columns(phmgr):
     with phmgr("iris") as captured:
         _call("drop setosa virginica --axis=columns")

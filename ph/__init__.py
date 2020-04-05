@@ -1136,8 +1136,8 @@ def columns(*cols, **kwargs):
         if col not in df.columns:
             exit("No such column {}".format(col))
 
-    print("columns")
     if not cols and not kwargs:
+        print("columns")
         print("\n".join(list(df.columns)))
     else:
         pipeout(df[cols])
