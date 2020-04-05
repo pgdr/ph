@@ -198,9 +198,8 @@ $ cat a.csv | ph transpose
 
 ```bash
 $ cat a.csv | ph median
-0
-5.5
-10.5
+x,y
+5.5,10.5
 ```
 
 **_Use `ph help` to list all commands_**
