@@ -84,13 +84,11 @@ def test_cat_many(capsys):
     _call("cat {} {} --axis=index".format(_get_path("a"), _get_path("covid")))
     cap = Capture(capsys.readouterr())
     assert not cap.err
-    df = cap.df
     cap.assert_shape(35, 12)
 
     _call("cat {} {} --axis=columns".format(_get_path("a"), _get_path("covid")))
     cap = Capture(capsys.readouterr())
     assert not cap.err
-    df = cap.df
     cap.assert_shape(29, 12)
 
 
@@ -256,13 +254,6 @@ def test_transpose(phmgr):
 8,9,10,11,12,13
 """
     )
-
-
-def test_median(phmgr):
-    with phmgr() as captured:
-        _call("median")
-    df = captured.df["0"]
-    assert list(df) == [5.5, 10.5]
 
 
 def test_head_tail(capsys, monkeypatch):

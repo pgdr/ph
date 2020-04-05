@@ -1166,7 +1166,7 @@ def drop(*columns, **kwargs):
         columns = [__tryparse(col) for col in columns]
     elif kwargs.get("axis") in (1, "columns"):
         for col in columns:
-            if not col in df.columns:
+            if col not in df.columns:
                 exit("Unknown column {}.".format(col))
     else:
         exit(
