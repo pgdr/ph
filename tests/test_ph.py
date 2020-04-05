@@ -39,10 +39,16 @@ class Capture:
         else:
             self.out = ""
             self.err = ""
+        self._df = None
 
     @property
     def df(self):
-        return pd.read_csv(io.StringIO(self.out))
+        if self._df is None:
+            self._df = pd.read_csv(io.StringIO(self.out))
+        return self._df
+
+    def assert_shape(self, rows, cols):
+        assert list(self.df.shape) == [rows, cols]
 
 
 @pytest.fixture
@@ -70,7 +76,7 @@ def test_cat_many(capsys):
     cap = Capture(capsys.readouterr())
     assert not cap.err
     df = cap.df
-    assert list(df.shape) == [35, 12]
+    cap.assert_shape(35, 12)
 
     ph.cat(_get_path("a"), _get_path("covid"), axis="columns")
     cap = Capture(capsys.readouterr())
@@ -84,7 +90,7 @@ def test_open_skiprows(capsys):
     captured = Capture(capsys.readouterr())
     assert not captured.err
     df = captured.df
-    assert list(df.shape) == [2, 2]
+    captured.assert_shape(2, 2)
     assert list(df.iloc[0]) == [14, 13]
     assert list(df.iloc[1]) == [16, 21]
 
@@ -106,7 +112,7 @@ def test_clipboard(capsys):
         captured = Capture(capsys.readouterr())
         assert not captured.err
         df = captured.df
-        assert list(df.shape) == [6, 2]
+        captured.assert_shape(6, 2)
     finally:
         cp.copy(old)
 
@@ -115,7 +121,7 @@ def test_sep_from(phmgr):
     with phmgr("d", extension="scsv") as captured:
         ph.COMMANDS["from"]("csv", sep=";")
     assert not captured.err
-    assert list(captured.df.shape) == [6, 3]
+    captured.assert_shape(6, 3)
 
 
 def test_from_skiprows(phmgr):
@@ -123,7 +129,7 @@ def test_from_skiprows(phmgr):
         ph.COMMANDS["from"]("csv", skiprows=6)
     assert not captured.err
     df = captured.df
-    assert list(df.shape) == [2, 2]
+    captured.assert_shape(2, 2)
     assert list(df.iloc[0]) == [14, 13]
     assert list(df.iloc[1]) == [16, 21]
 
@@ -133,7 +139,7 @@ def test_sep_to_with_sep(capsys, monkeypatch):
     ph.COMMANDS["to"]("csv", sep="_")
     captured = Capture(capsys.readouterr())
     assert not captured.err
-    assert list(captured.df.shape) == [6, 1]
+    captured.assert_shape(6, 1)
 
     df = pd.read_csv(io.StringIO(captured.out), sep="_")
     assert list(df.shape) == [6, 3]
@@ -145,7 +151,7 @@ def test_sep_to_with_index(capsys, monkeypatch):
     ph.COMMANDS["to"]("csv", index="true")
     captured = Capture(capsys.readouterr())
     assert not captured.err
-    assert list(captured.df.shape) == [6, 4]
+    captured.assert_shape(6, 4)
 
 
 def test_thousands_from(capsys, monkeypatch):
@@ -154,7 +160,7 @@ def test_thousands_from(capsys, monkeypatch):
     captured = Capture(capsys.readouterr())
     assert not captured.err
     df = captured.df
-    assert list(df.shape) == [7, 2]
+    captured.assert_shape(7, 2)
     assert all(df["a"] == 10 ** df["b"])
 
 
@@ -164,7 +170,7 @@ def test_thousands_from_escaped_tab(capsys, monkeypatch):
     captured = Capture(capsys.readouterr())
     assert not captured.err
     df = captured.df
-    assert list(df.shape) == [7, 2]
+    captured.assert_shape(7, 2)
     assert all(df["a"] == 10 ** df["b"])
 
 
@@ -233,7 +239,7 @@ def test_open_with_decimals(phmgr):
         ph.COMMANDS["from"]("csv", decimal=",", thousands=".")
     assert not captured.err
     df = captured.df
-    assert list(df.shape) == [7, 2]
+    captured.assert_shape(7, 2)
     assert "paddecim" in df.columns
     assert str(df["paddecim"].dtype).startswith("float")
     assert df["paddecim"].sum() == 1470.0 * 2
@@ -246,7 +252,7 @@ def test_from_with_decimals(capsys, monkeypatch):
 
     assert not captured.err
     df = captured.df
-    assert list(df.shape) == [7, 2]
+    captured.assert_shape(7, 2)
     assert "paddecim" in df.columns
     assert str(df["paddecim"].dtype).startswith("float")
     assert df["paddecim"].sum() == 1470.0 * 2
@@ -284,7 +290,7 @@ def test_date_dayfirst(phmgr):
     with phmgr("usa") as captured:
         ph.COMMANDS["date"]("dateRep", dayfirst=True)
     df = captured.df
-    assert list(df.shape) == [93, 7]
+    captured.assert_shape(93, 7)
     df["dateRep"] = pd.to_datetime(df["dateRep"])
     df["realdate"] = pd.to_datetime(df[["year", "month", "day"]])
     assert all(df["realdate"] == df["dateRep"])
@@ -339,15 +345,15 @@ x,y
 def test_dropna(phmgr):
     with phmgr("covid") as captured:
         ph.COMMANDS["dropna"]()
-    assert captured.df.shape == (5, 10)
+    captured.assert_shape(5, 10)
 
     with phmgr("covid") as captured:
         ph.COMMANDS["dropna"](thresh=7)
-    assert captured.df.shape == (15, 10)
+    captured.assert_shape(15, 10)
 
     with phmgr("covid") as captured:
         ph.COMMANDS["dropna"](axis=1, thresh=17)
-    assert captured.df.shape == (29, 5)
+    captured.assert_shape(29, 5)
 
 
 def test_fillna(phmgr):
@@ -370,22 +376,22 @@ def test_merge(capsys):
     ph.merge(lft, rht)
     cap = Capture(capsys.readouterr())
     assert not cap.err
-    assert list(cap.df.shape) == [3, 6]
+    cap.assert_shape(3, 6)
 
     ph.merge(lft, rht, how="left")
     cap = Capture(capsys.readouterr())
     assert not cap.err
-    assert list(cap.df.shape) == [5, 6]
+    cap.assert_shape(5, 6)
 
     ph.merge(lft, rht, how="outer")
     cap = Capture(capsys.readouterr())
     assert not cap.err
-    assert list(cap.df.shape) == [6, 6]
+    cap.assert_shape(6, 6)
 
     ph.merge(lft, rht, on="key1")
     cap = Capture(capsys.readouterr())
     assert not cap.err
-    assert list(cap.df.shape) == [5, 7]
+    cap.assert_shape(5, 7)
 
 
 def test_groupby_sum_default(phmgr):
@@ -393,7 +399,7 @@ def test_groupby_sum_default(phmgr):
         ph.COMMANDS["groupby"]("Animal")
     assert not captured.err
     df = captured.df
-    assert list(df.shape) == [2, 1]
+    captured.assert_shape(2, 1)
     assert list(df.iloc[0]) == [750.0]
     assert list(df.iloc[1]) == [50.0]
 
@@ -403,7 +409,7 @@ def test_groupby_sum(phmgr):
         ph.COMMANDS["groupby"]("Animal", how="sum")
     assert not captured.err
     df = captured.df
-    assert list(df.shape) == [2, 1]
+    captured.assert_shape(2, 1)
     assert list(df.iloc[0]) == [750.0]
     assert list(df.iloc[1]) == [50.0]
 
@@ -413,7 +419,7 @@ def test_groupby_mean(phmgr):
         ph.COMMANDS["groupby"]("Animal", how="count")
     assert not captured.err
     df = captured.df
-    assert list(df.shape) == [2, 1]
+    captured.assert_shape(2, 1)
     assert list(df.iloc[0]) == [2]
     assert list(df.iloc[1]) == [2]
 
@@ -423,8 +429,7 @@ def test_groupby_first(phmgr):
         ph.COMMANDS["groupby"]("Animal", how="first", as_index=False)
     assert not captured.err
     df = captured.df
-    print(df)
-    assert list(df.shape) == [2, 2]
+    captured.assert_shape(2, 2)
     assert list(df.iloc[0]) == ["Falcon", 380.0]
     assert list(df.iloc[1]) == ["Parrot", 24.0]
 
