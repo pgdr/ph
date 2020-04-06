@@ -20,6 +20,7 @@ requirements = {
     "data": _min_req + ["scikit-learn"],
     "math": _min_req + ["numpy"],
     "iplot": _min_req + ["cufflinks"],
+    "gpx": _min_req + ["gpxpy"],
 }
 requirements["complete"] = sorted(set(sum(requirements.values(), [])))
 

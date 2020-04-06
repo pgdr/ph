@@ -915,3 +915,6 @@ pip install ph[complete]
 * `pickle`
 * `sql`
 * `gbq` / `google` / `bigquery`
+
+We also support reading GPX files with `ph open gpx`.
+This uses the GPX Python library [gpxpy](https://github.com/tkrajina/gpxpy).

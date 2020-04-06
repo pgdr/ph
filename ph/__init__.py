@@ -37,6 +37,26 @@ A list of available commands follows.
 COMMANDS = {}
 
 
+def _gpx(fname):
+    try:
+        import gpxpy
+    except ImportError:
+        exit("ph gpx needs pgxpy, pip install ph[gpx]")
+
+    def from_trackpoint(tp=None):
+        if tp is None:
+            return "time", "latitude", "longitude", "elevation", "distance"
+        p = tp.point
+        return str(p.time), p.latitude, p.longitude, p.elevation, tp.distance_from_start
+
+    with open(fname, "r") as fin:
+        gpx = gpxpy.parse(fin)
+    data = gpx.get_points_data()
+    columns = from_trackpoint()
+    dfdata = [from_trackpoint(tp) for tp in data]
+    return pd.DataFrame(dfdata, columns=columns)
+
+
 def _tsv(*args, **kwargs):
     kwargs["sep"] = "\t"
     return pd.read_csv(*args, **kwargs)
@@ -54,6 +74,7 @@ READERS = {
     "xls": lambda fname, sheet: pd.read_excel(fname, sheet),
     "odf": lambda fname, sheet: pd.read_excel(fname, sheet),
     "tsv": _tsv,
+    "gpx": _gpx,
 }
 
 
