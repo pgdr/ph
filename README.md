@@ -1,7 +1,7 @@
 # ph (pronounced _φ_) - the tabular data shell tool ![ph tests](https://github.com/pgdr/ph/workflows/ph%20tests/badge.svg?branch=master)
 
 
-Spoiler: Working with tabular data in the command line is difficult.  `ph` makes
+Spoiler: Working with tabular data (csv) in the command line is difficult.  `ph` makes
 it easy:
 
 ```bash
@@ -89,24 +89,34 @@ and not when the stream is actually tabular data.
 Tabular data is much more complex to work with due to its dual indexing and the
 fact that we often read horizontally and often read vertically.
 
-The defacto format for tabular data is `csv` (which is not perfect in any sense
+The defacto format for tabular data is `csv`
+([comma-separated values](https://en.wikipedia.org/wiki/Comma-separated_values),
+which is not perfect in any sense
 of the word), and the defacto tool for working with tabular data in Python is
 Pandas.
 
-This is a shell utility `ph` that reads tabular data from standard in and allows
+This is a shell utility `ph` (pronounced _phi_)
+that reads tabular data from
+[_standard in_](https://en.wikipedia.org/wiki/Standard_streams#Standard_input_(stdin))
+and allows
 you to perform a pandas function on the data, before writing it to standard out
 in `csv` format.
 
 The goal is to create a tool which makes it nicer to work with tabular data in a
 pipeline.
 
+To achieve the goal, `ph` then reads csv data, does some manipulation,
+and prints out csv data.  With csv as the invariant, `ph` can be used in
+a pipeline.
+
 
 ---
+## Table of contents
 
 * [Getting started](#getting-started)
 * [Example usage](#example-usage)
 * [The tools](#the-tools)
-  * [Concatenating, merging, filtering](#concatenating--merging--filtering)
+  * [Concatenating, merging, filtering](#concatenating-merging-filtering)
     * [`cat`](#cat)
     * [`dropna` and `fillna`](#dropna-and-fillna)
     * [`head` and `tail`](#head-and-tail)
@@ -119,9 +129,9 @@ pipeline.
     * [`query`](#query)
   * [Analyzing the csv file](#analyzing-the-csv-file)
     * [`describe`](#describe)
-    * [`sort`](#sort)
     * [`show`](#show)
     * [`tabulate`](#tabulate)
+    * [`sort` values by column](#sort-values-by-column)
     * [`plot`](#plot)
     * [`groupby`](#groupby)
     * [`index`](#index)
@@ -130,6 +140,7 @@ pipeline.
   * [`open`](#open)
   * [`to` and `from`; Exporting and importing](#to-and-from-exporting-and-importing)
   * [Supported formats](#supported-formats)
+
 
 
 ---
