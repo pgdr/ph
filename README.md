@@ -117,7 +117,7 @@ a pipeline.
 * [Example usage](#example-usage)
 * [The tools](#the-tools)
   * [Concatenating, merging, filtering](#concatenating-merging-filtering)
-    * [`cat`](#cat)
+    * [`cat`, `open`, `from`](#cat-open-from)
     * [`dropna` and `fillna`](#dropna-and-fillna)
     * [`head` and `tail`](#head-and-tail)
     * [`merge`](#merge)
@@ -220,7 +220,9 @@ x,y
 
 ### Concatenating, merging, filtering
 
-#### `cat`
+#### `cat`, `open`, `from`
+
+**cat**
 
 It is possible to _concatenate_ (`cat`) multiple csv-files with `ph cat`:
 
@@ -236,6 +238,41 @@ The functionality is described in
 [`pandas.concat`](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.concat.html).
 
 
+**open**
+
+You can open a csv, json, excel, gpx (etc., see [_supported
+formats_](#supported-formats)) using `ph open type file`:
+
+```bash
+$ ph open excel a.xlsx
+```
+
+```bash
+$ ph open tsv a.tsv
+```
+
+```bash
+$ ph open csv a.csv
+```
+
+In the event that the csv data starts on the first line (i.e. no
+header is present), use `--header=None`:
+
+```bash
+$ ph open csv a.csv --header=None
+```
+
+
+
+**from**
+
+The `ph from` command works similarly to `ph open` but reads from stdin
+instead of opening a file.  It therefore does not take a filename
+argument:
+
+```bash
+$ cat /etc/passwd | ph from csv --sep=':' --header=None
+```
 
 
 #### `dropna` and `fillna`

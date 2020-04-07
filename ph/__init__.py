@@ -175,7 +175,7 @@ WRITERS = {
 }
 
 
-FALSY = ("False", "false", "No", "no", "0", False, 0)
+FALSY = ("False", "false", "No", "no", "0", False, 0, "None")
 TRUTHY = ("True", "true", "Yes", "yes", "1", True, 1)
 
 
@@ -754,6 +754,7 @@ def from_(ftype="csv", **kwargs):
     """Read a certain (default csv) format from standard in and stream out as csv.
 
     Usage: cat a.json | ph from json
+           cat /etc/passwd | ph from csv --sep=':' --header=None
 
     The following pipes should be equivalent:
 
@@ -763,8 +764,11 @@ def from_(ftype="csv", **kwargs):
     cat a.tsv | ph from csv --sep='\t'
     cat a.tsv | ph from csv --sep='\t' --thousands=','
 
-
+    In the event that the csv data starts on the first line (i.e. no
+    header is present), use --header=None.
     """
+    if "header" in kwargs:
+        kwargs["header"] = __tryparse(kwargs["header"])
     skiprows = kwargs.get("skiprows")
     if skiprows is not None:
         try:
@@ -973,7 +977,13 @@ def open_(ftype, fname, **kwargs):
            ph open csv a.csv --thousands=','
 
 
+    In the event that the csv data starts on the first line (i.e. no
+    header is present), use --header=None.
+
     """
+    if "header" in kwargs:
+        kwargs["header"] = __tryparse(kwargs["header"])
+
     if ftype not in READERS:
         exit("Unknown filetype {}".format(ftype))
     reader = READERS[ftype]
@@ -1078,6 +1088,8 @@ def tail(n=10):
 
 
 def __tryparse(x):
+    if x == "None":
+        return None
     x_ = x
     try:
         x_ = float(x)

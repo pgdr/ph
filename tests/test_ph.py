@@ -145,6 +145,22 @@ def test_open_skiprows(capsys):
     assert list(df.iloc[1]) == [16, 21]
 
 
+def test_from_headless(phmgr):
+    with phmgr("headless") as captured:
+        _call("from --header=None")
+    assert not captured.err
+    captured.assert_shape(5, 2)
+    captured.assert_columns(["0", "1"])
+
+
+def test_open_skiprows(capsys):
+    _call("open csv {} --header=None".format(_get_path("headless")))
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    captured.assert_shape(5, 2)
+    captured.assert_columns(["0", "1"])
+
+
 @pytest.mark.skipif(
     os.getenv("GITHUB_WORKFLOW") is not None, reason="clipboard not on headless"
 )
