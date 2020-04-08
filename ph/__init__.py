@@ -395,6 +395,15 @@ def appendstr(col, s, newcol=None):
 
 
 @register
+def split(col, pat=" "):
+    df = pipein()
+    if col not in df.columns:
+        exit("No such column {}".format(col))
+    df[[col, col + "_rhs"]] = df[col].str.split(pat=pat, n=1, expand=True)
+    pipeout(df)
+
+
+@register
 def astype(type, column=None, newcolumn=None):
     """Cast a column to a different type.
 

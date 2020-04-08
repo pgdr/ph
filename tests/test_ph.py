@@ -47,6 +47,10 @@ class Capture:
             self._df = pd.read_csv(io.StringIO(self.out))
         return self._df
 
+    def read_df(self, *args, **kwargs):
+        self._df = pd.read_csv(io.StringIO(self.out), *args, **kwargs)
+        return self.df
+
     def assert_shape(self, rows, cols):
         assert list(self.df.shape) == [rows, cols]
 
@@ -499,6 +503,25 @@ def test_index(phmgr):
 
     assert not captured.err
     assert list(captured.df["index"]) == [i for i in range(6)]
+
+
+def test_split(phmgr):
+    with phmgr("padded_decimals") as captured:
+        _call("split paddecim ,")
+    assert not captured.err
+    captured.assert_shape(7, 3)
+    captured.assert_columns(["idx", "paddecim", "paddecim_rhs"])
+    captured.read_df(thousands=".")
+    assert set(captured.df["paddecim_rhs"]) == {0, 50}
+    assert list(captured.df["paddecim"]) == [
+        502,
+        172,
+        7,
+        142,
+        157,
+        487,
+        1470,
+    ]
 
 
 def test_sort(phmgr):
