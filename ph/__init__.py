@@ -517,6 +517,29 @@ def groupby(*columns, how="sum", as_index=False):
 
 
 @register
+def rolling(window, how="sum", win_type=None, std=None, beta=None, tau=None):
+    """Rolling window calculations using provided `how` function.
+
+    Usage: cat a.csv | ph rolling 3
+           cat a.csv | ph rolling 5 --win_type=gaussian --std=7.62
+    """
+    df = pipein()
+
+    rollin = df.rolling(window, win_type=win_type)
+    try:
+        fn = getattr(rollin, how)
+    except AttributeError:
+        exit("Unknown --how={}, should be sum, mean, ...".format(how))
+
+    if {std, beta, tau} != {None}:
+        retval = fn(std=std, beta=beta, tau=tau)
+    else:
+        retval = fn()
+
+    pipeout(retval)
+
+
+@register
 def monotonic(column, direction="+"):
     """Check if a certain column is monotonically increasing or decreasing.
 

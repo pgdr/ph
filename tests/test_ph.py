@@ -497,6 +497,22 @@ def test_groupby_first(phmgr):
     assert list(df.iloc[1]) == ["Parrot", 24.0]
 
 
+def test_rolling_default(phmgr):
+    with phmgr("iris") as captured:
+        _call("rolling 3")
+    assert not captured.err
+    captured.assert_shape(150, 5)
+    assert captured.df["setosa"].dropna().sum() == pytest.approx(1671.0, 0.01)
+
+
+def test_rolling_mean(phmgr):
+    with phmgr("iris") as captured:
+        _call("rolling 7 --how=mean")
+    assert not captured.err
+    captured.assert_shape(150, 5)
+    assert captured.df["setosa"].dropna().sum() == pytest.approx(543.83, 0.01)
+
+
 def test_index(phmgr):
     with phmgr("a") as captured:
         _call("index")
