@@ -1336,7 +1336,7 @@ def _main(argv):
             split = a.index("=")
             k = a[2:split]
             v = a[split + 1 :]
-            kwarg[k] = v
+            kwarg[k] = __tryparse(v)
         else:
             args.append(__tryparse(a))
     try:
