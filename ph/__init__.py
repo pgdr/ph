@@ -1067,7 +1067,11 @@ def _call(attr, *args, **kwargs):
 
 
 def register_forward(attr):
-    COMMANDS[attr] = lambda: _call(attr)
+    def partial(*args, **kwargs):
+        return _call(attr, *args, **kwargs)
+
+    partial.__name__ = attr
+    COMMANDS[attr] = partial
 
 
 @register
