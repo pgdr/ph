@@ -462,9 +462,9 @@ def test_groupby_sum_default(phmgr):
         _call("groupby Animal")
     assert not captured.err
     df = captured.df
-    captured.assert_shape(2, 1)
-    assert list(df.iloc[0]) == [750.0]
-    assert list(df.iloc[1]) == [50.0]
+    captured.assert_shape(2, 2)
+    assert list(df.iloc[0]) == ["Falcon", 750.0]
+    assert list(df.iloc[1]) == ["Parrot", 50.0]
 
 
 def test_groupby_sum(phmgr):
@@ -472,14 +472,14 @@ def test_groupby_sum(phmgr):
         _call("groupby Animal --how=sum")
     assert not captured.err
     df = captured.df
-    captured.assert_shape(2, 1)
-    assert list(df.iloc[0]) == [750.0]
-    assert list(df.iloc[1]) == [50.0]
+    captured.assert_shape(2, 2)
+    assert list(df.iloc[0]) == ["Falcon", 750.0]
+    assert list(df.iloc[1]) == ["Parrot", 50.0]
 
 
 def test_groupby_mean(phmgr):
     with phmgr("group") as captured:
-        _call("groupby Animal --how=count")
+        _call("groupby Animal --how=count --as_index=True")
     assert not captured.err
     df = captured.df
     captured.assert_shape(2, 1)
@@ -489,7 +489,7 @@ def test_groupby_mean(phmgr):
 
 def test_groupby_first(phmgr):
     with phmgr("group") as captured:
-        _call("groupby Animal --how=first --as_index=False")
+        _call("groupby Animal --how=first")
     assert not captured.err
     df = captured.df
     captured.assert_shape(2, 2)

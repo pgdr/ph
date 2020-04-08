@@ -484,11 +484,13 @@ def crosstab(column):
 
 
 @register
-def groupby(*columns, how="sum", as_index=True):
+def groupby(*columns, how="sum", as_index=False):
     """Group by columns, then apply `how` function.
 
-    Usage: cat a.csv | ph groupby animal --how=mean
-           cat a.csv | ph groupby animal --how=mean --as_index=False
+    Usage: cat a.csv | ph groupby animal  # default to sum
+           cat a.csv | ph groupby animal --how=mean
+           cat a.csv | ph groupby animal --how=prod
+           cat a.csv | ph groupby animal --as_index=True  # removes index
     """
     columns = list(columns)
     if not columns:
