@@ -134,6 +134,7 @@ a pipeline.
     * [`sort` values by column](#sort-values-by-column)
     * [`plot`](#plot)
     * [`groupby`](#groupby)
+    * [`rolling`](#rolling)
     * [`index`](#index)
     * [`polyfit`](#polyfit)
 * [Working with different formats](#working-with-different-formats)
@@ -809,6 +810,49 @@ Animal,Max Speed
 Falcon,375.0
 Parrot,25.0
 ```
+
+
+
+#### `rolling`
+
+Compute rolling averages/sums using `ph rolling 3 --how=mean`
+
+Consider again `a.csv`:
+
+```csv
+x,y
+3,8
+4,9
+5,10
+6,11
+7,12
+8,13
+```
+
+Moving average with window size 3:
+
+```bash
+$ cat a.csv|ph rolling 3 --how=mean | ph dropna
+x,y
+4.0,9.0
+5.0,10.0
+6.0,11.0
+7.0,12.0
+```
+
+
+Rolling sum with window size 2:
+
+```bash
+$ cat a.csv|ph rolling 2 --how=sum | ph dropna
+x,y
+7.0,17.0
+9.0,19.0
+11.0,21.0
+13.0,23.0
+15.0,25.0
+```
+
 
 #### `index`
 
