@@ -157,7 +157,7 @@ def test_from_headless(phmgr):
     captured.assert_columns(["0", "1"])
 
 
-def test_open_skiprows(capsys):
+def test_open_headless(capsys):
     _call("open csv {} --header=None".format(_get_path("headless")))
     captured = Capture(capsys.readouterr())
     assert not captured.err
@@ -499,7 +499,7 @@ def test_groupby_first(phmgr):
 
 def test_index(phmgr):
     with phmgr("a") as captured:
-        ph.index()
+        _call("index")
 
     assert not captured.err
     assert list(captured.df["index"]) == [i for i in range(6)]
