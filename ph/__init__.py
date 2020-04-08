@@ -1101,7 +1101,7 @@ def tail(n=10):
 
 
 def __tryparse(x):
-    if x == "None":
+    if x is None or x == "None":
         return None
     x_ = x
     try:
