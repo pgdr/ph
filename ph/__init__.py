@@ -1326,6 +1326,51 @@ def columns(*cols, **kwargs):
         pipeout(df[cols])
 
 
+def _parse_slice(slicestr):
+    pattern = ":<int> | <int>: | <int>:<int> | <int>:<int>:<int>"
+    error = "Input to slice is {} _not_ {}".format(pattern, slicestr)
+
+    assert ":" in slicestr, error
+    start = None
+    end = None
+    step = None
+    tup = slicestr.split(":")
+    if len(tup) > 3:
+        exit(error)
+    start = tup[0] or None
+    if start is not None:
+        start = int(start)
+    end = tup[1] or None
+    if end is not None:
+        end = int(end)
+    if len(tup) == 3:
+        step = tup[2] or None
+        if step is not None:
+            step = int(step)
+    return start, end, step
+
+
+@registerx("slice")
+def slice_(slicestr):
+    """Slice a dataframe with Python slice pattern.
+
+    Usage: cat a.csv | ph slice :10    # head
+           cat a.csv | ph slice -10:   # tail
+           cat a.csv | ph slice ::2    # every even row
+           cat a.csv | ph slice 1::2   # every odd row
+           cat a.csv | ph slice ::-1   # reverse file
+
+    """
+    pattern = ":<int> | <int>: | <int>:<int> | <int>:<int>:<int>"
+    error = "Input to slice is {} _not_ {}".format(pattern, slicestr)
+    df = pipein()
+    if isinstance(slicestr, int) or ":" not in slicestr:
+        exit(error)
+    start, end, step = _parse_slice(slicestr)
+    retval = df[start:end:step]
+    pipeout(retval)
+
+
 @register
 def drop(*columns, **kwargs):
     """Drop specified labels from rows or columns.

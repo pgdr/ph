@@ -125,6 +125,7 @@ a pipeline.
     * [`columns`, listing, selecting and re-ordering of](#columns-listing-selecting-and-re-ordering-of)
     * [`rename`](#rename)
     * [`replace`](#replace)
+    * [`slice`](#slice)
     * [`eval`; Mathematipulating and creating new columns](#eval-mathematipulating-and-creating-new-columns)
     * [`normalize`](#normalize)
     * [`query`](#query)
@@ -592,6 +593,57 @@ x,y,xp
 7,12,7
 8,13,100
 ```
+
+
+
+#### `slice`
+
+Slicing in Python is essential, and occasionally, we want to slice
+tabular data, e.g. look at only the 100 first, or 100 last rows, or
+perhaps we want to look at only every 10th row.  All of this is achieved
+using `ph slice start:end:step` with standard Python slice syntax.
+
+```bash
+$ cat a.csv | ph slice 1:9:2
+x,y
+4,9
+6,11
+8,13
+```
+
+Reversing:
+
+```
+$ cat a.csv|ph slice ::-1
+x,y
+8,13
+7,12
+6,11
+5,10
+4,9
+3,8
+```
+
+See also `ph head` and `ph tail`.
+
+```bash
+$ cat a.csv | ph slice :3
+x,y
+3,8
+4,9
+5,10
+```
+
+equivalent to
+
+```bash
+$ cat a.csv | ph head 3
+x,y
+3,8
+4,9
+5,10
+```
+
 
 
 #### `eval`; Mathematipulating and creating new columns

@@ -633,6 +633,51 @@ def test_replace_col_and_inf(phmgr):
     assert list(captured.df.y) == list(range(8, 14))
 
 
+def test_slice(phmgr):
+    with phmgr("a") as captured:
+        _call("slice 0:3")
+    assert not captured.err
+    captured.assert_shape(3, 2)
+    assert list(captured.df.x) == list(range(3, 6))
+    assert list(captured.df.y) == list(range(8, 11))
+
+
+def test_slice_end(phmgr):
+    with phmgr("a") as captured:
+        _call("slice :3")
+    assert not captured.err
+    captured.assert_shape(3, 2)
+    assert list(captured.df.x) == list(range(3, 6))
+    assert list(captured.df.y) == list(range(8, 11))
+
+
+def test_slice_start(phmgr):
+    with phmgr("a") as captured:
+        _call("slice 3:")
+    assert not captured.err
+    captured.assert_shape(3, 2)
+    assert list(captured.df.x) == list(range(6, 9))
+    assert list(captured.df.y) == list(range(11, 14))
+
+
+def test_slice_start_step(phmgr):
+    with phmgr("a") as captured:
+        _call("slice 1::2")
+    assert not captured.err
+    captured.assert_shape(3, 2)
+    assert list(captured.df.x) == list(range(4, 9, 2))
+    assert list(captured.df.y) == list(range(9, 14, 2))
+
+
+def test_slice_start_end_step(phmgr):
+    with phmgr("a") as captured:
+        _call("slice 1:5:2")
+    assert not captured.err
+    captured.assert_shape(2, 2)
+    assert list(captured.df.x) == list(range(4, 7, 2))
+    assert list(captured.df.y) == list(range(9, 12, 2))
+
+
 def test_slugify_df(phmgr):
     with phmgr("slugit") as captured:
         _call("slugify")
