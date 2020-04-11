@@ -540,6 +540,112 @@ def rolling(window, how="sum", win_type=None, std=None, beta=None, tau=None):
 
 
 @register
+def ewm(
+    min_periods=0,
+    adjust=True,
+    ignore_na=False,
+    axis=0,
+    com=None,
+    span=None,
+    halflife=None,
+    alpha=None,
+    how="mean",
+):
+    """Provide exponential weighted functions.
+
+    A related set of functions are exponentially weighted versions of
+    several of the above statistics. A similar interface to rolling and
+    expanding is accessed through the ewm method to receive an EWM
+    object.  A number of expanding EW (exponentially weighted) methods
+    are provided:
+
+      * mean
+      * var
+      * std
+      * corr
+      * cov
+
+    Usage: cat a.csv | ph ewm --com=0.5 --how=mean
+           cat a.csv | ph ewm --halflife=0.5 --how=std
+
+    """
+    if {com, span, halflife, alpha} == {None}:
+        exit("Must pass one of com, span, halflife, or alpha")
+
+    df = pipein()
+
+    ewm_ = df.ewm(
+        min_periods=min_periods,
+        adjust=adjust,
+        ignore_na=ignore_na,
+        axis=axis,
+        com=com,
+        span=span,
+        halflife=halflife,
+        alpha=alpha,
+    )
+    try:
+        fn = getattr(ewm_, how)
+    except AttributeError:
+        exit("Unknown --how={}, should be mean, var, std, corr, cov..".format(how))
+
+    retval = fn()
+
+    pipeout(retval)
+
+
+@register
+def expanding(min_periods=1, center=False, axis=0, how="sum", quantile=None):
+    """Provide expanding transformations.
+
+    A common alternative to rolling statistics is to use an expanding
+    window, which yields the value of the statistic with all the data
+    available up to that point in time.
+
+    For working with data, a number of window functions are provided for
+    computing common window or rolling statistics.  Among these are
+    count, sum, mean, median, correlation, variance, covariance,
+    standard deviation, skewness, and kurtosis.
+
+
+    Usage: cat a.csv | ph expanding
+           cat a.csv | ph expanding 1 --how=sum   # above equivalent to this
+           cat a.csv | ph expanding 2
+           cat a.csv | ph expanding 5 --how=quantile --quantile=0.25
+           cat a.csv | ph expanding 3 --center=True
+
+    """
+
+    df = pipein()
+
+    if center in TRUTHY:
+        center = True
+    elif center in FALSY:
+        center = False
+    else:
+        exit("center must be True of False, not {}".format(center))
+
+    if quantile is not None:
+        if how != "quantile":
+            exit("Use both or none of --how=quantile and --quantile=<float>")
+    if how == "quantile" and quantile is None:
+
+        exit("--how=quantile needs --quantile=<float>, e.g. --quantile=0.25")
+    expanding_ = df.expanding(min_periods=min_periods, center=center, axis=axis)
+    try:
+        fn = getattr(expanding_, how)
+    except AttributeError:
+        exit("Unknown --how={}, should be sum, mean, max, quantile..".format(how))
+
+    if how == "quantile":
+        retval = fn(quantile)
+    else:
+        retval = fn()
+
+    pipeout(retval)
+
+
+@register
 def monotonic(column, direction="+"):
     """Check if a certain column is monotonically increasing or decreasing.
 

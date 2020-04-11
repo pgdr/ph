@@ -134,7 +134,7 @@ a pipeline.
     * [`sort` values by column](#sort-values-by-column)
     * [`plot`](#plot)
     * [`groupby`](#groupby)
-    * [`rolling`](#rolling)
+    * [`rolling`, `ewm`, `expanding`](#rolling-ewm-expanding)
     * [`index`](#index)
     * [`polyfit`](#polyfit)
 * [Working with different formats](#working-with-different-formats)
@@ -813,7 +813,9 @@ Parrot,25.0
 
 
 
-#### `rolling`
+#### `rolling`, `ewm`, `expanding`
+
+**rolling**
 
 Compute rolling averages/sums using `ph rolling 3 --how=mean`
 
@@ -852,6 +854,43 @@ x,y
 13.0,23.0
 15.0,25.0
 ```
+
+
+**ewm — exponentially weighted methods**
+
+```bash
+$ cat a.csv | ph ewm --com=0.5 --how=mean | ph show
+          x         y
+--  -------  --------
+ 0  3         8
+ 1  3.75      8.75
+ 2  4.61538   9.61538
+ 3  5.55     10.55
+ 4  6.52066  11.5207
+ 5  7.50824  12.5082
+```
+
+Use either `com` (center of mass), `span`, `halflife`, or `alpha`,
+together with `--how=mean`, `--how=std`, `--how=var`, etc.
+
+
+**expanding — expanding window**
+
+> A common alternative to rolling statistics is to use an expanding
+> window, which yields the value of the statistic with all the data
+> available up to that point in time.
+
+```bash
+$ cat a.csv | ph expanding 3
+x,y
+,
+,
+12.0,27.0
+18.0,38.0
+25.0,50.0
+33.0,63.0
+```
+
 
 
 #### `index`

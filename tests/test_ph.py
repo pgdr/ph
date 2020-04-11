@@ -513,6 +513,30 @@ def test_rolling_mean(phmgr):
     assert captured.df["setosa"].dropna().sum() == pytest.approx(543.83, 0.01)
 
 
+def test_ewm_default(phmgr):
+    with phmgr("iris") as captured:
+        _call("ewm 2 --com=0.5")
+    assert not captured.err
+    captured.assert_shape(150, 5)
+    assert captured.df["setosa"].dropna().sum() == pytest.approx(560.411)
+
+
+def test_expanding_default(phmgr):
+    with phmgr("iris") as captured:
+        _call("expanding 3")
+    assert not captured.err
+    captured.assert_shape(150, 5)
+    assert captured.df["setosa"].dropna().sum() == pytest.approx(32468.9)
+
+
+def test_expanding_quantile(phmgr):
+    with phmgr("iris") as captured:
+        _call("expanding 3 --how=quantile --quantile=0.9")
+    assert not captured.err
+    captured.assert_shape(150, 5)
+    assert captured.df["setosa"].dropna().sum() == pytest.approx(563.81)
+
+
 def test_index(phmgr):
     with phmgr("a") as captured:
         _call("index")
