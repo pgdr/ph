@@ -8,6 +8,9 @@ import contextlib
 
 import pandas as pd
 import datetime as dt
+import math
+
+NAN = float("nan")
 
 
 def _get_path(name, extension="csv"):
@@ -603,6 +606,31 @@ def test_slugify_method():
     }
     for act, exp in actexp.items():
         assert ph.slugify_name(act) == exp
+
+
+def test_replace(phmgr):
+    with phmgr() as captured:
+        _call("replace 8 100")
+    assert not captured.err
+    captured.assert_shape(6, 2)
+    assert list(captured.df.x) == list(range(3, 8)) + [100]
+    assert list(captured.df.y) == [100] + list(range(9, 14))
+
+
+def test_replace_col_and_inf(phmgr):
+    with phmgr("inf") as captured:
+        _call("replace inf 0 --column=x")
+    assert not captured.err
+    captured.assert_shape(6, 2)
+
+    x = captured.df.x
+    lx = list(x)
+    xna = x.dropna()
+    assert list(xna) == [0, 7, 8]
+    assert math.isnan(lx[0])
+    assert math.isnan(lx[1])
+    assert math.isnan(lx[2])
+    assert list(captured.df.y) == list(range(8, 14))
 
 
 def test_slugify_df(phmgr):

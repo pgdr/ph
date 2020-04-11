@@ -124,6 +124,7 @@ a pipeline.
   * [Editing the csv](#editing-the-csv)
     * [`columns`, listing, selecting and re-ordering of](#columns-listing-selecting-and-re-ordering-of)
     * [`rename`](#rename)
+    * [`replace`](#replace)
     * [`eval`; Mathematipulating and creating new columns](#eval-mathematipulating-and-creating-new-columns)
     * [`normalize`](#normalize)
     * [`query`](#query)
@@ -550,6 +551,46 @@ first,second
 6,11
 7,12
 8,13
+```
+
+
+#### `replace`
+
+We can replace values in the data (or in a single column) using `ph
+replace`.  The syntax is
+`ph replace old new [--column=x [--newcolumn=xp]]`:
+
+```bash
+$ cat a.csv| ph replace 8 100
+x,y
+3,100
+4,9
+5,10
+6,11
+7,12
+100,13
+```
+
+```bash
+$ cat a.csv| ph replace 8 100 --column=x
+x,y
+3,8
+4,9
+5,10
+6,11
+7,12
+100,13
+```
+
+```bash
+$ cat a.csv| ph replace 8 100 --column=x --newcolumn=xp
+x,y,xp
+3,8,3
+4,9,4
+5,10,5
+6,11,6
+7,12,7
+8,13,100
 ```
 
 

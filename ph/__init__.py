@@ -1240,15 +1240,18 @@ def __tryparse(x):
         x_ = int(x)
     except ValueError:
         pass
+    except OverflowError:
+        x_ = float("inf")
     return x_
 
 
 @register
-def replace(column, old, new, newcolumn=None):
-    """Replace a value in a column with a new value.
+def replace(old, new, column=None, newcolumn=None):
+    """Replace a value (in a column) with a new value.
 
-    Usage: cat a.csv | ph replace y 8 100
-           cat a.csv | ph replace y 8 100 z
+    Usage: cat a.csv | ph replace 8 100 # replace in all columns
+           cat a.csv | ph replace 8 100 --column=y
+           cat a.csv | ph replace 8 100 --column=y --newcolumn=z
 
     Beware that it is difficult to know which _types_ we are searching for,
     therefore we only apply a heuristic, which is doomed to be faulty.
@@ -1256,12 +1259,15 @@ def replace(column, old, new, newcolumn=None):
     if newcolumn is None:
         newcolumn = column
     df = pipein()
-    if df[column].dtype != object:
-        old = __tryparse(old)
-        new = __tryparse(new)
-    if column not in df:
+
+    if column is None:
+        if newcolumn is not None:
+            exit("Cannot use newcolumn and not column.")
+        df = df.replace(to_replace=old, value=new, inplace=False)
+    elif column not in df:
         exit("Column {} does not exist.".format(column))
-    df[newcolumn] = df[column].replace(to_replace=old, value=new, inplace=False)
+    else:
+        df[newcolumn] = df[column].replace(to_replace=old, value=new, inplace=False)
     pipeout(df)
 
 
