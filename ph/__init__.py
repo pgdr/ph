@@ -1527,6 +1527,8 @@ def __process(attr):
         return False
     if attr.startswith("to_"):
         return False
+    if attr == "T":
+        return False
     return True
 
 
