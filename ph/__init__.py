@@ -4,6 +4,7 @@ from .tabulate import tabulate as tabulate_
 import sys
 import pandas as pd
 import re
+import datetime
 
 
 def _get_version():
@@ -786,7 +787,7 @@ def normalize(col=None):
 
 
 @register
-def date(col=None, unit=None, origin="unix", errors="raise", dayfirst=False):
+def date(col=None, unit=None, origin="unix", errors="raise", dayfirst=False, **kwargs):
     """Assemble datetime from multiple columns or from one column
 
     --unit can be D, s, us, ns (defaults to ns, ns from origin)
@@ -795,10 +796,16 @@ def date(col=None, unit=None, origin="unix", errors="raise", dayfirst=False):
 
     --errors can be raise, coerce, ignore (see pandas.to_datetime)
 
+    --format a strptime format string, e.g. '%Y-%m-%d %H:%M:%S'
+
+    --utc=True if the input is in utc, i.e. seconds from epoch
+
     Usage: cat a.csv | ph date x
            cat a.csv | ph date x --unit=s --origin="1984-05-17 09:30"
            cat a.csv | ph date x --dayfirst=True
            cat a.csv | ph date  # if a.csv contains year, month, date
+           cat a.csv | ph date x --format="%Y-%m-%d"
+           cat a.csv | ph date x --utc=True
 
     """
     DATE_ERRORS = ("ignore", "raise", "coerce")
@@ -807,15 +814,25 @@ def date(col=None, unit=None, origin="unix", errors="raise", dayfirst=False):
 
     dayfirst = dayfirst in TRUTHY
 
+    date_parser = None
+    if "format" in kwargs:
+        date_parser = lambda d: [
+            datetime.datetime.strptime(str(e), kwargs["format"]) for e in d
+        ]
+    if kwargs.get("utc") in TRUTHY:
+        date_parser = lambda d: [datetime.datetime.utcfromtimestamp(e) for e in d]
     df = pipein()
     try:
         if col is None:
             df = pd.to_datetime(df, unit=unit, origin=origin, errors=errors)
         else:
             _assert_col(df, col)
-            df[col] = pd.to_datetime(
-                df[col], unit=unit, origin=origin, errors=errors, dayfirst=dayfirst
-            )
+            if date_parser is None:
+                df[col] = pd.to_datetime(
+                    df[col], unit=unit, origin=origin, errors=errors, dayfirst=dayfirst
+                )
+            else:
+                df[col] = date_parser(df[col])
     except Exception as err:
         exit(err)
 

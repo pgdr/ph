@@ -341,6 +341,8 @@ x,y
 8,13
 ```
 
+#### `date`
+
 If the `csv` file contains a column, e.g. named `x` containing
 timestamps, it can be parsed as such with `ph date x`:
 
@@ -392,6 +394,47 @@ x,y
 2006-01-01,11
 2007-01-01,12
 2008-01-01,13
+```
+
+However, it is possible to provide a `--format` instruction to `date`:
+
+```bash
+$ cat a.csv | ph eval "x = 2000 + x"  | ph date x --format="%Y"
+x,y
+2003-01-01,8
+2004-01-01,9
+2005-01-01,10
+2006-01-01,11
+2007-01-01,12
+2008-01-01,13
+```
+
+Under some very special circumstances, we may have a `unix timestamp` in
+a column, in which the `--utc=True` handle becomes useful:
+
+Consider `utc.csv`:
+
+```csv
+date,x,y
+1580601600,3,8
+1580688000,4,9
+1580774400,5,10
+1580860800,6,11
+1580947200,7,12
+1581033600,8,13
+```
+
+where you get the correct dates:
+
+```bash
+$ cat utc.csv | ph date date --utc=True
+date,x,y
+2020-02-02,3,8
+2020-02-03,4,9
+2020-02-04,5,10
+2020-02-05,6,11
+2020-02-06,7,12
+2020-02-07,8,13
 ```
 
 

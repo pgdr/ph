@@ -433,6 +433,42 @@ def test_date_errors(phmgr):
     assert "200-01" in list(df["year"])
 
 
+def test_date_fmt(phmgr):
+    with phmgr("date-fmt") as captured:
+        _call("date date --format=%Y_%m/%d")
+    assert not captured.err
+    captured.assert_shape(6, 3)
+    captured.assert_columns(["date", "x", "y"])
+    _assert_a(captured.df[["x", "y"]])
+    dates = list(captured.df["date"])
+    assert dates == [
+        "2020-02-02",
+        "2020-02-03",
+        "2020-02-04",
+        "2020-02-05",
+        "2020-02-06",
+        "2020-02-07",
+    ]
+
+
+def test_date_utc(phmgr):
+    with phmgr("date-utc") as captured:
+        _call("date date --utc=True")
+    assert not captured.err
+    captured.assert_shape(6, 3)
+    captured.assert_columns(["date", "x", "y"])
+    _assert_a(captured.df[["x", "y"]])
+    dates = list(captured.df["date"])
+    assert dates == [
+        "2020-02-02",
+        "2020-02-03",
+        "2020-02-04",
+        "2020-02-05",
+        "2020-02-06",
+        "2020-02-07",
+    ]
+
+
 def test_eval(phmgr):
     with phmgr() as captured:
         _call("eval", ["x = x**2"])
