@@ -120,6 +120,7 @@ a pipeline.
     * [`cat`, `open`, `from`](#cat-open-from)
     * [`dropna` and `fillna`](#dropna-and-fillna)
     * [`head` and `tail`](#head-and-tail)
+    * [`date`](#date)
     * [`merge`](#merge)
   * [Editing the csv](#editing-the-csv)
     * [`columns`, listing, selecting and re-ordering of](#columns-listing-selecting-and-re-ordering-of)
