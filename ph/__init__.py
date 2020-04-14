@@ -261,6 +261,18 @@ def dataset(dset=None):
 
 
 @register
+def diff(*cols, periods=1, axis=0):
+    df = pipein()
+    if not cols:
+        df = df.diff(periods=periods, axis=axis)
+    else:
+        _assert_cols(df, cols)
+        columns = list(cols)
+        df[columns] = df[columns].diff(periods=periods, axis=axis)
+    pipeout(df)
+
+
+@register
 def dropna(axis=0, how="any", thresh=None):
     """Remove rows (or columns) with N/A values.
 

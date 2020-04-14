@@ -168,6 +168,32 @@ def test_open_headless(capsys):
     captured.assert_columns(["0", "1"])
 
 
+def test_diff_all(phmgr):
+    with phmgr() as captured:
+        _call("diff --periods=2")
+    assert not captured.err
+    captured.assert_shape(6, 2)
+    captured.assert_columns(["x", "y"])
+
+
+def test_diff_xy(phmgr):
+    with phmgr() as captured:
+        _call("diff x y --periods=2")
+    assert not captured.err
+
+
+def test_diff_with_date_col(phmgr):
+    with phmgr("usa") as captured:
+        _call("diff cases deaths")
+    assert not captured.err
+    captured.assert_shape(93, 7)
+    df = captured.df
+    c = list(df["cases"])
+    d = list(df["deaths"])
+    assert c[1:6] == [-3403.0, -3235.0, 1619.0, -1284.0, -1898.0]
+    assert d[1:7] == [-248.0, -343.0, 166.0, -73.0, -165.0, 3.0]
+
+
 @pytest.mark.skipif(
     os.getenv("GITHUB_WORKFLOW") is not None, reason="clipboard not on headless"
 )
