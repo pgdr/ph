@@ -179,6 +179,16 @@ FALSY = ("False", "false", "No", "no", "0", False, 0, "None")
 TRUTHY = ("True", "true", "Yes", "yes", "1", True, 1)
 
 
+def _assert_col(df, col):
+    if col not in df.columns:
+        exit("Unknown column {}".format(col))
+
+
+def _assert_cols(df, cols):
+    for col in cols:
+        _assert_col(df, col)
+
+
 def register(fn, name=None):
     if name is None:
         name = fn.__name__
@@ -397,8 +407,7 @@ def appendstr(col, s, newcol=None):
 @register
 def split(col, pat=" "):
     df = pipein()
-    if col not in df.columns:
-        exit("No such column {}".format(col))
+    _assert_col(df, col)
     df[[col, col + "_rhs"]] = df[col].str.split(pat=pat, n=1, expand=True)
     pipeout(df)
 
@@ -496,9 +505,7 @@ def groupby(*columns, how="sum", as_index=False):
     if not columns:
         exit("Needs at least one column to group by")
     df = pipein()
-    for c in columns:
-        if c not in df.columns:
-            exit("Unknown column name {}".format(c))
+    _assert_cols(df, columns)
     if as_index in TRUTHY:
         as_index = True
     elif as_index in FALSY:
@@ -790,8 +797,7 @@ def date(col=None, unit=None, origin="unix", errors="raise", dayfirst=False):
         if col is None:
             df = pd.to_datetime(df, unit=unit, origin=origin, errors=errors)
         else:
-            if col not in df.columns:
-                exit("No such column {}".format(col))
+            _assert_col(df, col)
             df[col] = pd.to_datetime(
                 df[col], unit=unit, origin=origin, errors=errors, dayfirst=dayfirst
             )
@@ -1315,9 +1321,7 @@ def columns(*cols, **kwargs):
             if col.endswith(q) and col not in cols:
                 cols.append(col)
 
-    for col in cols:
-        if col not in df.columns:
-            exit("No such column {}".format(col))
+    _assert_cols(df, cols)
 
     if not cols and not kwargs:
         print("columns")
@@ -1393,9 +1397,7 @@ def drop(*columns, **kwargs):
     if kwargs.get("axis") in (None, 0, "index"):
         columns = [__tryparse(col) for col in columns]
     elif kwargs.get("axis") in (1, "columns"):
-        for col in columns:
-            if col not in df.columns:
-                exit("Unknown column {}.".format(col))
+        _assert_cols(df, columns)
     else:
         exit(
             "--axis=index (or 0) or --axis=columns (or 1), not {}".format(
@@ -1446,8 +1448,7 @@ def sort(col):
 
     """
     df = pipein()
-    if col not in df.columns:
-        exit("Unknown column {}".format(col))
+    _assert_col(df, col)
     pipeout(df.sort_values(col))
 
 
@@ -1463,10 +1464,7 @@ def polyfit(x, y, deg=1):
 
     """
     df = pipein()
-    if x not in df.columns:
-        exit("Unknown column x={}".format(x))
-    if y not in df.columns:
-        exit("Unknown column y={}".format(y))
+    _assert_cols(df, (x, y))
     deg = __tryparse(deg)
     if not isinstance(deg, int) or deg <= 0:
         exit("deg={} should be a positive int".format(deg))

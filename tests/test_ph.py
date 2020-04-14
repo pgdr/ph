@@ -366,7 +366,7 @@ def test_date_errors(phmgr):
     with pytest.raises(SystemExit) as exit_:
         with phmgr("derr") as captured:
             _call("date --col=x")
-    assert str(exit_.value) == "No such column x"
+    assert str(exit_.value) == "Unknown column x"
 
     with pytest.raises(SystemExit) as exit_:
         with phmgr("derr") as captured:
