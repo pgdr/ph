@@ -1544,6 +1544,8 @@ def _main(argv):
     if cmd in ("-v", "--version"):
         print_version()
         exit()
+    if cmd in ("--h", "--help"):
+        cmd = "help"
     if cmd not in COMMANDS:
         exit("Unknown command {}.".format(cmd))
 
