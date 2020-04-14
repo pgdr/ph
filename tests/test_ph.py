@@ -13,6 +13,22 @@ import math
 NAN = float("nan")
 
 
+def __have_xlrd():
+    try:
+        import xlrd  # noqa
+
+        return True
+    except ImportError:
+        return False
+
+
+def _assert_a(df):
+    assert list(df.shape) == [6, 2]
+    assert list(df.columns) == ["x", "y"]
+    assert list(df["x"]) == list(range(3, 9))
+    assert list(df["y"]) == list(range(8, 14))
+
+
 def _get_path(name, extension="csv"):
     pth = "test_data/{}.{}".format(name, extension)
     root = os.path.dirname(__file__)
@@ -726,3 +742,49 @@ def test_median(phmgr):
         _call("median")
     assert not captured.err
     assert captured.out == "x,y\n5.5,10.5\n"
+
+
+@pytest.mark.filterwarnings("ignore")
+@pytest.mark.skipif(not __have_xlrd(), reason="missing xlrd")
+def test_xlsx_default_sheet_0(capsys):
+    pth = _get_path("sheet", extension="xlsx")
+    cmd = "open excel {} {}".format(pth, "--skiprows=4")
+    _call(cmd)
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    _assert_a(captured.df)
+
+
+@pytest.mark.filterwarnings("ignore")
+@pytest.mark.skipif(not __have_xlrd(), reason="missing xlrd")
+def test_xlsx_explicit_sheet_0(capsys):
+    pth = _get_path("sheet", extension="xlsx")
+    cmd = "open excel {} {} {}".format(pth, "--skiprows=4", "--sheet_name=0")
+    _call(cmd)
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    _assert_a(captured.df)
+
+
+@pytest.mark.filterwarnings("ignore")
+@pytest.mark.skipif(not __have_xlrd(), reason="missing xlrd")
+def test_xlsx_sheet_1(capsys):
+    pth = _get_path("sheet", extension="xlsx")
+    cmd = "open excel {} {} {}".format(pth, "--skiprows=1", "--sheet_name=1")
+    _call(cmd)
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    captured.assert_shape(6, 4)
+    captured.assert_columns(["Unnamed: 0", "year", "month", "day"])
+
+
+@pytest.mark.filterwarnings("ignore")
+@pytest.mark.skipif(not __have_xlrd(), reason="missing xlrd")
+def test_xlsx_borked(capsys):
+    with pytest.raises(SystemExit) as exit_:
+        pth = _get_path("sheet", extension="xlsx")
+        cmd = "open excel {} {} {}".format(pth, "--skiprows=4", "--sheet_name=None")
+        _call(cmd)
+
+    errm = 'Specify --sheet_name="a sheet with spaces|the other sheet"'
+    assert str(exit_.value) == errm

@@ -251,6 +251,11 @@ $ ph open excel a.xlsx
 ```
 
 ```bash
+$ ph open excel a.xlsx --sheet_name=0 --skiprows=3
+```
+
+
+```bash
 $ ph open tsv a.tsv
 ```
 

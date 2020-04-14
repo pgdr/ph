@@ -70,13 +70,16 @@ READERS = {
     "fwf": pd.read_fwf,
     "json": pd.read_json,
     "html": pd.read_html,
-    "excel": lambda fname, sheet: pd.read_excel(fname, sheet),
-    "xls": lambda fname, sheet: pd.read_excel(fname, sheet),
-    "odf": lambda fname, sheet: pd.read_excel(fname, sheet),
     "tsv": _tsv,
     "gpx": _gpx,
 }
 
+try:
+    READERS["excel"] = pd.read_excel
+    READERS["xls"] = pd.read_excel
+    READERS["odf"] = pd.read_excel
+except AttributeError:
+    pass
 
 try:
     READERS["hdf5"] = pd.read_hdf
@@ -1130,8 +1133,8 @@ def open_(ftype, fname, **kwargs):
            ph open excel a.ods
            ph open excel a.xls
            ph open excel a.xlsx
-           ph open excel a.xls --sheet=2
-           ph open excel a.xls --sheet="The Real Dataset sheet"
+           ph open excel a.xls --sheet_name=2
+           ph open excel a.xls --sheet_name="The Real Dataset sheet"
            ph open csv a.csv --thousands=','
 
 
@@ -1145,10 +1148,6 @@ def open_(ftype, fname, **kwargs):
     if ftype not in READERS:
         exit("Unknown filetype {}".format(ftype))
     reader = READERS[ftype]
-
-    sheet = kwargs.get("sheet")
-    if ftype in ("excel", "xls", "odf"):
-        kwargs["sheet"] = __tryparse(sheet)
 
     if kwargs.get("sep") == "\\t":
         kwargs["sep"] = "\t"
@@ -1171,6 +1170,19 @@ def open_(ftype, fname, **kwargs):
     try:
         if ftype == "clipboard":
             df = reader(**kwargs)
+        elif ftype in ("excel", "xls", "odf"):
+            try:
+                df = reader(fname, **kwargs)
+            except Exception as err:
+                exit(err)
+            if not isinstance(df, pd.DataFrame):  # could be dict
+                try:
+                    errormsg = 'Specify --sheet_name="{}"'.format(
+                        "|".join(str(k) for k in df.keys())
+                    )
+                except Exception:
+                    errormsg = "Specify --sheet_name"
+                exit(errormsg)
         else:
             df = reader(fname, **kwargs)
     except AttributeError as err:
