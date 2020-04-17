@@ -1121,6 +1121,18 @@ def help(*args, **kwargs):
 
 
 def slugify_name(name):
+    name_ = name
+    try:
+        name = float(name_)
+    except:
+        pass
+    if isinstance(name_, (int, str)):
+        try:
+            name = int(name_)
+        except:
+            pass
+    if isinstance(name, (int, float)):
+        name = str(name) + "_"
     if not name:
         return "unnamed"
     if name == "_":

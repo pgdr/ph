@@ -702,6 +702,12 @@ def test_slugify_method():
         "(abc)/123": "abc_123",
         "_abc: 123": "_abc_123",
         '[]()abc-^  \\ "': "abc",
+        "0": "0_",
+        0: "0_",
+        -3: "3_",
+        "-3": "3_",
+        "3.14": "3_14_",
+        3.14: "3_14_",
     }
     for act, exp in actexp.items():
         assert ph.slugify_name(act) == exp
