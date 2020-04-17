@@ -851,3 +851,11 @@ def test_xlsx_borked(capsys):
 
     errm = 'Specify --sheet_name="a sheet with spaces|the other sheet"'
     assert str(exit_.value) == errm
+
+
+def test_raw(phmgr):
+    with phmgr("broken") as captured:
+        _call("raw")
+
+    assert not captured.err
+    captured.assert_shape(7, 5)

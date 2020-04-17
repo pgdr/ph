@@ -1173,6 +1173,21 @@ def slugify():
     pipeout(df)
 
 
+@register
+def raw(fname=None):
+    """Do your best to read this comma-separated input."""
+    import csv
+
+    if fname is None:
+        d = csv.reader(sys.stdin)
+        df = pd.DataFrame(d)
+    else:
+        with open(fname, "r") as fin:
+            d = csv.reader(fin)
+            df = pd.DataFrame(d)
+    pipeout(df)
+
+
 @registerx("open")
 def open_(ftype, fname, **kwargs):
     """Use a reader to open a file.
