@@ -1051,6 +1051,21 @@ x,y
 ```
 
 
+**Spencer's 15-weight average**
+
+We also support an experimental and slow version of Spencer's 15-weight
+average.  This method takes a window of size 15, and pointwise multiply
+with the following vector (normalized)
+
+```
+(-3, -6, -5, 3, 21, 46, 67, 74, 67, 46, 21, 3, -5, -6, -3)
+```
+
+and then takes the sum of the resulting vector.
+
+Spencer's 15-weight average is an interesting (impulse response) filter
+that preserves all up to cubic polynomial functions.
+
 
 #### `index`
 

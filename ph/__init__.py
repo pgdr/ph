@@ -1422,6 +1422,39 @@ def columns(*cols, **kwargs):
         pipeout(df[cols])
 
 
+@register
+def spencer(*cols):
+    """Compute Spencer's 15-weight average.
+
+    Usage: cat a.csv | ph spencer
+
+    Experimental feature for computing Spencer's 15-weight average.
+    Smooths out curves by removing high frequency noise.  Will
+    ultimately lose some data on each end of the timeseries.
+
+    """
+    _SPENCER = (-3, -6, -5, 3, 21, 46, 67, 74, 67, 46, 21, 3, -5, -6, -3)
+    _SPENCER_SUM = sum(_SPENCER)
+
+    def spencer_(lst):
+        for i in range(7, len(lst) - 8):
+            seq = lst[i - 7 : i + 8]
+            yield sum(seq[i] * _SPENCER[i] / _SPENCER_SUM for i in range(15))
+
+    df = pipein()
+    _assert_cols(df, cols)
+    prefix = [float("nan")] * 7
+    suffix = [float("nan")] * 8
+    if not cols:
+        cols = list(df.columns)
+    for col in cols:
+        lst = list(df[col])
+        s = list(spencer_(lst))
+        ncol = prefix + s + suffix
+        df[col] = ncol
+    pipeout(df)
+
+
 def _parse_slice(slicestr):
     pattern = ":<int> | <int>: | <int>:<int> | <int>:<int>:<int>"
     error = "Input to slice is {} _not_ {}".format(pattern, slicestr)

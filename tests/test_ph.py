@@ -859,3 +859,26 @@ def test_raw(phmgr):
 
     assert not captured.err
     captured.assert_shape(7, 5)
+
+
+_COVID_COLS = [
+    "China",
+    "S. Korea",
+    "Italy",
+    "Iran",
+    "France",
+    "Germany",
+    "Spain",
+    "USA",
+    "UK",
+    "Canada",
+]
+
+
+def test_spencer(phmgr):
+    with phmgr("covid") as captured:
+        _call("spencer")
+
+    assert not captured.err
+    captured.assert_shape(29, 10)
+    captured.assert_columns(_COVID_COLS)
