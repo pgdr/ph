@@ -569,6 +569,7 @@ def rolling(window, how="sum", win_type=None, std=None, beta=None, tau=None):
     """Rolling window calculations using provided `how` function.
 
     Usage: cat a.csv | ph rolling 3
+           cat a.csv | ph rolling 5 --how=mean
            cat a.csv | ph rolling 5 --win_type=gaussian --std=7.62
     """
     df = pipein()
