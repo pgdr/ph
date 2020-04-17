@@ -764,6 +764,7 @@ def plot(*args, **kwargs):
     index = kwargs.get("index")
     if index is not None:
         df = df.set_index(index)
+        del kwargs["index"]
     for log_ in ("logx", "logy", "loglog"):
         if kwargs.get(log_) in TRUTHY:
             kwargs[log_] = True
@@ -773,9 +774,7 @@ def plot(*args, **kwargs):
         style=kwargs.get("style"),
         x=kwargs.get("x"),
         y=kwargs.get("y"),
-        logx=kwargs.get("logx"),
-        logy=kwargs.get("logy"),
-        loglog=kwargs.get("loglog"),
+        **kwargs,
     )
     plt.show()
     pipeout(df)
