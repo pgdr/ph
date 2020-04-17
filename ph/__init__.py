@@ -1125,12 +1125,12 @@ def slugify_name(name):
     name_ = name
     try:
         name = float(name_)
-    except:
+    except ValueError:
         pass
     if isinstance(name_, (int, str)):
         try:
             name = int(name_)
-        except:
+        except ValueError:
             pass
     if isinstance(name, (int, float)):
         name = str(name) + "_"
