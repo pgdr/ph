@@ -289,6 +289,27 @@ def test_thousands_from_escaped_tab(capsys, monkeypatch):
     assert all(df["a"] == 10 ** df["b"])
 
 
+def test_strip_default(phmgr):
+    with phmgr("right") as captured:
+        _call("strip --lstrip=True")
+    assert not captured.err
+    captured.assert_shape(4, 4)
+    captured.assert_columns(["key1", "key2", "C", "D"])
+
+    assert list(captured.df["C"]) == ["C0", "C1", "C2", "C3"]
+
+
+def test_strip_actual(phmgr):
+    with phmgr("strip") as captured:
+        _call("strip date")
+    assert not captured.err
+
+    captured.assert_shape(6, 4)
+    captured.assert_columns(["idx", "date", "x", "y"])
+    _assert_a(captured.df[["x", "y"]])
+    assert list(captured.df.date) == ["2020-05-{}".format(i) for i in range(12, 18)]
+
+
 def test_describe(phmgr):
     with phmgr() as captured:
         _call("describe")

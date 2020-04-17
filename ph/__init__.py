@@ -429,6 +429,31 @@ def split(col, pat=" "):
 
 
 @register
+def strip(*cols, lstrip=False, rstrip=False):
+    """Strip (trim) a string.
+
+    Usage: cat x.csv | ph strip
+           cat x.csv | ph strip --lstrip=True
+           cat x.csv | ph strip --rstrip=True
+
+    """
+    df = pipein()
+    if not cols:
+        cols = list(df.columns)
+    else:
+        cols = list(cols)
+    _assert_cols(df, cols)
+    for c in cols:
+        if lstrip in TRUTHY:
+            df[c] = df[c].str.lstrip()
+        elif rstrip in TRUTHY:
+            df[c] = df[c].str.rstrip()
+        else:
+            df[c] = df[c].str.strip()
+    pipeout(df)
+
+
+@register
 def astype(type, column=None, newcolumn=None):
     """Cast a column to a different type.
 

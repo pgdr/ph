@@ -130,6 +130,7 @@ a pipeline.
     * [`eval`; Mathematipulating and creating new columns](#eval-mathematipulating-and-creating-new-columns)
     * [`normalize`](#normalize)
     * [`query`](#query)
+    * [`strip`](#strip)
   * [Analyzing the csv file](#analyzing-the-csv-file)
     * [`describe`](#describe)
     * [`show`](#show)
@@ -788,6 +789,22 @@ $ ph open csv 'http://bit.ly/2cLzoxH' | ph query "country == 'Norway'" | ph tabu
 10  Norway       2002  4.53559e+06  Europe          79.05       44684
 11  Norway       2007  4.62793e+06  Europe          80.196      49357.2
 ```
+
+
+#### `strip`
+
+Occasionally csv files come with additional spaces which can lead to
+difficulties in parsing the cells' contents.  A csv file should be
+formatted without spaces after the comma `42,17` over `42, 17`.  But
+since we are human, we sometimes make mistakes.
+
+If we want to _strip_, or _trim_, the contents of a column, we use `ph
+strip`:
+
+```bash
+$ cat txtfile.csv | ph strip col1 col2
+```
+
 
 ### Analyzing the csv file
 
