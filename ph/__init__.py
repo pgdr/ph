@@ -394,7 +394,7 @@ def fillna(value=None, method=None, limit=None):
         value = __tryparse(value)
         pipeout(pipein().fillna(value=value, limit=limit))
     else:
-        exit("'ph dropna' needs exactly one of value and method")
+        exit("'ph fillna' needs exactly one of value and method")
 
 
 @register

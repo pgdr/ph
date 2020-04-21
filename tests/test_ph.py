@@ -534,6 +534,10 @@ def test_fillna(phmgr):
         _call("fillna --method=pad --limit=5")
     assert captured.df["Canada"].sum() == 2493
 
+    with pytest.raises(SystemExit) as exit_:
+        _call("fillna")
+    assert "'ph fillna' needs exactly one of" in str(exit_.value)
+
 
 def test_merge(capsys):
     lft = _get_path("left")
