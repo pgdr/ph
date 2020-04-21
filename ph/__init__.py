@@ -772,13 +772,7 @@ def plot(*args, **kwargs):
         if kwargs.get(log_) in TRUTHY:
             kwargs[log_] = True
 
-    df.plot(
-        kind=kwargs.get("kind", "line"),  # default pandas plot is line
-        style=kwargs.get("style"),
-        x=kwargs.get("x"),
-        y=kwargs.get("y"),
-        **kwargs,
-    )
+    df.plot(**kwargs)
     plt.show()
     pipeout(df)
 
