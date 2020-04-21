@@ -800,6 +800,13 @@ def test_doc_plot(capsys):
     assert "Plot the csv file" in captured.out
 
 
+def test_doc_open_(capsys):  # tests registerx
+    _call("help open")
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    assert "Use a reader to open a file" in captured.out
+
+
 def test_median(phmgr):
     with phmgr() as captured:
         _call("median")

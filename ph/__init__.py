@@ -36,6 +36,7 @@ A list of available commands follows.
 """
 
 COMMANDS = {}
+DOCS = {}
 
 
 def _gpx(fname):
@@ -197,6 +198,7 @@ def register(fn, name=None):
     if name is None:
         name = fn.__name__
     COMMANDS[name] = fn
+    DOCS[name] = fn.__doc__
     return fn
 
 
@@ -1107,18 +1109,17 @@ def help(*args, **kwargs):
     cmd = args[0]
     import ph
 
-    try:
-        fn = getattr(ph, cmd)
-        ds = getattr(fn, "__doc__")
-    except AttributeError:
+    ds = ""
+    if cmd in DOCS:
+        ds = DOCS[cmd]
+    else:
         try:
             fn = getattr(pd.DataFrame, cmd)
             ds = getattr(fn, "__doc__")
         except AttributeError:
-            ds = ""
-
-    print("Usage: ph {} [?]".format(cmd))
-    print("       {}".format(ds))
+            pass
+    print("Usage: ph {}".format(cmd))
+    print("       {}".format(ds.strip()))
 
 
 def slugify_name(name):
@@ -1302,6 +1303,7 @@ def register_forward(attr):
 
     partial.__name__ = attr
     COMMANDS[attr] = partial
+    DOCS[attr] = partial.__doc__
 
 
 @register
