@@ -1092,8 +1092,8 @@ def _print_commands(cmds):
     print(tabulate_(df.transpose(), showindex=False))
 
 
-@register
-def help(*args, **kwargs):
+@registerx("help")
+def help_(*args, **kwargs):
     """Writes help (docstring) about the different commands."""
     if not args:
         print("Usage: ph command arguments")
@@ -1101,9 +1101,8 @@ def help(*args, **kwargs):
         _print_commands(sorted(COMMANDS.keys()))
         exit(0)
     cmd = args[0]
-    import ph
 
-    ds = ""
+    ds = None
     if cmd in DOCS:
         ds = DOCS[cmd]
     else:
@@ -1112,6 +1111,8 @@ def help(*args, **kwargs):
             ds = getattr(fn, "__doc__")
         except AttributeError:
             pass
+    if ds is None:
+        exit("Unknown command {}".format(cmd))
     print("Usage: ph {}".format(cmd))
     print("       {}".format(ds.strip()))
 
@@ -1297,7 +1298,6 @@ def register_forward(attr):
 
     partial.__name__ = attr
     COMMANDS[attr] = partial
-    DOCS[attr] = partial.__doc__
 
 
 @register
