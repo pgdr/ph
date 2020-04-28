@@ -619,6 +619,24 @@ def test_rolling_mean(phmgr):
     assert captured.df["setosa"].dropna().sum() == pytest.approx(543.83, 0.01)
 
 
+def test_rolling_subset_columns(phmgr):
+    with phmgr("date-fmt") as captured:
+        _call("rolling 3 x y --how=median")
+    assert not captured.err
+    captured.assert_shape(6, 3)
+    captured.assert_columns(["date", "x", "y"])
+    x = list(captured.df["x"])
+    y = list(captured.df["y"])
+    date = list(captured.df["date"])
+    assert math.isnan(x[0])
+    assert math.isnan(x[1])
+    assert math.isnan(y[0])
+    assert math.isnan(y[1])
+    assert x[2:] == [4, 5, 6, 7]
+    assert y[2:] == [9, 10, 11, 12]
+    assert date == ["2020_02/0{}".format(i) for i in range(2, 8)]
+
+
 def test_ewm_default(phmgr):
     with phmgr("iris") as captured:
         _call("ewm 2 --com=0.5")

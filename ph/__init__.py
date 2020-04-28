@@ -567,16 +567,26 @@ def groupby(*columns, how="sum", as_index=False):
 
 
 @register
-def rolling(window, how="sum", win_type=None, std=None, beta=None, tau=None):
+def rolling(window, *columns, how="sum", win_type=None, std=None, beta=None, tau=None):
     """Rolling window calculations using provided `how` function.
 
     Usage: cat a.csv | ph rolling 3
            cat a.csv | ph rolling 5 --how=mean
+           cat a.csv | ph rolling 5 colA colB --how=mean
            cat a.csv | ph rolling 5 --win_type=gaussian --std=7.62
     """
     df = pipein()
+    orig_columns = list(df.columns)
+    columns = list(columns)
+    _assert_cols(df, columns)
 
-    rollin = df.rolling(window, win_type=win_type)
+    if not columns:
+        columns = list(df.columns)
+
+    noncols = [c for c in df.columns if c not in columns]
+
+    rollin = df[columns].rolling(window, win_type=win_type)
+    nonrollin = df[noncols]
     try:
         fn = getattr(rollin, how)
     except AttributeError:
@@ -587,7 +597,9 @@ def rolling(window, how="sum", win_type=None, std=None, beta=None, tau=None):
     else:
         retval = fn()
 
-    pipeout(retval)
+    df = pd.concat([retval, nonrollin], axis=1)
+    df = df[orig_columns]
+    pipeout(df)
 
 
 @register
