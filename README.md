@@ -926,6 +926,17 @@ $ ph open csv http://bit.ly/2cLzoxH  | ph query "country == 'Norway'" | ph appen
 ```
 
 
+**Using `plot` headless**
+
+Occasionally we would like to generate a plot to an image(-like) file on
+the command line or in a script, without necessarily launching any
+graphic user interface.
+
+Calling `ph plot` with the argument `--savefig=myfile.png` will create a
+PNG file called `myfile.png` instead of opening the matplotlib window.
+It is also possible to get other formats by using different extensions,
+like `eps`, `pdf`, `pgf`, `png`, `ps`, `raw`, `rgba`, `svg`, `svgz`.
+
 
 **_`iplot`_ with `plotly` and `cufflinks`**
 
