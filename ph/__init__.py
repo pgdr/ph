@@ -774,7 +774,9 @@ def plot(*args, **kwargs):
             ph plot --logx=True
             ph plot --logy=True
             ph plot --loglog=True
-
+            ph plot --savefig=fname.png
+            ph plot --savefig=fname.svg
+            ph plot --savefig=fname.svg --savefig-dpi=300
     """
     try:
         import matplotlib.pyplot as plt
@@ -784,14 +786,24 @@ def plot(*args, **kwargs):
     df = pipein()
     index = kwargs.get("index")
     if index is not None:
+        _assert_col(df, index, caller="plot")
         df = df.set_index(index)
         del kwargs["index"]
     for log_ in ("logx", "logy", "loglog"):
         if kwargs.get(log_) in TRUTHY:
             kwargs[log_] = True
-
+    fname = kwargs.get("savefig")
+    dpi = kwargs.get("savefig-dpi")
+    if fname:
+        del kwargs["savefig"]
+    if dpi:
+        del kwargs["savefig-dpi"]
     df.plot(**kwargs)
-    plt.show()
+    if fname:
+        plt.tight_layout()
+        plt.savefig(fname, dpi=dpi)
+    else:
+        plt.show()
     pipeout(df)
 
 
