@@ -184,14 +184,16 @@ FALSY = ("False", "false", "No", "no", "0", False, 0, "None")
 TRUTHY = ("True", "true", "Yes", "yes", "1", True, 1)
 
 
-def _assert_col(df, col):
+def _assert_col(df, col, caller=None):
     if col not in df.columns:
+        if caller is not None:
+            exit("ph {}: Unknown column {}".format(caller, col))
         exit("Unknown column {}".format(col))
 
 
-def _assert_cols(df, cols):
+def _assert_cols(df, cols, caller=None):
     for col in cols:
-        _assert_col(df, col)
+        _assert_col(df, col, caller=caller)
 
 
 def register(fn, name=None):
@@ -272,7 +274,7 @@ def diff(*cols, periods=1, axis=0):
     if not cols:
         df = df.diff(periods=periods, axis=axis)
     else:
-        _assert_cols(df, cols)
+        _assert_cols(df, cols, "diff")
         columns = list(cols)
         df[columns] = df[columns].diff(periods=periods, axis=axis)
     pipeout(df)
@@ -425,7 +427,7 @@ def appendstr(col, s, newcol=None):
 @register
 def split(col, pat=" "):
     df = pipein()
-    _assert_col(df, col)
+    _assert_col(df, col, "split")
     df[[col, col + "_rhs"]] = df[col].str.split(pat=pat, n=1, expand=True)
     pipeout(df)
 
@@ -444,7 +446,7 @@ def strip(*cols, lstrip=False, rstrip=False):
         cols = list(df.columns)
     else:
         cols = list(cols)
-    _assert_cols(df, cols)
+    _assert_cols(df, cols, "strip")
     for c in cols:
         if lstrip in TRUTHY:
             df[c] = df[c].str.lstrip()
@@ -548,7 +550,7 @@ def groupby(*columns, how="sum", as_index=False):
     if not columns:
         exit("Needs at least one column to group by")
     df = pipein()
-    _assert_cols(df, columns)
+    _assert_cols(df, columns, "groupby")
     if as_index in TRUTHY:
         as_index = True
     elif as_index in FALSY:
@@ -578,7 +580,7 @@ def rolling(window, *columns, how="sum", win_type=None, std=None, beta=None, tau
     df = pipein()
     orig_columns = list(df.columns)
     columns = list(columns)
-    _assert_cols(df, columns)
+    _assert_cols(df, columns, "rolling")
 
     if not columns:
         columns = list(df.columns)
@@ -598,6 +600,10 @@ def rolling(window, *columns, how="sum", win_type=None, std=None, beta=None, tau
         retval = fn()
 
     df = pd.concat([retval, nonrollin], axis=1)
+    for col in orig_columns:
+        if col not in df.columns:
+            op = "ph rolling"
+            exit('{}: Could not perform rolling window on column "{}"'.format(op, col))
     df = df[orig_columns]
     pipeout(df)
 
@@ -859,7 +865,7 @@ def date(col=None, unit=None, origin="unix", errors="raise", dayfirst=False, **k
         if col is None:
             df = pd.to_datetime(df, unit=unit, origin=origin, errors=errors)
         else:
-            _assert_col(df, col)
+            _assert_col(df, col, "date")
             if date_parser is None:
                 df[col] = pd.to_datetime(
                     df[col], unit=unit, origin=origin, errors=errors, dayfirst=dayfirst
@@ -1422,7 +1428,7 @@ def columns(*cols, **kwargs):
             if col.endswith(q) and col not in cols:
                 cols.append(col)
 
-    _assert_cols(df, cols)
+    _assert_cols(df, cols, "columns")
 
     if not cols and not kwargs:
         print("columns")
@@ -1451,7 +1457,7 @@ def spencer(*cols):
             yield sum(seq[i] * _SPENCER[i] / _SPENCER_SUM for i in range(15))
 
     df = pipein()
-    _assert_cols(df, cols)
+    _assert_cols(df, cols, "spencer")
     prefix = [float("nan")] * 7
     suffix = [float("nan")] * 8
     if not cols:
@@ -1531,7 +1537,7 @@ def drop(*columns, **kwargs):
     if kwargs.get("axis") in (None, 0, "index"):
         columns = [__tryparse(col) for col in columns]
     elif kwargs.get("axis") in (1, "columns"):
-        _assert_cols(df, columns)
+        _assert_cols(df, columns, "drop")
     else:
         exit(
             "--axis=index (or 0) or --axis=columns (or 1), not {}".format(
@@ -1582,7 +1588,7 @@ def sort(col):
 
     """
     df = pipein()
-    _assert_col(df, col)
+    _assert_col(df, col, "sort")
     pipeout(df.sort_values(col))
 
 
@@ -1598,7 +1604,7 @@ def polyfit(x, y, deg=1):
 
     """
     df = pipein()
-    _assert_cols(df, (x, y))
+    _assert_cols(df, (x, y), "polyfit")
     deg = __tryparse(deg)
     if not isinstance(deg, int) or deg <= 0:
         exit("deg={} should be a positive int".format(deg))
