@@ -126,6 +126,7 @@ ph open csv https://covid.ourworldindata.org/data/ecdc/total_cases.csv \
     | ph plot --linewidth=3 --savefig=cases.svg --index=date
 ```
 
+![cases](https://raw.githubusercontent.com/pgdr/ph/master/assets/cases.png)
 
 ---
 ## Table of contents
