@@ -109,6 +109,23 @@ To achieve the goal, `ph` then reads csv data, does some manipulation,
 and prints out csv data.  With csv as the invariant, `ph` can be used in
 a pipeline.
 
+---
+
+A very quick introduction to what `ph` can do for you,
+run this in your shell:
+
+```bash
+ph open csv https://covid.ourworldindata.org/data/ecdc/total_cases.csv \
+    | ph slugify                                                       \
+    | ph columns date norway sweden denmark                            \
+    | ph diff norway sweden denmark                                    \
+    | ph spencer norway sweden denmark                                 \
+    | ph rolling 7 norway sweden denmark --how=mean                    \
+    | ph dropna                                                        \
+    | ph slice 50:                                                     \
+    | ph plot --linewidth=3 --savefig=cases.svg --index=date
+```
+
 
 ---
 ## Table of contents
