@@ -638,7 +638,7 @@ def test_rolling_subset_columns(phmgr):
 
 
 def test_rolling_broken_window(phmgr):
-    with phmgr("date-fmt") as captured:
+    with phmgr("date-fmt") as _:
         with pytest.raises(SystemExit) as exit_:
             _call("rolling 3")
     err = 'ph rolling: Could not perform rolling window on column "date"'
