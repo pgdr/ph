@@ -311,6 +311,26 @@ def test_strip_actual(phmgr):
     assert list(captured.df.date) == ["2020-05-{}".format(i) for i in range(12, 18)]
 
 
+
+def test_removeprefix(phmgr):
+    with phmgr("left") as captured:
+        _call("removeprefix A A")
+    assert not captured.err
+    captured.assert_shape(4, 4)
+    captured.assert_columns(LEFT_COLUMNS)
+    assert list(captured.df["A"]) == [0, 1, 2, 3]
+
+
+def test_removesuffix(phmgr):
+    with phmgr("left") as captured:
+        _call("removesuffix key1 0")
+    assert not captured.err
+    captured.assert_shape(4, 4)
+    captured.assert_columns(LEFT_COLUMNS)
+    assert list(captured.df["key1"]) == ["K", "K", "K1", "K2"]
+
+
+
 def test_describe(phmgr):
     with phmgr() as captured:
         _call("describe")

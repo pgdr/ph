@@ -148,7 +148,9 @@ ph open csv https://covid.ourworldindata.org/data/ecdc/total_cases.csv \
     * [`eval`; Mathematipulating and creating new columns](#eval-mathematipulating-and-creating-new-columns)
     * [`normalize`](#normalize)
     * [`query`](#query)
+    * [`grep`](#grep)
     * [`strip`](#strip)
+    * [`removeprefix` and `removesuffix`](#removeprefix-and-removesuffix)
   * [Analyzing the csv file](#analyzing-the-csv-file)
     * [`describe`](#describe)
     * [`show`](#show)
@@ -809,6 +811,26 @@ $ ph open csv 'http://bit.ly/2cLzoxH' | ph query "country == 'Norway'" | ph tabu
 ```
 
 
+
+#### `grep`
+
+The powerful `grep` is one of the most used command line tools, and it
+would be silly to not ship a version of it ourselves.  Using `ph grep`
+is rarely necessary, but helps when you want to ensure the header is
+kept.
+
+```bash
+$ cat txtfile.csv | ph grep "a|b" --case=False --column=Text_Column --regex=False
+```
+
+The arguments denote
+
+* `--case` should be case sensitive?
+* `--column` grep only in given column
+* `--regex` use regex for pattern?
+
+
+
 #### `strip`
 
 Occasionally csv files come with additional spaces which can lead to
@@ -822,6 +844,22 @@ strip`:
 ```bash
 $ cat txtfile.csv | ph strip col1 col2
 ```
+
+
+
+#### `removeprefix` and `removesuffix`
+
+If `strip` is not sufficiently powerful, it is possible to
+`removeprefix` or `removesuffix` using
+
+```bash
+$cat txtfile.csv | ph removeprefix col1 pattern
+```
+
+and similarly for `removesuffix`.
+
+
+
 
 
 ### Analyzing the csv file

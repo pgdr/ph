@@ -514,6 +514,44 @@ def strip(*cols, lstrip=False, rstrip=False):
 
 
 @register
+def removeprefix(col, prefix=" "):
+    """Remove prefix of contents of a column.
+
+    Usage: cat a.csv | ph removeprefix col1 ..
+
+    See also @removesuffix @strip
+
+    """
+    prefix = str(prefix)
+    plen = len(prefix)
+    df = pipein()
+    _assert_col(df, col, "removeprefix")
+    df[col] = df[col].apply(
+        lambda s: str(s)[plen:] if str(s).startswith(prefix) else str(s)
+    )
+    pipeout(df)
+
+
+@register
+def removesuffix(col, suffix=" "):
+    """Remove suffix of contents of a column.
+
+    Usage: cat a.csv | ph removesuffix col1 ..
+
+    See also @removeprefix @strip
+
+    """
+    suffix = str(suffix)
+    plen = len(suffix)
+    df = pipein()
+    _assert_col(df, col, "removesuffix")
+    df[col] = df[col].apply(
+        lambda s: str(s)[:-plen] if str(s).endswith(suffix) else str(s)
+    )
+    pipeout(df)
+
+
+@register
 def astype(type, column=None, newcolumn=None):
     """Cast a column to a different type.
 
