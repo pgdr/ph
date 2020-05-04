@@ -699,7 +699,7 @@ def test_split(phmgr):
 
 def test_sort(phmgr):
     with phmgr("iris") as captured:
-        ph.sort("setosa")
+        _call("sort setosa")
     assert not captured.err
     lst = list(captured.df["setosa"])
     assert lst == sorted(lst)
@@ -775,7 +775,7 @@ def test_grep_col1_pattern_regex_off(phmgr):
 
 def test_polyfit(phmgr):
     with phmgr() as captured:
-        ph.polyfit("x", "y")
+        _call("polyfit x y")
     assert not captured.err
     df = captured.df
     assert list(df.columns) == ["x", "y", "polyfit_1"]
