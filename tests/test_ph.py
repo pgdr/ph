@@ -11,6 +11,7 @@ import datetime as dt
 import math
 
 NAN = float("nan")
+LEFT_COLUMNS = ["key1", "key2", "A", "B"]  # columns of left.csv
 
 
 def __have_xlrd():
@@ -702,6 +703,74 @@ def test_sort(phmgr):
     assert not captured.err
     lst = list(captured.df["setosa"])
     assert lst == sorted(lst)
+
+
+def test_grep_case_1(phmgr):
+    with phmgr("left") as captured:
+        _call("grep k0")
+    assert not captured.err
+    captured.assert_shape(0, 4)
+    captured.assert_columns(LEFT_COLUMNS)
+
+
+def test_grep_case_0(phmgr):
+    with phmgr("left") as captured:
+        _call("grep k0 --case=0")
+    assert not captured.err
+    captured.assert_shape(3, 4)
+    captured.assert_columns(LEFT_COLUMNS)
+
+
+def test_grep_case_false(phmgr):
+    with phmgr("left") as captured:
+        _call("grep k0 --case=False")
+    assert not captured.err
+    captured.assert_shape(3, 4)
+    captured.assert_columns(LEFT_COLUMNS)
+
+
+def test_grep_col1(phmgr):
+    with phmgr("left") as captured:
+        _call("grep K0 --column=key1")
+    assert not captured.err
+    captured.assert_shape(2, 4)
+    captured.assert_columns(LEFT_COLUMNS)
+    assert list(captured.df["A"]) == ["A0", "A1"]
+
+
+def test_grep_col2(phmgr):
+    with phmgr("left") as captured:
+        _call("grep K0 --column=key2")
+    assert not captured.err
+    captured.assert_shape(2, 4)
+    captured.assert_columns(LEFT_COLUMNS)
+    assert list(captured.df["A"]) == ["A0", "A2"]
+
+
+def test_grep_col1_pattern(phmgr):
+    with phmgr("left") as captured:
+        ph.grep("K[0|1]", column="key1")
+    assert not captured.err
+    captured.assert_shape(3, 4)
+    captured.assert_columns(LEFT_COLUMNS)
+    assert list(captured.df["A"]) == ["A0", "A1", "A2"]
+
+
+def test_grep_col1_pattern_regex(phmgr):
+    with phmgr("left") as captured:
+        _call("grep K. --column=key1")
+    assert not captured.err
+    captured.assert_shape(4, 4)
+    captured.assert_columns(LEFT_COLUMNS)
+    assert list(captured.df["A"]) == ["A0", "A1", "A2", "A3"]
+
+
+def test_grep_col1_pattern_regex_off(phmgr):
+    with phmgr("left") as captured:
+        _call("grep K. --column=key1 --regex=False")
+    assert not captured.err
+    captured.assert_shape(0, 4)
+    captured.assert_columns(LEFT_COLUMNS)
 
 
 def test_polyfit(phmgr):

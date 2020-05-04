@@ -412,6 +412,62 @@ def query(expr):
 
 
 @register
+def grep(*expr, case=True, na=float("nan"), regex=True, column=None):
+    """Grep (with regex) for content in csv file.
+
+    Usage: cat a.csv | ph grep 0
+           cat a.csv | ph grep search_string
+           cat a.csv | ph grep "A|B"               # search hits a or b
+           cat a.csv | ph grep "a|b" --case=False  # case insensitive
+           cat a.csv | ph grep 4 --column=x
+
+    To disable regex (e.g. simple search for "." or "*" characters, use
+    --regex=False).
+
+    Search only in a specific column with --column=col.
+
+    Supports regex search queries such as "0-9A-F" and "\\d" (possibly
+    double-escaped.)
+
+    """
+    df = pipein()
+
+    if case is True or case in TRUTHY:
+        case = True
+    elif case in FALSY:
+        case = False
+    else:
+        exit("ph grep:  Unknown --case={} should be True or False".format(case))
+
+    if regex is True or regex in TRUTHY:
+        regex = True
+    elif regex in FALSY:
+        regex = False
+    else:
+        exit("ph grep:  Unknown --regex={} should be True or False".format(regex))
+
+    if column is not None:
+        _assert_col(df, column, "grep")
+
+    expr = " ".join(str(e) for e in expr)  # force string input
+
+    try:
+        import numpy
+    except ImportError:
+        exit("numpy needed for grep.  pip install numpy")
+
+    retval = df[
+        numpy.logical_or.reduce(
+            [
+                df[col].astype(str).str.contains(expr, case=case, na=na, regex=regex)
+                for col in (df.columns if column is None else [column])
+            ]
+        )
+    ]
+    pipeout(retval)
+
+
+@register
 def appendstr(col, s, newcol=None):
     """Special method to append a string to the end of a column.
 
