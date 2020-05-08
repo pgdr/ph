@@ -888,11 +888,18 @@ def plot(*args, **kwargs):
             kwargs[log_] = True
     fname = kwargs.get("savefig")
     dpi = kwargs.get("savefig-dpi")
+
     if fname:
         del kwargs["savefig"]
     if dpi:
         del kwargs["savefig-dpi"]
-    df.plot(**kwargs)
+
+    fig, ax = plt.subplots()
+    df.plot(**kwargs, ax=ax)
+
+    if index == 'date':
+        fig.autofmt_xdate()
+
     if fname:
         plt.tight_layout()
         plt.savefig(fname, dpi=dpi)
