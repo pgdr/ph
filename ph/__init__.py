@@ -43,7 +43,7 @@ def _gpx(fname):
     try:
         import gpxpy
     except ImportError:
-        exit("ph gpx needs pgxpy, pip install ph[gpx]")
+        exit("ph gpx needs gpxpy, pip install ph[gpx]")
 
     def from_trackpoint(tp=None):
         if tp is None:
@@ -897,7 +897,7 @@ def plot(*args, **kwargs):
     fig, ax = plt.subplots()
     df.plot(**kwargs, ax=ax)
 
-    if index == 'date':
+    if index == "date":
         fig.autofmt_xdate()
 
     if fname:
