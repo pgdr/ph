@@ -1,8 +1,9 @@
 # ph (pronounced _φ_) - the tabular data shell tool ![ph tests](https://github.com/pgdr/ph/workflows/ph%20tests/badge.svg?branch=master)
 
 
-Spoiler: Working with tabular data (csv) in the command line is difficult.  `ph` makes
-it easy:
+Spoiler: Working with tabular data (csv) in the command line is difficult.
+
+`ph` makes it easy:
 
 ```bash
 $ pip install ph
@@ -785,11 +786,6 @@ x,y
 7,12
 8,13
 ```
-
-**Warning**:
-Calling the following command
-[might be illegal in Norway](https://rettspraksis.no/wiki/TBERG-2019-141281).
-Reader beware!
 
 
 ```bash

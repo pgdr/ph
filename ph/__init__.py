@@ -758,7 +758,7 @@ def ewm(
 
 
 @register
-def expanding(min_periods=1, center=False, axis=0, how="sum", quantile=None):
+def expanding(min_periods=1, axis=0, how="sum", quantile=None):
     """Provide expanding transformations.
 
     A common alternative to rolling statistics is to use an expanding
@@ -775,18 +775,10 @@ def expanding(min_periods=1, center=False, axis=0, how="sum", quantile=None):
            cat a.csv | ph expanding 1 --how=sum   # above equivalent to this
            cat a.csv | ph expanding 2
            cat a.csv | ph expanding 5 --how=quantile --quantile=0.25
-           cat a.csv | ph expanding 3 --center=True
 
     """
 
     df = pipein()
-
-    if center in TRUTHY:
-        center = True
-    elif center in FALSY:
-        center = False
-    else:
-        exit("center must be True of False, not {}".format(center))
 
     if quantile is not None:
         if how != "quantile":
@@ -794,7 +786,7 @@ def expanding(min_periods=1, center=False, axis=0, how="sum", quantile=None):
     if how == "quantile" and quantile is None:
 
         exit("--how=quantile needs --quantile=<float>, e.g. --quantile=0.25")
-    expanding_ = df.expanding(min_periods=min_periods, center=center, axis=axis)
+    expanding_ = df.expanding(min_periods=min_periods, axis=axis)
     try:
         fn = getattr(expanding_, how)
     except AttributeError:

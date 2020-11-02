@@ -145,7 +145,11 @@ def test_drop_columns(phmgr):
     df = captured.df
     captured.assert_shape(150, 3)
     captured.assert_columns(
-        ["150", "4", "versicolor",]
+        [
+            "150",
+            "4",
+            "versicolor",
+        ]
     )
     assert list(df.iloc[0]) == [5.1, 3.5, 0.2]
 
@@ -311,7 +315,6 @@ def test_strip_actual(phmgr):
     assert list(captured.df.date) == ["2020-05-{}".format(i) for i in range(12, 18)]
 
 
-
 def test_removeprefix(phmgr):
     with phmgr("left") as captured:
         _call("removeprefix A A")
@@ -328,7 +331,6 @@ def test_removesuffix(phmgr):
     captured.assert_shape(4, 4)
     captured.assert_columns(LEFT_COLUMNS)
     assert list(captured.df["key1"]) == ["K", "K", "K1", "K2"]
-
 
 
 def test_describe(phmgr):
@@ -910,6 +912,30 @@ def test_slugify_df(phmgr):
 
     cols = list(captured.df.columns)
     assert cols == ["stupid_column_1", "jerky_column_no_2"]
+
+
+def test_slugify_rename_df(capsys, monkeypatch):
+    monkeypatch.setattr("sys.stdin", _get_io("slugit"))
+    _call("slugify")
+    captured = Capture(capsys.readouterr())
+
+    assert not captured.err
+    cols = list(captured.df.columns)
+    assert cols == ["stupid_column_1", "jerky_column_no_2"]
+
+    monkeypatch.setattr("sys.stdin", io.StringIO(captured.out))
+    _call("rename stupid_column_1 first")
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    cols = list(captured.df.columns)
+    assert cols == ["first", "jerky_column_no_2"]
+
+    monkeypatch.setattr("sys.stdin", io.StringIO(captured.out))
+    _call("rename jerky_column_no_2 second")
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    cols = list(captured.df.columns)
+    assert cols == ["first", "second"]
 
 
 def test_doc_plot(capsys):
