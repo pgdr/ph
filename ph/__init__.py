@@ -1000,10 +1000,12 @@ def describe():
 
     Usage: cat a.csv | ph describe
     """
+    df = pipein()
     try:
-        print(pipein().describe())
+        out = df.describe()
     except ValueError as err:
-        exit(err)
+        sys.exit(str(err))
+    _safe_out(out)
 
 
 @register
