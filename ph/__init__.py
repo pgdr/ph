@@ -363,8 +363,7 @@ def pipein(ftype="csv", **kwargs):
     except pd.errors.EmptyDataError:
         return pd.DataFrame()
     except pd.errors.ParserError as err:
-        sys.stderr.write(str(err))
-        return pd.DataFrame()
+        sys.exit(str(err))
 
 
 @register
