@@ -1651,7 +1651,7 @@ def drop(*columns, **kwargs):
         if opt in kwargs:
             kwargs[opt] = __tryparse(kwargs[opt])
     if "inplace" in kwargs:
-        sys.exit("inplace in nonsensical in ph")
+        sys.exit("inplace is nonsensical in ph")
 
     df = pipein()
 
