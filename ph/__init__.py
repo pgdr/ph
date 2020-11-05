@@ -323,9 +323,8 @@ def dropna(axis=0, how="any", thresh=None):
     pipeout(df)
 
 
-def pipeout(df, sep=",", index=False, *args, **kwargs):
-    csv = df.to_csv(sep=sep, index=index, *args, **kwargs)
-    output = csv.rstrip("\n")
+def _safe_out(output):
+    """Prints output to standard out, catching broken pipe."""
     try:
         print(output)
     except BrokenPipeError:
@@ -337,6 +336,12 @@ def pipeout(df, sep=",", index=False, *args, **kwargs):
             sys.stderr.close()
         except IOError:
             pass
+
+
+def pipeout(df, sep=",", index=False, *args, **kwargs):
+    csv = df.to_csv(sep=sep, index=index, *args, **kwargs)
+    output = csv.rstrip("\n")
+    _safe_out(output)
 
 
 def pipein(ftype="csv", **kwargs):
@@ -356,6 +361,9 @@ def pipein(ftype="csv", **kwargs):
     try:
         return READERS[ftype](sys.stdin, **kwargs)
     except pd.errors.EmptyDataError:
+        return pd.DataFrame()
+    except pd.errors.ParserError as err:
+        sys.stderr.write(str(err))
         return pd.DataFrame()
 
 
@@ -1191,7 +1199,9 @@ def tabulate(*args, **kwargs):
         index = False
     if "--headers" in args:
         headers = "keys"
-    print(tabulate_(pipein(), tablefmt=fmt, headers=headers, showindex=index))
+    df = pipein()
+    out = tabulate_(df, tablefmt=fmt, headers=headers, showindex=index)
+    _safe_out(out)
 
 
 @register
