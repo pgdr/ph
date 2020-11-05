@@ -70,7 +70,11 @@ setup(
     license="MIT",
     keywords="tabular data, pandas, csv, pipeline, unix, command line tool",
     install_requires=requirements["minimum"],
-    entry_points={"console_scripts": ["ph = ph:main",],},
+    entry_points={
+        "console_scripts": [
+            "ph = ph:main",
+        ],
+    },
     test_suite="tests",
     tests_require=["pytest"],
     extras_require=requirements,
