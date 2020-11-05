@@ -43,7 +43,7 @@ def _gpx(fname):
     try:
         import gpxpy
     except ImportError:
-        exit("ph gpx needs gpxpy, pip install ph[gpx]")
+        sys.exit("ph gpx needs gpxpy, pip install ph[gpx]")
 
     def from_trackpoint(tp=None):
         if tp is None:
@@ -187,8 +187,8 @@ TRUTHY = ("True", "true", "Yes", "yes", "1", True, 1)
 def _assert_col(df, col, caller=None):
     if col not in df.columns:
         if caller is not None:
-            exit("ph {}: Unknown column {}".format(caller, col))
-        exit("Unknown column {}".format(col))
+            sys.exit("ph {}: Unknown column {}".format(caller, col))
+        sys.exit("Unknown column {}".format(col))
 
 
 def _assert_cols(df, cols, caller=None):
@@ -221,7 +221,7 @@ def dataset(dset=None):
     try:
         import sklearn.datasets
     except ImportError:
-        exit("You need scikit-learn.  Install ph[data].")
+        sys.exit("You need scikit-learn.  Install ph[data].")
 
     REALDATA = {
         "olivetti_faces": sklearn.datasets.fetch_olivetti_faces,
@@ -249,10 +249,10 @@ def dataset(dset=None):
         print("type,name")
         print("\n".join("{},{}".format("real", k) for k in REALDATA))
         print("\n".join("{},{}".format("toy", k) for k in TOYDATA))
-        exit()
+        sys.exit()
 
     if dset not in TOYDATA.keys() | REALDATA.keys():
-        exit("Unknown dataset {}.  See ph help dataset.".format(dset))
+        sys.exit("Unknown dataset {}.  See ph help dataset.".format(dset))
     if dset in TOYDATA:
         data = TOYDATA[dset]()
     else:
@@ -305,21 +305,21 @@ def dropna(axis=0, how="any", thresh=None):
     try:
         axis = int(axis)
         if axis not in (0, 1):
-            exit("ph dropna --axis=0 or --axis=1, not {}".format(axis))
+            sys.exit("ph dropna --axis=0 or --axis=1, not {}".format(axis))
     except ValueError:
-        exit("ph dropna --axis=0 or --axis=1, not {}".format(axis))
+        sys.exit("ph dropna --axis=0 or --axis=1, not {}".format(axis))
 
     if thresh is not None:
         try:
             thresh = int(thresh)
         except ValueError:
-            exit("ph dropna --thresh=0 or --thresh=1, not {}".format(thresh))
+            sys.exit("ph dropna --thresh=0 or --thresh=1, not {}".format(thresh))
 
     df = pipein()
     try:
         df = df.dropna(axis=axis, how=how, thresh=thresh)
     except Exception as err:
-        exit(err)
+        sys.exit(str(err))
     pipeout(df)
 
 
@@ -352,7 +352,7 @@ def pipein(ftype="csv", **kwargs):
             if skiprows < 0:
                 raise ValueError("Negative")
         except ValueError:
-            exit("skiprows must be a non-negative int, not {}".format(skiprows))
+            sys.exit("skiprows must be a non-negative int, not {}".format(skiprows))
         kwargs["skiprows"] = skiprows
 
     if kwargs.get("sep") == "\\t":
@@ -394,17 +394,17 @@ def fillna(value=None, method=None, limit=None):
         try:
             limit = int(limit)
         except ValueError:
-            exit("--limit=x must be an integer, not {}".format(limit))
+            sys.exit("--limit=x must be an integer, not {}".format(limit))
     METHODS = ("backfill", "bfill", "pad", "ffill")
     if method is not None:
         if method not in METHODS:
-            exit("method must be one of {}, not {}".format(METHODS, method))
+            sys.exit("method must be one of {}, not {}".format(METHODS, method))
         pipeout(pipein().fillna(method=method, limit=limit))
     elif value is not None:
         value = __tryparse(value)
         pipeout(pipein().fillna(value=value, limit=limit))
     else:
-        exit("'ph fillna' needs exactly one of value and method")
+        sys.exit("'ph fillna' needs exactly one of value and method")
 
 
 @register
@@ -445,14 +445,14 @@ def grep(*expr, case=True, na=float("nan"), regex=True, column=None):
     elif case in FALSY:
         case = False
     else:
-        exit("ph grep:  Unknown --case={} should be True or False".format(case))
+        sys.exit("ph grep:  Unknown --case={} should be True or False".format(case))
 
     if regex is True or regex in TRUTHY:
         regex = True
     elif regex in FALSY:
         regex = False
     else:
-        exit("ph grep:  Unknown --regex={} should be True or False".format(regex))
+        sys.exit("ph grep:  Unknown --regex={} should be True or False".format(regex))
 
     if column is not None:
         _assert_col(df, column, "grep")
@@ -462,7 +462,7 @@ def grep(*expr, case=True, na=float("nan"), regex=True, column=None):
     try:
         import numpy
     except ImportError:
-        exit("numpy needed for grep.  pip install numpy")
+        sys.exit("numpy needed for grep.  pip install numpy")
 
     retval = df[
         numpy.logical_or.reduce(
@@ -575,7 +575,7 @@ def astype(type, column=None, newcolumn=None):
         else:
             df[column] = df[column].astype(type)
     except ValueError as err:
-        exit("Could not convert to {}: {}".format(type, err))
+        sys.exit("Could not convert to {}: {}".format(type, err))
     pipeout(df)
 
 
@@ -650,7 +650,7 @@ def groupby(*columns, how="sum", as_index=False):
     """
     columns = list(columns)
     if not columns:
-        exit("Needs at least one column to group by")
+        sys.exit("Needs at least one column to group by")
     df = pipein()
     _assert_cols(df, columns, "groupby")
     if as_index in TRUTHY:
@@ -658,13 +658,13 @@ def groupby(*columns, how="sum", as_index=False):
     elif as_index in FALSY:
         as_index = False
     else:
-        exit("--as_index=True or False, not {}".format(as_index))
+        sys.exit("--as_index=True or False, not {}".format(as_index))
 
     grouped = df.groupby(columns, as_index=as_index)
     try:
         fn = getattr(grouped, how)
     except AttributeError:
-        exit("Unknown --how={}, should be sum, mean, ...".format(how))
+        sys.exit("Unknown --how={}, should be sum, mean, ...".format(how))
     retval = fn()
 
     pipeout(retval)
@@ -694,7 +694,7 @@ def rolling(window, *columns, how="sum", win_type=None, std=None, beta=None, tau
     try:
         fn = getattr(rollin, how)
     except AttributeError:
-        exit("Unknown --how={}, should be sum, mean, ...".format(how))
+        sys.exit("Unknown --how={}, should be sum, mean, ...".format(how))
 
     if {std, beta, tau} != {None}:
         retval = fn(std=std, beta=beta, tau=tau)
@@ -705,7 +705,9 @@ def rolling(window, *columns, how="sum", win_type=None, std=None, beta=None, tau
     for col in orig_columns:
         if col not in df.columns:
             op = "ph rolling"
-            exit('{}: Could not perform rolling window on column "{}"'.format(op, col))
+            sys.exit(
+                '{}: Could not perform rolling window on column "{}"'.format(op, col)
+            )
     df = df[orig_columns]
     pipeout(df)
 
@@ -741,7 +743,7 @@ def ewm(
 
     """
     if {com, span, halflife, alpha} == {None}:
-        exit("Must pass one of com, span, halflife, or alpha")
+        sys.exit("Must pass one of com, span, halflife, or alpha")
 
     df = pipein()
 
@@ -758,7 +760,7 @@ def ewm(
     try:
         fn = getattr(ewm_, how)
     except AttributeError:
-        exit("Unknown --how={}, should be mean, var, std, corr, cov..".format(how))
+        sys.exit("Unknown --how={}, should be mean, var, std, corr, cov..".format(how))
 
     retval = fn()
 
@@ -790,15 +792,15 @@ def expanding(min_periods=1, axis=0, how="sum", quantile=None):
 
     if quantile is not None:
         if how != "quantile":
-            exit("Use both or none of --how=quantile and --quantile=<float>")
+            sys.exit("Use both or none of --how=quantile and --quantile=<float>")
     if how == "quantile" and quantile is None:
 
-        exit("--how=quantile needs --quantile=<float>, e.g. --quantile=0.25")
+        sys.exit("--how=quantile needs --quantile=<float>, e.g. --quantile=0.25")
     expanding_ = df.expanding(min_periods=min_periods, axis=axis)
     try:
         fn = getattr(expanding_, how)
     except AttributeError:
-        exit("Unknown --how={}, should be sum, mean, max, quantile..".format(how))
+        sys.exit("Unknown --how={}, should be sum, mean, max, quantile..".format(how))
 
     if how == "quantile":
         retval = fn(quantile)
@@ -819,9 +821,9 @@ def monotonic(column, direction="+"):
     """
     df = pipein()
     if column not in df:
-        exit("Unknown column {}".format(column))
+        sys.exit("Unknown column {}".format(column))
     if direction not in "+-":
-        exit("direction must be either + or -")
+        sys.exit("direction must be either + or -")
     print("{}_monotonic".format(column))
     if direction == "+":
         print(df[column].is_monotonic)
@@ -848,7 +850,7 @@ def iplot(*args, **kwargs):
         import cufflinks  # noqa
         import plotly as py
     except ImportError:
-        exit("iplot needs cufflinks, pip install ph[iplot]")
+        sys.exit("iplot needs cufflinks, pip install ph[iplot]")
 
     df = pipein()
     fig = df.iplot(*args, asFigure=True, **kwargs)
@@ -875,7 +877,7 @@ def plot(*args, **kwargs):
     try:
         import matplotlib.pyplot as plt
     except ImportError:
-        exit("plot depends on matplotlib, install ph[plot]")
+        sys.exit("plot depends on matplotlib, install ph[plot]")
 
     df = pipein()
     index = kwargs.get("index")
@@ -962,7 +964,7 @@ def date(col=None, unit=None, origin="unix", errors="raise", dayfirst=False, **k
     """
     DATE_ERRORS = ("ignore", "raise", "coerce")
     if errors not in DATE_ERRORS:
-        exit("Errors must be one of {}, not {}.".format(DATE_ERRORS, errors))
+        sys.exit("Errors must be one of {}, not {}.".format(DATE_ERRORS, errors))
 
     dayfirst = dayfirst in TRUTHY
 
@@ -986,7 +988,7 @@ def date(col=None, unit=None, origin="unix", errors="raise", dayfirst=False, **k
             else:
                 df[col] = date_parser(df[col])
     except Exception as err:
-        exit(err)
+        sys.exit(err)
 
     pipeout(df)
 
@@ -1033,17 +1035,17 @@ def to(ftype, fname=None, sep=None, index=False):
 
     """
     if ftype not in WRITERS:
-        exit("Unknown datatype {}.".format(ftype))
+        sys.exit("Unknown datatype {}.".format(ftype))
 
     if not fname:
         if ftype in ("parquet", "xls", "xlsx", "ods", "pickle"):
-            exit("{} needs a path".format(ftype))
+            sys.exit("{} needs a path".format(ftype))
 
     if ftype == "hdf5":
-        exit("hdf5 writer not implemented")
+        sys.exit("hdf5 writer not implemented")
 
     if index not in TRUTHY + FALSY:
-        exit("Index must be True or False, not {}".format(index))
+        sys.exit("Index must be True or False, not {}".format(index))
     index = index in TRUTHY
 
     if ftype == "fwf":
@@ -1055,11 +1057,11 @@ def to(ftype, fname=None, sep=None, index=False):
                 wout.write(content)
         else:
             print(content)
-        exit()
+        sys.exit()
 
     if sep is not None:
         if ftype != "csv":
-            exit("Only csv mode supports separator")
+            sys.exit("Only csv mode supports separator")
 
     writer = WRITERS[ftype]
     df = pipein()
@@ -1106,7 +1108,7 @@ def from_(ftype="csv", **kwargs):
             if skiprows < 0:
                 raise ValueError("Negative")
         except ValueError:
-            exit("skiprows must be a non-negative int, not {}".format(skiprows))
+            sys.exit("skiprows must be a non-negative int, not {}".format(skiprows))
         kwargs["skiprows"] = skiprows
 
     if kwargs.get("sep") == "\\t":
@@ -1131,7 +1133,7 @@ def cat(*fnames, axis="index"):
 
     """
     if axis not in ("index", "columns"):
-        exit("Unknown axis command '{}'".format(axis))
+        sys.exit("Unknown axis command '{}'".format(axis))
     if not fnames:
         pipeout(pipein())
     else:
@@ -1153,7 +1155,7 @@ def merge(fname1, fname2, how="inner", on=None):
     """
     hows = ("left", "right", "outer", "inner")
     if how not in hows:
-        exit("Unknown merge --how={}, must be one of {}".format(how, hows))
+        sys.exit("Unknown merge --how={}, must be one of {}".format(how, hows))
     df1 = pd.read_csv(fname1)
     df2 = pd.read_csv(fname2)
     if on is None:
@@ -1232,7 +1234,7 @@ def help_(*args, **kwargs):
         print("Usage: ph command arguments")
         print(USAGE_TEXT)
         _print_commands(sorted(COMMANDS.keys()))
-        exit(0)
+        sys.exit(0)
     cmd = args[0]
 
     ds = None
@@ -1245,7 +1247,7 @@ def help_(*args, **kwargs):
         except AttributeError:
             pass
     if ds is None:
-        exit("Unknown command {}".format(cmd))
+        sys.exit("Unknown command {}".format(cmd))
     print("Usage: ph {}".format(cmd))
     print("       {}".format(ds.strip()))
 
@@ -1344,16 +1346,16 @@ def open_(ftype, fname, **kwargs):
         kwargs["header"] = __tryparse(kwargs["header"])
 
     if ftype not in READERS:
-        exit("Unknown filetype {}".format(ftype))
+        sys.exit("Unknown filetype {}".format(ftype))
     reader = READERS[ftype]
 
     if kwargs.get("sep") == "\\t":
         kwargs["sep"] = "\t"
 
     if ftype == "clipboard" and fname is not None:
-        exit("clipboard does not take fname")
+        sys.exit("clipboard does not take fname")
     if ftype != "clipboard" and fname is None:
-        exit("filename is required for {}".format(ftype))
+        sys.exit("filename is required for {}".format(ftype))
 
     skiprows = kwargs.get("skiprows")
     if skiprows is not None:
@@ -1362,7 +1364,7 @@ def open_(ftype, fname, **kwargs):
             if skiprows < 0:
                 raise ValueError("Negative")
         except ValueError:
-            exit("skiprows must be a non-negative int, not {}".format(skiprows))
+            sys.exit("skiprows must be a non-negative int, not {}".format(skiprows))
         kwargs["skiprows"] = skiprows
 
     try:
@@ -1372,7 +1374,7 @@ def open_(ftype, fname, **kwargs):
             try:
                 df = reader(fname, **kwargs)
             except Exception as err:
-                exit(err)
+                sys.exit(err)
             if not isinstance(df, pd.DataFrame):  # could be dict
                 try:
                     errormsg = 'Specify --sheet_name="{}"'.format(
@@ -1380,15 +1382,19 @@ def open_(ftype, fname, **kwargs):
                     )
                 except Exception:
                     errormsg = "Specify --sheet_name"
-                exit(errormsg)
+                sys.exit(errormsg)
         else:
             df = reader(fname, **kwargs)
     except AttributeError as err:
-        exit("{} is not supported in your Pandas installation\n{}".format(ftype, err))
+        sys.exit(
+            "{} is not supported in your Pandas installation\n{}".format(ftype, err)
+        )
     except ImportError as err:
-        exit("{} is not supported in your Pandas installation\n{}".format(ftype, err))
+        sys.exit(
+            "{} is not supported in your Pandas installation\n{}".format(ftype, err)
+        )
     except FileNotFoundError as err:
-        exit("File not found: {}".format(err))
+        sys.exit("File not found: {}".format(err))
     pipeout(df)
 
 
@@ -1490,10 +1496,10 @@ def replace(old, new, column=None, newcolumn=None):
 
     if column is None:
         if newcolumn is not None:
-            exit("Cannot use newcolumn and not column.")
+            sys.exit("Cannot use newcolumn and not column.")
         df = df.replace(to_replace=old, value=new, inplace=False)
     elif column not in df:
-        exit("Column {} does not exist.".format(column))
+        sys.exit("Column {} does not exist.".format(column))
     else:
         df[newcolumn] = df[column].replace(to_replace=old, value=new, inplace=False)
     pipeout(df)
@@ -1595,7 +1601,7 @@ def _parse_slice(slicestr):
     step = None
     tup = slicestr.split(":")
     if len(tup) > 3:
-        exit(error)
+        sys.exit(error)
     start = tup[0] or None
     if start is not None:
         start = int(start)
@@ -1624,7 +1630,7 @@ def slice_(slicestr):
     error = "Input to slice is {} _not_ {}".format(pattern, slicestr)
     df = pipein()
     if isinstance(slicestr, int) or ":" not in slicestr:
-        exit(error)
+        sys.exit(error)
     start, end, step = _parse_slice(slicestr)
     retval = df[start:end:step]
     pipeout(retval)
@@ -1645,7 +1651,7 @@ def drop(*columns, **kwargs):
         if opt in kwargs:
             kwargs[opt] = __tryparse(kwargs[opt])
     if "inplace" in kwargs:
-        exit("inplace in nonsensical in ph")
+        sys.exit("inplace in nonsensical in ph")
 
     df = pipein()
 
@@ -1654,7 +1660,7 @@ def drop(*columns, **kwargs):
     elif kwargs.get("axis") in (1, "columns"):
         _assert_cols(df, columns, "drop")
     else:
-        exit(
+        sys.exit(
             "--axis=index (or 0) or --axis=columns (or 1), not {}".format(
                 kwargs.get("axis")
             )
@@ -1722,11 +1728,11 @@ def polyfit(x, y, deg=1):
     _assert_cols(df, (x, y), "polyfit")
     deg = __tryparse(deg)
     if not isinstance(deg, int) or deg <= 0:
-        exit("deg={} should be a positive int".format(deg))
+        sys.exit("deg={} should be a positive int".format(deg))
     try:
         import numpy
     except ImportError:
-        exit("numpy needed for polyfit.  pip install numpy")
+        sys.exit("numpy needed for polyfit.  pip install numpy")
     polynomial = numpy.polyfit(df[x], df[y], deg=deg)
     f = numpy.poly1d(polynomial)
 
@@ -1753,15 +1759,15 @@ for attr in dir(pd.DataFrame):
 
 def _main(argv):
     if len(argv) < 2:
-        exit("Usage: ph command [args]\n       ph help")
+        sys.exit("Usage: ph command [args]\n       ph help")
     cmd = argv[1]
     if cmd in ("-v", "--version"):
         print_version()
-        exit()
+        sys.exit()
     if cmd in ("-h", "--h", "--help"):
         cmd = "help"
     if cmd not in COMMANDS:
-        exit("Unknown command {}.".format(cmd))
+        sys.exit("Unknown command {}.".format(cmd))
 
     # Self-implemented parsing of arguments.
     # Arguments of type "abc" and "--abc" go into args
@@ -1781,7 +1787,7 @@ def _main(argv):
     try:
         COMMANDS[cmd](*args, **kwarg)
     except TypeError as err:
-        exit(err)
+        sys.exit(err)
 
 
 def main():
