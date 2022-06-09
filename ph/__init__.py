@@ -1147,11 +1147,22 @@ def cat(*fnames, axis="index"):
 
 
 @register
-def merge(fname1, fname2, how="inner", on=None):
-    """
-    Merging two csv files.
+def merge(fname1, fname2, how="inner", on=None, left=None, right=None):
+    """Merging two csv files.
+
+    If the two files have a common column name, then the merge will be
+    on that column.  If the files have several common column names, use
+    --on=key for merging on a specific column.
+
+    If you want to merge on columns with different names, use
+    --left=lkey --right=rkey.
+
+    Choose between left merge, right merge, inner merge and outer merge
+    by using (e.g.) --how=inner.
 
     Usage: ph merge a.csv b.csv --on=ijk
+           ph merge a.csv b.csv --on ijk --how=inner
+           ph merge a.csv b.csv --left=key_a --right=key_b
 
     """
     hows = ("left", "right", "outer", "inner")
@@ -1159,10 +1170,19 @@ def merge(fname1, fname2, how="inner", on=None):
         sys.exit("Unknown merge --how={}, must be one of {}".format(how, hows))
     df1 = pd.read_csv(fname1)
     df2 = pd.read_csv(fname2)
-    if on is None:
+    if set([on, left, right]) == set([None]) and not set(df1.columns).intersection(set(df2.columns)):
+        sys.exit("No common columns to perform merge on.  Merge options: on, or: left=None, right=None.")
+    if set([on, left, right]) == set([None]):
         pipeout(pd.merge(df1, df2, how=how))
     else:
-        pipeout(pd.merge(df1, df2, how=how, on=on))
+        if left is None and right is None:
+            pipeout(pd.merge(df1, df2, how=how, on=on))
+        elif left is not None and right is not None:
+            _assert_col(df1, left, "merge")
+            _assert_col(df2, right, "merge")
+            pipeout(pd.merge(df1, df2, how=how, left_on=left, right_on=right))
+        else:
+            sys.exit("Specify columns in both files.  left was {}, right was {}".format(left, right))
 
 
 @register

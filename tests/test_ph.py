@@ -585,6 +585,23 @@ def test_merge(capsys):
     assert not cap.err
     cap.assert_shape(5, 7)
 
+    lm = _get_path("mergel")
+    rm = _get_path("merger")
+    ph.merge(lm, rm, left="lk2", right="rk2")
+    cap = Capture(capsys.readouterr())
+    assert not cap.err
+    cap.assert_shape(3, 8)
+    assert list(cap.df.iloc[0]) == [
+        "K0",
+        "K5",
+        "A0",
+        "B0",
+        "K4",
+        "K5",
+        "A2",
+        "B2",
+    ]
+
 
 def test_groupby_sum_default(phmgr):
     with phmgr("group") as captured:

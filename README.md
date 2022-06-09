@@ -521,6 +521,15 @@ K2,K1,A3,B3,K0,C3,D3
 ```
 
 
+In the case when the two files do not share a common column key, we can
+join them on key1 from the left file and key2 from the right file by specifying
+
+```bash
+$ ph merge mergel.csv merger.csv --left=key1 --right=key2
+```
+
+
+
 ### Editing the csv
 
 #### `columns`, listing, selecting and re-ordering of
