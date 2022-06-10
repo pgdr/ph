@@ -840,6 +840,7 @@ def iplot(*args, **kwargs):
     Usage: cat a.csv | ph iplot
            cat a.csv | ph iplot --kind=bar
            cat a.csv | ph iplot --kind=bar --barmode=stack
+           cat a.csv | ph iplot --kind=scatter --mode=markers --x=x --y=y
 
 
     Depends on cufflinks: pip install ph[iplot].

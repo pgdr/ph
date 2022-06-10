@@ -1010,6 +1010,10 @@ This depends on `cufflinks`, and can be installed with `pip install ph[iplot]`.
 $ cat a.csv | ph iplot --kind=bar --barmode=stack
 ```
 
+```bash
+$ cat a.csv | ph iplot --kind=scatter --mode=markers
+```
+
 
 #### `groupby`
 
