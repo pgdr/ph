@@ -1169,8 +1169,11 @@ def merge(fname1, fname2, how="inner", on=None, left=None, right=None):
     hows = ("left", "right", "outer", "inner")
     if how not in hows:
         sys.exit("Unknown merge --how={}, must be one of {}".format(how, hows))
-    df1 = pd.read_csv(fname1)
-    df2 = pd.read_csv(fname2)
+    try:
+        df1 = pd.read_csv(fname1)
+        df2 = pd.read_csv(fname2)
+    except Exception as err:
+        sys.exit(str(err))
     if set([on, left, right]) == set([None]) and not set(df1.columns).intersection(set(df2.columns)):
         sys.exit("No common columns to perform merge on.  Merge options: on, or: left=None, right=None.")
     if set([on, left, right]) == set([None]):
