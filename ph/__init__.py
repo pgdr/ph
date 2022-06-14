@@ -270,6 +270,20 @@ def dataset(dset=None):
 
 @register
 def diff(*cols, periods=1, axis=0):
+    """Calculate the difference of an element compared with another element
+    in the csv file (default is element in previous row).
+
+    Argument: --periods=1
+
+    Periods to shift for calculating difference, default 1.  Accepts
+    negative values.
+
+    Argument: --axis=0
+
+    Take difference over rows (0) or columns (1), default 0.
+
+    """
+
     df = pipein()
     if not cols:
         df = df.diff(periods=periods, axis=axis)
