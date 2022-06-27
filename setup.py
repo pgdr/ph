@@ -5,7 +5,7 @@ import re
 from setuptools import setup
 
 
-__pgdr = "PG Drange <pgdr@equinor.com>"
+__pgdr = "PG Drange <Pal.Drange@uib.no>"
 __source = "https://github.com/pgdr/ph"
 __webpage = __source
 __description = "ph - the tabular data shell tool"
@@ -59,7 +59,7 @@ setup(
     long_description=readme(),
     long_description_content_type="text/markdown",
     author="PG Drange",
-    author_email="pgdr@equinor.com",
+    author_email="Pal.Drange@uib.no",
     maintainer=__pgdr,
     url=__webpage,
     project_urls={
