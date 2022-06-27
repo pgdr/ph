@@ -1772,9 +1772,9 @@ def sort(col):
 def polyfit(x, y, deg=1):
     """Perform linear/polynomial regression.
 
-    Usage: cat a.csv | ph polyfix x y
-           cat a.csv | ph polyfix x y --deg=1  # default
-           cat a.csv | ph polyfix x y --deg=2  # default
+    Usage: cat a.csv | ph polyfit x y
+           cat a.csv | ph polyfit x y --deg=1  # default
+           cat a.csv | ph polyfit x y --deg=2
 
     Outputs a column polyfit_{deg} containing the evaluated index.
 
