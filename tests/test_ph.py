@@ -736,6 +736,41 @@ def test_split(phmgr):
     ]
 
 
+def test_split_intcol(phmgr):
+    """Testing that columns that are of int type can be split"""
+    with phmgr("usa") as captured:
+        _call("split year 0")
+    assert not captured.err
+    captured.assert_shape(93, 8)
+    captured.assert_columns(
+        ["dateRep", "day", "month", "year", "cases", "deaths", "geoId", "year_rhs"]
+    )
+
+
+def test_split_twice(capsys, monkeypatch):
+    monkeypatch.setattr("sys.stdin", _get_io("date-fmt"))
+    _call("split date /")
+    captured = capsys.readouterr()
+    assert not captured.err
+
+    monkeypatch.setattr("sys.stdin", io.StringIO(captured.out))
+    _call("split date _")
+    captured = capsys.readouterr()
+    assert (
+        captured.out
+        == """\
+date,x,y,date_rhs,date_rhs_2
+2020,3,8,2,02
+2020,4,9,3,02
+2020,5,10,4,02
+2020,6,11,5,02
+2020,7,12,6,02
+2020,8,13,7,02
+"""
+    )
+    assert not captured.err
+
+
 def test_sort(phmgr):
     with phmgr("iris") as captured:
         _call("sort setosa")

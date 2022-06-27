@@ -503,9 +503,25 @@ def appendstr(col, s, newcol=None):
 
 @register
 def split(col, pat=" "):
+    """Split a column in two based on a given pattern, default is " ".
+
+    The resulting csv will have one extra column called "col_rhs" where
+    "col" is the name of the column being split.
+
+    Usage: cat dates.csv | ph split date /
+
+    """
+    pat = str(pat)
     df = pipein()
     _assert_col(df, col, "split")
-    df[[col, col + "_rhs"]] = df[col].str.split(pat=pat, n=1, expand=True)
+    new_name = col + "_rhs"
+    suffix = ""
+    name = lambda: (new_name + "_" + str(suffix)).rstrip("_")
+    while name() in df.columns:
+        if not suffix:
+            suffix = 1
+        suffix += 1
+    df[[col, name()]] = df[col].astype(str).str.split(pat=pat, n=1, expand=True)
     pipeout(df)
 
 
