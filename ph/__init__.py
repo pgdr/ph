@@ -1788,10 +1788,9 @@ def polyfit(x, y, deg=1):
         import numpy
     except ImportError:
         sys.exit("numpy needed for polyfit.  pip install numpy")
-    polynomial = numpy.polyfit(df[x], df[y], deg=deg)
-    f = numpy.poly1d(polynomial)
 
-    df["polyfit_{}".format(deg)] = df[x].map(f)
+    polynomial = numpy.polynomial.Polynomial.fit(df[x], df[y], deg=deg)
+    df["polyfit_{}".format(deg)] = df[x].map(polynomial)
     pipeout(df)
 
 
