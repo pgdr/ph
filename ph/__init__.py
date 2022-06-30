@@ -1791,7 +1791,7 @@ def polyfit(x, y, deg=1):
     polynomial = numpy.polyfit(df[x], df[y], deg=deg)
     f = numpy.poly1d(polynomial)
 
-    df["polyfit_{}".format(deg)] = df[x].apply(f)
+    df["polyfit_{}".format(deg)] = df[x].map(f)
     pipeout(df)
 
 
