@@ -116,7 +116,7 @@ A very quick introduction to what `ph` can do for you,
 run this in your shell:
 
 ```bash
-ph open csv https://covid.ourworldindata.org/data/ecdc/total_cases.csv \
+ph open csv https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/archived/ecdc/total_cases.csv \
     | ph slugify                                                       \
     | ph columns date norway sweden denmark                            \
     | ph diff norway sweden denmark                                    \
