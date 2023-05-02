@@ -1757,15 +1757,18 @@ def index():
 
 
 @register
-def sort(col):
-    """Sort csv input by column.
+def sort(*col):
+    """Sort csv input by column(s).
+
+    This is the only way to sort on multiple columns since sort is not stable.
 
     Usage: cat iris.csv | ph sort setosa
+           cat iris.csv | ph sort setosa verginica
 
     """
     df = pipein()
-    _assert_col(df, col, "sort")
-    pipeout(df.sort_values(col))
+    _assert_cols(df, col, "sort")
+    pipeout(df.sort_values(list(col)))
 
 
 @register
