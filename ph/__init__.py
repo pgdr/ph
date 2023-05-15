@@ -269,6 +269,13 @@ def dataset(dset=None):
 
 
 @register
+def drop_duplicates(*cols):
+    """Drop duplicates"""
+    df = pipein()
+    pipeout(df.drop_duplicates(cols))
+
+
+@register
 def diff(*cols, periods=1, axis=0):
     """Calculate the difference of an element compared with another element
     in the csv file (default is element in previous row).
@@ -1022,6 +1029,17 @@ def date(col=None, unit=None, origin="unix", errors="raise", dayfirst=False, **k
 
     pipeout(df)
 
+
+@register
+def round(col, decimals=0):
+    """Round column to `decimals` decimals.
+
+    Usage: cat a.csv | ph round x 2
+    """
+    df = pipein()
+    _assert_col(df, col, "round")
+    df[col] = df[col].round(decimals=decimals)
+    pipeout(df)
 
 @register
 def describe():
