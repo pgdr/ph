@@ -421,7 +421,10 @@ def fillna(value=None, method=None, limit=None):
     if method is not None:
         if method not in METHODS:
             sys.exit("method must be one of {}, not {}".format(METHODS, method))
-        pipeout(pipein().fillna(method=method, limit=limit))
+        if method in ("pad", "ffill"):
+            pipeout(pipein().ffill(limit=limit))
+        else:
+            pipeout(pipein().bfill(limit=limit))
     elif value is not None:
         value = __tryparse(value)
         pipeout(pipein().fillna(value=value, limit=limit))
@@ -819,7 +822,7 @@ def ewm(
 
 
 @register
-def expanding(min_periods=1, axis=0, how="sum", quantile=None):
+def expanding(min_periods=1, how="sum", quantile=None):
     """Provide expanding transformations.
 
     A common alternative to rolling statistics is to use an expanding
@@ -847,7 +850,7 @@ def expanding(min_periods=1, axis=0, how="sum", quantile=None):
     if how == "quantile" and quantile is None:
 
         sys.exit("--how=quantile needs --quantile=<float>, e.g. --quantile=0.25")
-    expanding_ = df.expanding(min_periods=min_periods, axis=axis)
+    expanding_ = df.expanding(min_periods=min_periods)
     try:
         fn = getattr(expanding_, how)
     except AttributeError:
@@ -1013,7 +1016,7 @@ def date(col=None, unit=None, origin="unix", errors="raise", dayfirst=False, **k
            cat a.csv | ph date x --utc=True
 
     """
-    DATE_ERRORS = ("ignore", "raise", "coerce")
+    DATE_ERRORS = ("raise", "coerce")
     if errors not in DATE_ERRORS:
         sys.exit("Errors must be one of {}, not {}.".format(DATE_ERRORS, errors))
 
@@ -1556,10 +1559,6 @@ def tail(n=10):
 def __tryparse(x):
     if x is None or x == "None":
         return None
-    if x in TRUTHY:
-        return True
-    if x in FALSY:
-        return False
     x_ = x
     try:
         x_ = float(x)
@@ -1569,6 +1568,7 @@ def __tryparse(x):
     except OverflowError:
         x_ = float("inf")
     return x_
+
 
 @register
 def replace(old, new, column=None, newcolumn=None):

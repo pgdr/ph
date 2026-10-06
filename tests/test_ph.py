@@ -484,25 +484,28 @@ def test_date_errors(phmgr):
 
     with pytest.raises(SystemExit) as exit_:
         with phmgr("derr") as captured:
-            _call("date --col=year")
-    assert str(exit_.value).startswith("Out of bounds nanosecond timestamp")
-
-    with pytest.raises(SystemExit) as exit_:
-        with phmgr("derr") as captured:
             _call("date --col=year --errors=nosucherr")
     assert str(exit_.value).startswith("Errors must be one of")
 
-    with phmgr("derr") as captured:
-        _call("date --col=year --errors=coerce")
-    assert not captured.err
-    df = captured.df
-    assert df["year"].dtype == dt.datetime
+    with pytest.raises(SystemExit) as exit_:
+        with phmgr("derr"):
+            _call("date --col=year --errors=ignore")
+    assert str(exit_.value).startswith("Errors must be one of")
 
-    with phmgr("derr") as captured:
-        _call("date --col=year --errors=ignore")
+
+
+def test_date_coerce(capsys, monkeypatch):
+    monkeypatch.setattr(
+        "sys.stdin",
+        io.StringIO("year\nnot-a-date\n2020-01-01\n"),
+    )
+
+    _call("date --col=year --errors=coerce")
+    captured = Capture(capsys.readouterr())
+
     assert not captured.err
-    df = captured.df
-    assert "200-01" in list(df["year"])
+    assert math.isnan(captured.df["year"][0])
+    assert captured.df["year"][1] == "2020-01-01"
 
 
 def test_date_fmt(phmgr):
