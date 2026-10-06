@@ -726,6 +726,12 @@ def rolling(window, *columns, how="sum", win_type=None, std=None, beta=None, tau
     if not columns:
         columns = list(df.columns)
 
+    for col in columns:
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            sys.exit(
+                'ph rolling: Could not perform rolling window on column "{}"'.format(col)
+            )
+
     noncols = [c for c in df.columns if c not in columns]
 
     rollin = df[columns].rolling(window, win_type=win_type)
@@ -735,10 +741,12 @@ def rolling(window, *columns, how="sum", win_type=None, std=None, beta=None, tau
     except AttributeError:
         sys.exit("Unknown --how={}, should be sum, mean, ...".format(how))
 
-    if {std, beta, tau} != {None}:
-        retval = fn(std=std, beta=beta, tau=tau)
-    else:
-        retval = fn()
+    kwargs = {
+            key: value
+            for key, value in (("std", std), ("beta", beta), ("tau", tau))
+            if value is not None
+        }
+    retval = fn(**kwargs)
 
     df = pd.concat([retval, nonrollin], axis=1)
     for col in orig_columns:
@@ -870,10 +878,9 @@ def monotonic(column, direction="+"):
         sys.exit("direction must be either + or -")
     print("{}_monotonic".format(column))
     if direction == "+":
-        print(df[column].is_monotonic)
+        print(df[column].is_monotonic_increasing)
     else:
         print(df[column].is_monotonic_decreasing)
-
 
 @register
 def iplot(*args, **kwargs):

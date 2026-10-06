@@ -201,6 +201,12 @@ def test_open_headless(capsys):
     captured.assert_columns(["0", "1"])
 
 
+def test_monotonic_default(phmgr):
+    with phmgr("a") as captured:
+        _call("monotonic x")
+    assert captured.out == "x_monotonic\nTrue\n"
+
+
 def test_diff_all(phmgr):
     with phmgr() as captured:
         _call("diff --periods=2")
@@ -701,6 +707,26 @@ def test_rolling_broken_window(phmgr):
             _call("rolling 3")
     err = 'ph rolling: Could not perform rolling window on column "date"'
     assert str(exit_.value) == err
+
+
+def test_rolling_window_kwargs(phmgr, monkeypatch):
+    kwargs = {}
+
+    def rolling(self, *args, **kw):
+        class Rolling:
+            def sum(_, **kw):
+                kwargs.update(kw)
+                return self
+
+        return Rolling()
+
+    monkeypatch.setattr(pd.DataFrame, "rolling", rolling)
+
+    with phmgr() as captured:
+        _call("rolling 3 --win_type=gaussian --std=7.62")
+
+    assert not captured.err
+    assert kwargs == {"std": 7.62}
 
 
 def test_ewm_default(phmgr):
