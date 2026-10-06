@@ -753,7 +753,6 @@ def ewm(
     min_periods=0,
     adjust=True,
     ignore_na=False,
-    axis=0,
     com=None,
     span=None,
     halflife=None,
@@ -783,11 +782,17 @@ def ewm(
 
     df = pipein()
 
+    if adjust in TRUTHY:
+        adjust = True
+    elif adjust in FALSY:
+        adjust = False
+    else:
+        sys.exit("--adjust=True or False, not {}".format(adjust))
+
     ewm_ = df.ewm(
         min_periods=min_periods,
         adjust=adjust,
         ignore_na=ignore_na,
-        axis=axis,
         com=com,
         span=span,
         halflife=halflife,
@@ -1541,6 +1546,10 @@ def tail(n=10):
 def __tryparse(x):
     if x is None or x == "None":
         return None
+    if x in TRUTHY:
+        return True
+    if x in FALSY:
+        return False
     x_ = x
     try:
         x_ = float(x)
@@ -1550,7 +1559,6 @@ def __tryparse(x):
     except OverflowError:
         x_ = float("inf")
     return x_
-
 
 @register
 def replace(old, new, column=None, newcolumn=None):

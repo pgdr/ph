@@ -692,6 +692,13 @@ def test_ewm_default(phmgr):
     captured.assert_shape(150, 5)
     assert captured.df["setosa"].dropna().sum() == pytest.approx(560.411)
 
+def test_ewm_adjust_false(phmgr):
+    with phmgr("a") as captured:
+        _call("ewm --alpha=0.5 --adjust=False")
+    assert not captured.err
+    assert list(captured.df["x"]) == pytest.approx(
+        [3, 3.5, 4.25, 5.125, 6.0625, 7.03125]
+    )
 
 def test_expanding_default(phmgr):
     with phmgr("iris") as captured:
