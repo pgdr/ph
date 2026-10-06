@@ -1051,6 +1051,16 @@ def test_slugify_rename_df(capsys, monkeypatch):
     assert cols == ["first", "second"]
 
 
+def test_to_pickle(phmgr, tmp_path):
+    fname = str(tmp_path / "a.pickle")
+
+    with phmgr() as captured:
+        _call("to pickle {}".format(fname))
+
+    assert not captured.err
+    _assert_a(pd.read_pickle(fname))
+
+
 def test_doc_plot(capsys):
     _call("help plot")
     captured = Capture(capsys.readouterr())

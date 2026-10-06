@@ -1138,8 +1138,9 @@ def to(ftype, fname=None, sep=None, index=False):
 
     if ftype == "json":
         index = True
-
-    if fname is not None:
+    if ftype == "pickle":
+        fn(fname, **kwargs)
+    elif fname is not None:
         print(fn(fname, index=index, **kwargs))
     else:
         print(fn(index=index, **kwargs))
