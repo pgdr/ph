@@ -116,6 +116,16 @@ def test_cat_many(capsys):
     cap.assert_shape(29, 12)
 
 
+def test_dataset_iris(capsys):
+    pytest.importorskip("sklearn")
+
+    _call("dataset iris")
+    captured = Capture(capsys.readouterr())
+
+    assert not captured.err
+    captured.assert_shape(150, 5)
+
+
 def test_columns(phmgr):
     with phmgr("iris") as captured:
         _call("columns")

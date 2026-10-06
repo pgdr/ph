@@ -236,7 +236,6 @@ def dataset(dset=None):
     }
 
     TOYDATA = {
-        "boston": sklearn.datasets.load_boston,
         "iris": sklearn.datasets.load_iris,
         "diabetes": sklearn.datasets.load_diabetes,
         "digits": sklearn.datasets.load_digits,
