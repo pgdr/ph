@@ -163,6 +163,18 @@ def test_drop_index(phmgr):
     assert list(df.iloc[0]) == [4.9, 3.0, 1.4, 0.2, 0]
 
 
+def test_drop_duplicates_default(capsys, monkeypatch):
+    monkeypatch.setattr(
+        "sys.stdin",
+        io.StringIO("x,y\n3,8\n3,8\n4,9\n"),
+    )
+    _call("drop_duplicates")
+    captured = Capture(capsys.readouterr())
+
+    assert not captured.err
+    captured.assert_shape(2, 2)
+    assert list(captured.df["x"]) == [3, 4]
+
 def test_open_skiprows(capsys):
     _call("open csv {} --skiprows=6".format(_get_path("f")))
     captured = Capture(capsys.readouterr())

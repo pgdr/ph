@@ -272,7 +272,8 @@ def dataset(dset=None):
 def drop_duplicates(*cols):
     """Drop duplicates"""
     df = pipein()
-    pipeout(df.drop_duplicates(cols))
+    subset = list(cols) if cols else None
+    pipeout(df.drop_duplicates(subset=subset))
 
 
 @register
