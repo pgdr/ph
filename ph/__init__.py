@@ -338,11 +338,13 @@ def dropna(axis=0, how="any", thresh=None):
 
     df = pipein()
     try:
-        df = df.dropna(axis=axis, how=how, thresh=thresh)
+        if thresh is None:
+            df = df.dropna(axis=axis, how=how)
+        else:
+            df = df.dropna(axis=axis, thresh=thresh)
     except Exception as err:
         sys.exit(str(err))
     pipeout(df)
-
 
 def _safe_out(output):
     """Prints output to standard out, catching broken pipe."""

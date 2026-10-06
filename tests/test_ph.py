@@ -544,6 +544,12 @@ def test_dropna(phmgr):
     captured.assert_shape(29, 5)
 
 
+def test_dropna_default(phmgr):
+    with phmgr("covid") as captured:
+        _call("dropna")
+    captured.assert_shape(5, 10)
+
+
 def test_fillna(phmgr):
     with phmgr("covid") as captured:
         _call("fillna 17")
