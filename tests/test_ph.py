@@ -1020,6 +1020,15 @@ def test_slice_start_end_step(phmgr):
     assert list(captured.df.y) == list(range(9, 12, 2))
 
 
+def test_info_does_not_print_none(phmgr):
+    with phmgr("a") as captured:
+        _call("info")
+    out = str(captured.out)
+
+    assert "Data columns" in out
+    assert not out.rstrip().endswith("None")
+
+
 def test_slugify_df(phmgr):
     with phmgr("slugit") as captured:
         _call("slugify")

@@ -1058,7 +1058,7 @@ def info():
 
     Usage: cat a.csv | ph info
     """
-    print(pipein().info())
+    pipein().info()
 
 
 @register
