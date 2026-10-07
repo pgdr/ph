@@ -1134,7 +1134,7 @@ def to(ftype, fname=None, sep=None, index=False):
         sys.exit("Unknown datatype {}.".format(ftype))
 
     if not fname:
-        if ftype in ("parquet", "xls", "xlsx", "ods", "pickle"):
+        if ftype in ("parquet", "xls", "xlsx", "odf", "pickle"):
             sys.exit("{} needs a path".format(ftype))
 
     if index not in TRUTHY + FALSY:
@@ -1495,7 +1495,7 @@ def open_(ftype, fname, **kwargs):
     try:
         if ftype == "clipboard":
             df = reader(**kwargs)
-        elif ftype in ("excel", "xls", "odf"):
+        elif ftype in ("excel", "xls", "odf", "ods"):
             try:
                 df = reader(fname, **kwargs)
             except Exception as err:
