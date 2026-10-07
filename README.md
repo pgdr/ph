@@ -179,7 +179,7 @@ don't have an appropriate csv file available.
 
 
 ```bash
-ph dataset boston | ph describe
+ph dataset iris | ph describe
 ```
 
 Available datasets are from
@@ -187,7 +187,6 @@ Available datasets are from
 
 Toy datasets:
 
-* `boston`
 * `iris`
 * `diabetes`
 * `digits`
