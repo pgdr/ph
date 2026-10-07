@@ -1534,18 +1534,14 @@ def open_(ftype, fname=None, **kwargs):
 
 
 _ATTRS_WITH_SERIES_OUTPUT = (
-    "all",
-    "any",
     "count",
     "kurt",
-    "kurtosis",
     "mean",
     "median",
     "max",
     "min",
     "nunique",
     "prod",
-    "product",
     "quantile",
     "sem",
     "skew",
