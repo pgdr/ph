@@ -143,10 +143,7 @@ WRITERS = {
     "feather": "to_feather",
     "parquet": "to_parquet",
     "orc": "to_orc",
-    "msgpack": "to_msgpack",
     "stata": "to_stata",
-    "sas": "to_sas",
-    "spss": "to_spss",
     "pickle": "to_pickle",
     "gbq": "to_gbq",
     "google": "to_gbq",
@@ -321,6 +318,7 @@ def dropna(axis=0, how="any", thresh=None):
     except Exception as err:
         sys.exit(str(err))
     pipeout(df)
+
 
 def _safe_out(output):
     """Prints output to standard out, catching broken pipe."""
@@ -497,37 +495,63 @@ def split(col, pat=" "):
     "col" is the name of the column being split.
 
     Usage: cat dates.csv | ph split date /
-
     """
     pat = str(pat)
     df = pipein()
     _assert_col(df, col, "split")
+
     new_name = col + "_rhs"
     suffix = ""
     name = lambda: (new_name + "_" + str(suffix)).rstrip("_")
+
     while name() in df.columns:
         if not suffix:
             suffix = 1
         suffix += 1
-    df[[col, name()]] = df[col].astype(str).str.split(pat=pat, n=1, expand=True)
+
+    rhs_name = name()
+
+    parts = (
+        df[col]
+        .astype(str)
+        .str.split(
+            pat=pat,
+            n=1,
+            expand=True,
+        )
+    )
+
+    df[col] = parts[0]
+
+    if parts.shape[1] > 1:
+        df[rhs_name] = parts[1]
+    else:
+        df[rhs_name] = ""
+
     pipeout(df)
 
 
 @register
 def strip(*cols, lstrip=False, rstrip=False):
-    """Strip (trim) a string.
+    """Strip (trim) string columns.
 
     Usage: cat x.csv | ph strip
            cat x.csv | ph strip --lstrip=True
            cat x.csv | ph strip --rstrip=True
-
+           cat x.csv | ph strip col1 col2
     """
     df = pipein()
+
     if not cols:
-        cols = list(df.columns)
+        cols = list(df.select_dtypes(include=["object", "string"]).columns)
     else:
         cols = list(cols)
-    _assert_cols(df, cols, "strip")
+        _assert_cols(df, cols, "strip")
+
+        for c in cols:
+            if not (pd.api.types.is_string_dtype(df[c]) or df[c].dtype == object):
+                sys.exit('ph strip: column "{}" is not a string column'.format(c))
+
     for c in cols:
         if lstrip in TRUTHY:
             df[c] = df[c].str.lstrip()
@@ -535,6 +559,7 @@ def strip(*cols, lstrip=False, rstrip=False):
             df[c] = df[c].str.rstrip()
         else:
             df[c] = df[c].str.strip()
+
     pipeout(df)
 
 
@@ -624,21 +649,21 @@ def dtypes(t=None):
 def pivot(columns, index=None, values=None):
     """Reshape csv organized by given index / column values.
 
-    Suppose b.csv is
-foo,bar,baz,zoo
-one,A,1,x
-one,B,2,y
-one,C,3,z
-two,A,4,q
-two,B,5,w
-two,C,6,t
+        Suppose b.csv is
+    foo,bar,baz,zoo
+    one,A,1,x
+    one,B,2,y
+    one,C,3,z
+    two,A,4,q
+    two,B,5,w
+    two,C,6,t
 
-    Usage: cat b.csv | ph pivot bar --index=foo --values=baz
+        Usage: cat b.csv | ph pivot bar --index=foo --values=baz
 
-      A    B    C
---  ---  ---  ---
- 0    1    2    3
- 1    4    5    6
+          A    B    C
+    --  ---  ---  ---
+     0    1    2    3
+     1    4    5    6
 
     """
     pipeout(pipein().pivot(index=index, columns=columns, values=values))
@@ -707,7 +732,9 @@ def rolling(window, *columns, how="sum", win_type=None, std=None, beta=None, tau
     for col in columns:
         if not pd.api.types.is_numeric_dtype(df[col]):
             sys.exit(
-                'ph rolling: Could not perform rolling window on column "{}"'.format(col)
+                'ph rolling: Could not perform rolling window on column "{}"'.format(
+                    col
+                )
             )
 
     noncols = [c for c in df.columns if c not in columns]
@@ -720,10 +747,10 @@ def rolling(window, *columns, how="sum", win_type=None, std=None, beta=None, tau
         sys.exit("Unknown --how={}, should be sum, mean, ...".format(how))
 
     kwargs = {
-            key: value
-            for key, value in (("std", std), ("beta", beta), ("tau", tau))
-            if value is not None
-        }
+        key: value
+        for key, value in (("std", std), ("beta", beta), ("tau", tau))
+        if value is not None
+    }
     retval = fn(**kwargs)
 
     df = pd.concat([retval, nonrollin], axis=1)
@@ -860,6 +887,7 @@ def monotonic(column, direction="+"):
     else:
         print(df[column].is_monotonic_decreasing)
 
+
 @register
 def iplot(*args, **kwargs):
     """Use plotly/cufflinks for interactive plot.
@@ -910,10 +938,11 @@ def plot(*args, **kwargs):
         sys.exit("plot depends on matplotlib, install ph[plot]")
 
     df = pipein()
+    plot_df = df
     index = kwargs.get("index")
     if index is not None:
         _assert_col(df, index, caller="plot")
-        df = df.set_index(index)
+        plot_df = df.set_index(index)
         del kwargs["index"]
     for log_ in ("logx", "logy", "loglog"):
         if kwargs.get(log_) in TRUTHY:
@@ -927,7 +956,7 @@ def plot(*args, **kwargs):
         del kwargs["savefig-dpi"]
 
     fig, ax = plt.subplots()
-    df.plot(**kwargs, ax=ax)
+    plot_df.plot(**kwargs, ax=ax)
 
     if index == "date":
         fig.autofmt_xdate()
@@ -972,51 +1001,82 @@ def normalize(col=None):
 
 @register
 def date(col=None, unit=None, origin="unix", errors="raise", dayfirst=False, **kwargs):
-    """Assemble datetime from multiple columns or from one column
+    """Assemble datetime from multiple columns or from one column.
 
     --unit can be D, s, us, ns (defaults to ns, ns from origin)
 
     --origin can be unix, julian, or time offset, e.g. '2000-01-01'
 
-    --errors can be raise, coerce, ignore (see pandas.to_datetime)
+    --errors can be raise, coerce
 
     --format a strptime format string, e.g. '%Y-%m-%d %H:%M:%S'
 
-    --utc=True if the input is in utc, i.e. seconds from epoch
+    --utc=True if the input is in UTC, i.e. seconds from epoch
 
     Usage: cat a.csv | ph date x
            cat a.csv | ph date x --unit=s --origin="1984-05-17 09:30"
            cat a.csv | ph date x --dayfirst=True
-           cat a.csv | ph date  # if a.csv contains year, month, date
+           cat a.csv | ph date
            cat a.csv | ph date x --format="%Y-%m-%d"
            cat a.csv | ph date x --utc=True
-
     """
     DATE_ERRORS = ("raise", "coerce")
     if errors not in DATE_ERRORS:
         sys.exit("Errors must be one of {}, not {}.".format(DATE_ERRORS, errors))
 
     dayfirst = dayfirst in TRUTHY
+    utc = kwargs.get("utc") in TRUTHY
+    format_ = kwargs.get("format")
 
-    date_parser = None
-    if "format" in kwargs:
-        date_parser = lambda d: [
-            datetime.datetime.strptime(str(e), kwargs["format"]) for e in d
-        ]
-    if kwargs.get("utc") in TRUTHY:
-        date_parser = lambda d: [datetime.datetime.utcfromtimestamp(e) for e in d]
     df = pipein()
+
     try:
         if col is None:
-            df = pd.to_datetime(df, unit=unit, origin=origin, errors=errors)
+            df = pd.to_datetime(
+                df,
+                unit=unit,
+                origin=origin,
+                errors=errors,
+            )
         else:
             _assert_col(df, col, "date")
-            if date_parser is None:
+
+            if utc:
+                # --utc=True historically means seconds since the Unix epoch.
+                # Convert with pandas and remove timezone information afterwards
+                # to preserve ph's existing naive-UTC output.
                 df[col] = pd.to_datetime(
-                    df[col], unit=unit, origin=origin, errors=errors, dayfirst=dayfirst
+                    df[col],
+                    unit="s",
+                    origin="unix",
+                    errors=errors,
+                    utc=True,
+                ).dt.tz_localize(None)
+
+            elif format_ is not None:
+                df[col] = pd.to_datetime(
+                    df[col],
+                    format=format_,
+                    errors=errors,
+                    dayfirst=dayfirst,
                 )
+
             else:
-                df[col] = date_parser(df[col])
+                to_datetime_kwargs = {
+                    "unit": unit,
+                    "origin": origin,
+                    "errors": errors,
+                    "dayfirst": dayfirst,
+                }
+
+                # For string dates, explicitly request mixed-format parsing.
+                # This avoids pandas falling back to per-element dateutil
+                # parsing and emitting a warning.
+                if unit is None and not pd.api.types.is_numeric_dtype(df[col]):
+                    to_datetime_kwargs["format"] = "mixed"
+
+                df[col] = pd.to_datetime(df[col], **to_datetime_kwargs)
+
     except Exception as err:
         sys.exit(err)
 
@@ -1033,6 +1093,7 @@ def round(col, decimals=0):
     _assert_col(df, col, "round")
     df[col] = df[col].round(decimals=decimals)
     pipeout(df)
+
 
 @register
 def describe():
@@ -1213,8 +1274,12 @@ def merge(fname1, fname2, how="inner", on=None, left=None, right=None):
         df2 = pd.read_csv(fname2)
     except Exception as err:
         sys.exit(str(err))
-    if set([on, left, right]) == set([None]) and not set(df1.columns).intersection(set(df2.columns)):
-        sys.exit("No common columns to perform merge on.  Merge options: on, or: left=None, right=None.")
+    if set([on, left, right]) == set([None]) and not set(df1.columns).intersection(
+        set(df2.columns)
+    ):
+        sys.exit(
+            "No common columns to perform merge on.  Merge options: on, or: left=None, right=None."
+        )
     if set([on, left, right]) == set([None]):
         pipeout(pd.merge(df1, df2, how=how))
     else:
@@ -1225,7 +1290,11 @@ def merge(fname1, fname2, how="inner", on=None, left=None, right=None):
             _assert_col(df2, right, "merge")
             pipeout(pd.merge(df1, df2, how=how, left_on=left, right_on=right))
         else:
-            sys.exit("Specify columns in both files.  left was {}, right was {}".format(left, right))
+            sys.exit(
+                "Specify columns in both files.  left was {}, right was {}".format(
+                    left, right
+                )
+            )
 
 
 @register
@@ -1543,6 +1612,7 @@ for name in sorted(FORWARDED_COMMANDS):
         continue
 
     register_forward(name, attr)
+
 
 @register
 def head(n=10):
