@@ -126,7 +126,6 @@ except AttributeError:
     pass
 
 
-
 WRITERS = {
     "csv": "to_csv",
     "fwf": "to_fwf",
@@ -674,27 +673,20 @@ def crosstab(column):
 
 
 @register
-def groupby(*columns, how="sum", as_index=False):
+def groupby(*columns, how="sum"):
     """Group by columns, then apply `how` function.
 
-    Usage: cat a.csv | ph groupby animal  # default to sum
+    Usage: cat a.csv | ph groupby animal
            cat a.csv | ph groupby animal --how=mean
            cat a.csv | ph groupby animal --how=prod
-           cat a.csv | ph groupby animal --as_index=True  # removes index
     """
     columns = list(columns)
     if not columns:
         sys.exit("Needs at least one column to group by")
     df = pipein()
     _assert_cols(df, columns, "groupby")
-    if as_index in TRUTHY:
-        as_index = True
-    elif as_index in FALSY:
-        as_index = False
-    else:
-        sys.exit("--as_index=True or False, not {}".format(as_index))
 
-    grouped = df.groupby(columns, as_index=as_index)
+    grouped = df.groupby(columns, as_index=False)
     try:
         fn = getattr(grouped, how)
     except AttributeError:

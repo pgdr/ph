@@ -651,16 +651,6 @@ def test_groupby_sum(phmgr):
     assert list(df.iloc[1]) == ["Parrot", 50.0]
 
 
-def test_groupby_mean(phmgr):
-    with phmgr("group") as captured:
-        _call("groupby Animal --how=count --as_index=True")
-    assert not captured.err
-    df = captured.df
-    captured.assert_shape(2, 1)
-    assert list(df.iloc[0]) == [2]
-    assert list(df.iloc[1]) == [2]
-
-
 def test_groupby_first(phmgr):
     with phmgr("group") as captured:
         _call("groupby Animal --how=first")

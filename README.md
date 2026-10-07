@@ -1031,20 +1031,10 @@ You can use Pandas' `groupby` functionality to get the aggregated `sum`,
 
 ```bash
 $ cat group.csv | ph groupby Animal --how=mean
-Max Speed
-375.0
-25.0
-```
-
-If you want to retain the index column,
-
-```bash
-$ cat group.csv | ph groupby Animal --how=mean --as_index=False
 Animal,Max Speed
 Falcon,375.0
 Parrot,25.0
 ```
-
 
 
 #### `rolling`, `ewm`, `expanding`
