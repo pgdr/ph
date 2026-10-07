@@ -479,6 +479,7 @@ def appendstr(col, s, newcol=None):
 
     Usage: cat e.csv | ph appendstr year -01-01 | ph date year
     """
+    s = str(s)
     df = pipein()
     if newcol is None:
         newcol = col
@@ -638,7 +639,7 @@ def dtypes(t=None):
         df = pipein()
         newdf = pd.DataFrame(pd.Series(df.columns), columns=["column"])
         newdf["dtype"] = pd.Series([str(e) for e in df.dtypes])
-        pipeout(newdf.T, header=False)
+        pipeout(newdf)
     else:
         df = pipein().select_dtypes(t)
         pipeout(df)
@@ -1176,6 +1177,8 @@ def to(ftype, fname=None, sep=None, index=False):
         index = True
     if ftype == "pickle":
         fn(fname, **kwargs)
+    elif ftype == "stata":
+        fn(fname, write_index=index, **kwargs)
     elif fname is not None:
         fn(fname, index=index, **kwargs)
     else:
@@ -1536,9 +1539,9 @@ _ATTRS_WITH_SERIES_OUTPUT = (
     "count",
     "kurt",
     "kurtosis",
-    "mad",
     "mean",
     "median",
+    "max",
     "min",
     "nunique",
     "prod",
@@ -1688,7 +1691,9 @@ def rename(before, after):
     Example:  cat a.csv | ph rename x a | ph rename y b
 
     """
-    pipeout(pipein().rename(columns={before: after}))
+    df = pipein()
+    _assert_col(df, before, "rename")
+    pipeout(df.rename(columns={before: after}))
 
 
 @register
@@ -1899,6 +1904,7 @@ def sort(*col):
 
     """
     df = pipein()
+    col = [str(c) if c not in df.columns and str(c) in df.columns else c for c in col]
     _assert_cols(df, col, "sort")
     pipeout(df.sort_values(list(col)))
 

@@ -1266,3 +1266,60 @@ def test_spencer_exact_window(capsys, monkeypatch):
     captured.assert_shape(15, 1)
     assert captured.df["x"].notna().sum() == 1
     assert captured.df["x"].iloc[7] == 8.0
+
+
+def test_max(phmgr):
+    with phmgr() as captured:
+        _call("max")
+
+    captured.assert_shape(1, 2)
+    captured.assert_columns(["x", "y"])
+    assert list(captured.df.iloc[0]) == [8, 13]
+
+
+def test_dtypes(phmgr):
+    with phmgr() as captured:
+        _call("dtypes")
+
+    captured.assert_shape(2, 2)
+    captured.assert_columns(["column", "dtype"])
+    assert list(captured.df["column"]) == ["x", "y"]
+    assert list(captured.df["dtype"]) == ["int64", "int64"]
+
+
+def test_to_stata(phmgr, tmp_path):
+    path = tmp_path / "a.dta"
+
+    with phmgr():
+        _call("to stata {}".format(path))
+
+    df = pd.read_stata(path)
+    _assert_a(df)
+
+
+def test_numeric_column_name(capsys, monkeypatch):
+    monkeypatch.setattr("sys.stdin", io.StringIO("0,x\n2,b\n1,a\n"))
+
+    _call("sort 0")
+
+    captured = Capture(capsys.readouterr())
+    assert not captured.err
+    captured.assert_columns(["0", "x"])
+    assert list(captured.df["0"]) == [1, 2]
+    assert list(captured.df["x"]) == ["a", "b"]
+
+
+def test_numeric_string_argument(phmgr):
+    with phmgr() as captured:
+        _call("appendstr x 0")
+
+    captured.assert_shape(6, 2)
+    captured.assert_columns(["x", "y"])
+    assert list(captured.df["x"]) == [30, 40, 50, 60, 70, 80]
+    assert list(captured.df["y"]) == list(range(8, 14))
+
+
+def test_rename_unknown_column(phmgr):
+    with pytest.raises(SystemExit):
+        with phmgr():
+            _call("rename does_not_exist z")
