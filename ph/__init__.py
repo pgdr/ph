@@ -126,11 +126,6 @@ except AttributeError:
     pass
 
 
-try:
-    READERS["bigquery"] = pd.read_gb
-except AttributeError:
-    pass
-
 
 WRITERS = {
     "csv": "to_csv",
@@ -145,9 +140,6 @@ WRITERS = {
     "orc": "to_orc",
     "stata": "to_stata",
     "pickle": "to_pickle",
-    "gbq": "to_gbq",
-    "google": "to_gbq",
-    "bigquery": "to_gbq",
     # extras
     "tsv": "to_csv",
 }
@@ -1126,7 +1118,7 @@ def info():
 def to(ftype, fname=None, sep=None, index=False):
     """Export csv to given format (possibly csv).
 
-    Supports csv, html, json, parquet, bigquery, tsv, etc. (see README for full
+    Supports csv, html, json, parquet, tsv, etc. (see README for full
     list).
 
     Usage: cat a.csv | ph to html

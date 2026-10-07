@@ -1290,7 +1290,6 @@ pip install ph[complete]
 * `orc`
 * `stata`
 * `pickle`
-* `gbq` / `google` / `bigquery`
 
 We also support reading GPX files with `ph open gpx`.
 This uses the GPX Python library [gpxpy](https://github.com/tkrajina/gpxpy).
