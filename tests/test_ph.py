@@ -1173,3 +1173,96 @@ def test_product_is_alias_for_prod(monkeypatch):
     monkeypatch.setattr(ph, "_call", fake_call)
     ph.COMMANDS["product"]()
     assert called["attr"] == "prod"
+
+
+def test_columns_numeric_column_name(capsys, monkeypatch):
+    monkeypatch.setattr(
+        "sys.stdin",
+        io.StringIO("2020,x\n1,2\n"),
+    )
+    _call("columns 2020")
+    captured = Capture(capsys.readouterr())
+
+    assert not captured.err
+    captured.assert_shape(1, 1)
+    captured.assert_columns(["2020"])
+    assert list(captured.df["2020"]) == [1]
+
+
+def test_open_html_single_table(capsys, monkeypatch):
+    monkeypatch.setattr(
+        pd,
+        "read_html",
+        lambda fname, **kwargs: [pd.DataFrame({"x": [1, 2]})],
+    )
+
+    _call("open html dummy.html")
+    captured = Capture(capsys.readouterr())
+
+    assert not captured.err
+    captured.assert_shape(2, 1)
+    captured.assert_columns(["x"])
+    assert list(captured.df["x"]) == [1, 2]
+
+
+def test_to_csv_file_no_stdout(phmgr, tmp_path):
+    path = tmp_path / "out.csv"
+
+    with phmgr() as captured:
+        _call("to csv {}".format(path))
+
+    assert captured.out == ""
+    _assert_a(pd.read_csv(path))
+
+
+def test_ewm_ignore_na_false(capsys, monkeypatch):
+    data = "x\n1\nNaN\n2\n"
+
+    monkeypatch.setattr("sys.stdin", io.StringIO(data))
+    _call("ewm --com=0.5")
+    default = Capture(capsys.readouterr())
+
+    monkeypatch.setattr("sys.stdin", io.StringIO(data))
+    _call("ewm --com=0.5 --ignore_na=False")
+    explicit_false = Capture(capsys.readouterr())
+
+    assert not default.err
+    assert not explicit_false.err
+    assert explicit_false.out == default.out
+
+
+def test_help_dropna_axis(capsys):
+    _call("help dropna")
+    captured = Capture(capsys.readouterr())
+
+    assert not captured.err
+    assert "Defaults to axis=0 (rows)" in captured.out
+    assert "--axis=1 to remove columns" in captured.out
+
+
+def test_open_clipboard_without_filename(capsys, monkeypatch):
+    monkeypatch.setitem(
+        ph.READERS,
+        "clipboard",
+        lambda **kwargs: pd.DataFrame({"x": [1, 2]}),
+    )
+
+    _call("open clipboard")
+    captured = Capture(capsys.readouterr())
+
+    assert not captured.err
+    captured.assert_shape(2, 1)
+    captured.assert_columns(["x"])
+    assert list(captured.df["x"]) == [1, 2]
+
+
+def test_spencer_exact_window(capsys, monkeypatch):
+    data = "x\n" + "\n".join(str(i) for i in range(1, 16)) + "\n"
+    monkeypatch.setattr("sys.stdin", io.StringIO(data))
+
+    _call("spencer x")
+    captured = Capture(capsys.readouterr())
+
+    captured.assert_shape(15, 1)
+    assert captured.df["x"].notna().sum() == 1
+    assert captured.df["x"].iloc[7] == 8.0

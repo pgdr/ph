@@ -64,6 +64,13 @@ def _tsv(*args, **kwargs):
     return pd.read_csv(*args, **kwargs)
 
 
+def _html(*args, **kwargs):
+    dfs = pd.read_html(*args, **kwargs)
+    if len(dfs) != 1:
+        sys.exit("Expected exactly one HTML table, found {}".format(len(dfs)))
+    return dfs[0]
+
+
 # These are all lambdas because they lazy load, and some of these
 # readers are introduced in later pandas.
 READERS = {
@@ -71,7 +78,7 @@ READERS = {
     "clipboard": pd.read_clipboard,
     "fwf": pd.read_fwf,
     "json": pd.read_json,
-    "html": pd.read_html,
+    "html": _html,
     "tsv": _tsv,
     "gpx": _gpx,
 }
@@ -267,18 +274,19 @@ def diff(*cols, periods=1, axis=0):
 
 @register
 def dropna(axis=0, how="any", thresh=None):
-    """Remove rows (or columns) with N/A values.
+    """
+    Remove rows (or columns) with N/A values.
 
     Argument: --axis=0
-    Defaults to axis=0 (columns), use --axis=1 to remove rows.
+    Defaults to axis=0 (rows), use --axis=1 to remove columns.
 
     Argument: --how=any
-    Defaults to how='any', which removes columns (resp. rows) containing
-    nan values.  Use how='all' to remove columns (resp. rows) containing
+    Defaults to how='any', which removes rows (resp. columns) containing
+    nan values.  Use how='all' to remove rows (resp. columns) containing
     only nan values.
 
     Argument: --thresh=5
-    If --thresh=x is specified, will delete any column (resp. row) with
+    If --thresh=x is specified, will delete any row (resp. column) with
     fewer than x non-na values.
 
     Usage: cat a.csv | ph dropna
@@ -789,6 +797,13 @@ def ewm(
     else:
         sys.exit("--adjust=True or False, not {}".format(adjust))
 
+    if ignore_na in TRUTHY:
+        ignore_na = True
+    elif ignore_na in FALSY:
+        ignore_na = False
+    else:
+        sys.exit("--ignore_na=True or False, not {}".format(ignore_na))
+
     ewm_ = df.ewm(
         min_periods=min_periods,
         adjust=adjust,
@@ -1162,7 +1177,7 @@ def to(ftype, fname=None, sep=None, index=False):
     if ftype == "pickle":
         fn(fname, **kwargs)
     elif fname is not None:
-        print(fn(fname, index=index, **kwargs))
+        fn(fname, index=index, **kwargs)
     else:
         print(fn(index=index, **kwargs))
 
@@ -1438,7 +1453,7 @@ def raw(fname=None):
 
 
 @registerx("open")
-def open_(ftype, fname, **kwargs):
+def open_(ftype, fname=None, **kwargs):
     """Use a reader to open a file.
 
     Open ftype file with name fname and stream out.
@@ -1695,8 +1710,15 @@ def columns(*cols, **kwargs):
            cat a.csv | ph columns --startswith=sepal
 
     """
+
     cols = list(cols)
     df = pipein()
+
+    cols = [
+        str(col) if col not in df.columns and str(col) in df.columns else col
+        for col in cols
+    ]
+
     if "startswith" in kwargs:
         q = kwargs["startswith"]
         for col in df.columns:
@@ -1732,21 +1754,27 @@ def spencer(*cols):
     _SPENCER_SUM = sum(_SPENCER)
 
     def spencer_(lst):
-        for i in range(7, len(lst) - 8):
+        for i in range(7, len(lst) - 7):
             seq = lst[i - 7 : i + 8]
             yield sum(seq[i] * _SPENCER[i] / _SPENCER_SUM for i in range(15))
 
     df = pipein()
     _assert_cols(df, cols, "spencer")
     prefix = [float("nan")] * 7
-    suffix = [float("nan")] * 8
+    suffix = [float("nan")] * 7
+
     if not cols:
         cols = list(df.columns)
+
     for col in cols:
         lst = list(df[col])
+        if len(lst) < 15:
+            df[col] = [float("nan")] * len(lst)
+            continue
         s = list(spencer_(lst))
         ncol = prefix + s + suffix
         df[col] = ncol
+
     pipeout(df)
 
 
