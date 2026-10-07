@@ -1286,15 +1286,11 @@ pip install ph[complete]
 * `clipboard` (pastes tab-separated content from clipboard)
 * `xls`
 * `odf`
-* `hdf5`
 * `feather`
 * `parquet`
 * `orc`
 * `stata`
-* `sas`
-* `spss`
 * `pickle`
-* `sql`
 * `gbq` / `google` / `bigquery`
 
 We also support reading GPX files with `ph open gpx`.

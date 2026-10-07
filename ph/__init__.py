@@ -83,11 +83,6 @@ try:
 except AttributeError:
     pass
 
-try:
-    READERS["hdf5"] = pd.read_hdf
-except AttributeError:
-    pass
-
 
 try:
     READERS["feather"] = pd.read_feather
@@ -108,25 +103,7 @@ except AttributeError:
 
 
 try:
-    READERS["msgpack"] = pd.read_msgpack
-except AttributeError:
-    pass
-
-
-try:
     READERS["stata"] = pd.read_stata
-except AttributeError:
-    pass
-
-
-try:
-    READERS["sas"] = pd.read_sas
-except AttributeError:
-    pass
-
-
-try:
-    READERS["spss"] = pd.read_spss
 except AttributeError:
     pass
 
@@ -163,7 +140,6 @@ WRITERS = {
     "clipboard": "to_clipboard",
     "xls": "to_excel",
     "odf": "to_excel",
-    "hdf5": "to_hdf",
     "feather": "to_feather",
     "parquet": "to_parquet",
     "orc": "to_orc",
@@ -1107,9 +1083,6 @@ def to(ftype, fname=None, sep=None, index=False):
     if not fname:
         if ftype in ("parquet", "xls", "xlsx", "ods", "pickle"):
             sys.exit("{} needs a path".format(ftype))
-
-    if ftype == "hdf5":
-        sys.exit("hdf5 writer not implemented")
 
     if index not in TRUTHY + FALSY:
         sys.exit("Index must be True or False, not {}".format(index))
