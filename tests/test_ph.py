@@ -185,6 +185,7 @@ def test_drop_duplicates_default(capsys, monkeypatch):
     captured.assert_shape(2, 2)
     assert list(captured.df["x"]) == [3, 4]
 
+
 def test_open_skiprows(capsys):
     _call("open csv {} --skiprows=6".format(_get_path("f")))
     captured = Capture(capsys.readouterr())
@@ -383,14 +384,11 @@ def test_shape(phmgr):
 def test_transpose(phmgr):
     with phmgr() as captured:
         _call("transpose")
-    assert (
-        captured.out
-        == """\
+    assert captured.out == """\
 0,1,2,3,4,5
 3,4,5,6,7,8
 8,9,10,11,12,13
 """
-    )
 
 
 def test_head_tail(capsys, monkeypatch):
@@ -402,15 +400,12 @@ def test_head_tail(capsys, monkeypatch):
     monkeypatch.setattr("sys.stdin", io.StringIO(captured.out))
     _call("tail 3")
     captured = capsys.readouterr()
-    assert (
-        captured.out
-        == """\
+    assert captured.out == """\
 x,y
 6,11
 7,12
 8,13
 """
-    )
     assert not captured.err
 
 
@@ -493,7 +488,6 @@ def test_date_errors(phmgr):
     assert str(exit_.value).startswith("Errors must be one of")
 
 
-
 def test_date_coerce(capsys, monkeypatch):
     monkeypatch.setattr(
         "sys.stdin",
@@ -547,9 +541,7 @@ def test_date_utc(phmgr):
 def test_eval(phmgr):
     with phmgr() as captured:
         _call("eval", ["x = x**2"])
-    assert (
-        captured.out
-        == """\
+    assert captured.out == """\
 x,y
 9,8
 16,9
@@ -558,7 +550,6 @@ x,y
 49,12
 64,13
 """
-    )
 
 
 def test_dropna(phmgr):
@@ -749,6 +740,7 @@ def test_ewm_default(phmgr):
     captured.assert_shape(150, 5)
     assert captured.df["setosa"].dropna().sum() == pytest.approx(560.411)
 
+
 def test_ewm_adjust_false(phmgr):
     with phmgr("a") as captured:
         _call("ewm --alpha=0.5 --adjust=False")
@@ -756,6 +748,7 @@ def test_ewm_adjust_false(phmgr):
     assert list(captured.df["x"]) == pytest.approx(
         [3, 3.5, 4.25, 5.125, 6.0625, 7.03125]
     )
+
 
 def test_expanding_default(phmgr):
     with phmgr("iris") as captured:
@@ -820,9 +813,7 @@ def test_split_twice(capsys, monkeypatch):
     monkeypatch.setattr("sys.stdin", io.StringIO(captured.out))
     _call("split date _")
     captured = capsys.readouterr()
-    assert (
-        captured.out
-        == """\
+    assert captured.out == """\
 date,x,y,date_rhs,date_rhs_2
 2020,3,8,2,02
 2020,4,9,3,02
@@ -831,7 +822,6 @@ date,x,y,date_rhs,date_rhs_2
 2020,7,12,6,02
 2020,8,13,7,02
 """
-    )
     assert not captured.err
 
 
@@ -1171,7 +1161,6 @@ def test_spencer(phmgr):
     captured.assert_columns(_COVID_COLS)
 
 
-
 def test_only_whitelisted_dataframe_commands_are_registered():
     assert "values" not in ph.COMMANDS
     assert "axes" not in ph.COMMANDS
@@ -1192,7 +1181,5 @@ def test_product_is_alias_for_prod(monkeypatch):
         called["attr"] = attr
 
     monkeypatch.setattr(ph, "_call", fake_call)
-
     ph.COMMANDS["product"]()
-
     assert called["attr"] == "prod"

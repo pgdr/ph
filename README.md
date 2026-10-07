@@ -1,4 +1,4 @@
-# ph (pronounced _φ_) - the tabular data shell tool ![ph tests](https://github.com/pgdr/ph/workflows/ph%20tests/badge.svg?branch=master)
+# ph (pronounced _φ_) - the tabular data shell tool ![ph tests](https://github.com/pgdr/ph/actions/workflows/pythonapp.yml/badge.svg?branch=master)
 
 
 Spoiler: Working with tabular data (csv) in the command line is difficult.
