@@ -1495,13 +1495,54 @@ def _call(attr, *args, **kwargs):
         pipeout(dfn)
 
 
-def register_forward(attr):
+def register_forward(name, attr=None):
+    """Register a pandas DataFrame method as a ph command."""
+    if attr is None:
+        attr = name
+
     def partial(*args, **kwargs):
         return _call(attr, *args, **kwargs)
 
-    partial.__name__ = attr
-    COMMANDS[attr] = partial
+    partial.__name__ = name
+    COMMANDS[name] = partial
 
+
+FORWARDED_COMMANDS = {
+    "abs",
+    "corr",
+    "count",
+    "cov",
+    "cummax",
+    "cumsum",
+    "kurt",
+    "max",
+    "mean",
+    "median",
+    "min",
+    "nunique",
+    "prod",
+    "product",
+    "quantile",
+    "rank",
+    "sem",
+    "skew",
+    "std",
+    "sum",
+    "transpose",
+    "var",
+}
+
+FORWARDED_ALIASES = {
+    "product": "prod",
+}
+
+for name in sorted(FORWARDED_COMMANDS):
+    attr = FORWARDED_ALIASES.get(name, name)
+
+    if not callable(getattr(pd.DataFrame, attr, None)):
+        continue
+
+    register_forward(name, attr)
 
 @register
 def head(n=10):
@@ -1804,23 +1845,6 @@ def polyfit(x, y, deg=1):
     polynomial = numpy.polynomial.Polynomial.fit(df[x], df[y], deg=deg)
     df["polyfit_{}".format(deg)] = df[x].map(polynomial)
     pipeout(df)
-
-
-def __process(attr):
-    if attr in COMMANDS:
-        return False
-    if attr.startswith("_"):
-        return False
-    if attr.startswith("to_"):
-        return False
-    if attr == "T":
-        return False
-    return True
-
-
-for attr in dir(pd.DataFrame):
-    if __process(attr):
-        register_forward(attr)
 
 
 def _main(argv):

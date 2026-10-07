@@ -1169,3 +1169,30 @@ def test_spencer(phmgr):
     assert not captured.err
     captured.assert_shape(29, 10)
     captured.assert_columns(_COVID_COLS)
+
+
+
+def test_only_whitelisted_dataframe_commands_are_registered():
+    assert "values" not in ph.COMMANDS
+    assert "axes" not in ph.COMMANDS
+    assert "size" not in ph.COMMANDS
+    assert "iterrows" not in ph.COMMANDS
+    assert "keys" not in ph.COMMANDS
+
+
+def test_forwarded_commands_are_registered():
+    for command in ph.FORWARDED_COMMANDS:
+        assert command in ph.COMMANDS
+
+
+def test_product_is_alias_for_prod(monkeypatch):
+    called = {}
+
+    def fake_call(attr, *args, **kwargs):
+        called["attr"] = attr
+
+    monkeypatch.setattr(ph, "_call", fake_call)
+
+    ph.COMMANDS["product"]()
+
+    assert called["attr"] == "prod"
