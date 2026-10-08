@@ -977,7 +977,10 @@ def eval(expr):
 
     """
     df = pipein()
-    pipeout(df.eval(expr))
+    result = df.eval(expr)
+    if isinstance(result, pd.Series) and result.name is None:
+        result.name = slugify_name(expr)
+    pipeout(result)
 
 
 @register
@@ -1406,6 +1409,22 @@ def slugify_name(name):
         return "_"
     lead_under = name[0] == "_"
     trail_under = name[-1] == "_"
+
+    ops = {
+        "+": "plus",
+        "**": "exponent",
+        "*": "times",
+        "-": "minus",
+        "/": "div",
+        "%": "modulo",
+        ".": "dot",
+        ",": "comma",
+        "|": "or",
+        "&": "and",
+        "^": "hat",
+    }
+    for op, op_name in ops.items():
+        name = name.replace(op, f"_{op_name}_")
 
     name = name.strip().lower()
     unwanted = set(c for c in name if not c.isalnum())
